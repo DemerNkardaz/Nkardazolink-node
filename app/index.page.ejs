@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<%= navigatorLanguage %>">
   <base href="/" />
 
   <head>
@@ -11,7 +11,7 @@
   </head>
 
   <body>
-    <%- headerTemplate %><br />
+    <%- HEADER %>
 
     <h1><%= message %></h1>
     <%= userURL %><br />

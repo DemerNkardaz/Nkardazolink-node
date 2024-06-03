@@ -1,9 +1,12 @@
+
+const DIR = __dirname;
 const fs = require('fs');
 const express = require('express');
 const http = require('http');
 const path = require('path');
 const markdownIt = require('markdown-it');
 const app = express();
+const server = http.createServer((request, resource) => { app(request, resource) });
 const os = require('os');
 const md = markdownIt();
 const yaml = require('js-yaml');
@@ -21,12 +24,18 @@ const CC = (from, to, amount) => new Promise((resolve, reject) => {
     .catch(reject);
 });
 
-const USD_to_JPY = CC('USD', 'JPY', 100).then(result => console.log(result)).catch(console.error);
+//const USD_to_JPY = CC('USD', 'JPY', 100).then(result => console.log(result)).catch(console.error);
   
-const port = 3000;
 
-const DIR = __dirname;
-
+async function loadComponent(component, data) {
+  try {
+    const template = await ejs.renderFile(`app/${component}.ejs`, data);
+    return template;
+  }
+  catch (error) {
+    console.error(error);
+  }
+}
 
 
 app.use(express.static(path.join(DIR, 'public')));
@@ -36,24 +45,29 @@ app.set('views', path.join(DIR, 'app'));
 
 
 app.get('/', async (request, resource) => {
-  const headerTemplate = await ejs.renderFile('app/header.ejs', {
-    userURL: request.url,
-    navigatorLanguage: request.headers['accept-language']
-  });
+  try {
+    resource.setHeader('Content-Type', 'text/html; charset=utf-8');
+    const META = {
+      request: request,
+      userURL: request.url,
+      navigatorLanguage: request.headers['accept-language']
+    }
+    
+    const transferedData = {
+      title: 'Server-Side Rendering with Node.js',
+      message: 'Hello from the server!',
+      ...META,
+      HEADER: await loadComponent('header', META)
+    }
 
-  const transferedData = {
-    title: 'Server-Side Rendering with Node.js',
-    message: 'Hello from the server!',
-    request: request,
-    userURL: request.url,
-    navigatorLanguage: request.headers['accept-language'],
-    headerTemplate: headerTemplate
+
+    resource.render('index.page.ejs', transferedData);
   }
-
-
-  resource.render('index.page.ejs', transferedData);
+  catch (error) {
+    resource.render(error.message);
+  }
 });
 
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-});
+
+const [ PORT, HOST ] = [ 3000, 'localhost' ];
+server.listen(PORT, HOST, () => { console.log(`Server is running on http://${HOST}:${PORT}`) });
