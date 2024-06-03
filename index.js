@@ -16,7 +16,7 @@ const jzsip = require('jszip');
 const ejs = require('ejs');
 const { Readable } = require('stream');
 
-const DIR = path.resolve(__dirname);
+global.__PROJECT_DIR__ = path.resolve(__dirname);
 
 const sqlite3 = require('sqlite3').verbose();
 const dbPath = path.resolve(__dirname, 'data_base/index.db');
@@ -77,10 +77,10 @@ app.use((req, res, next) => {
 });
 
 
-app.use(express.static(path.join(DIR, 'public')));
+app.use(express.static(path.join(__PROJECT_DIR__, 'public')));
 
 app.set('view engine', 'ejs');
-app.set('views', path.join(DIR, 'app'));
+app.set('views', path.join(__PROJECT_DIR__, 'app'));
 
 
 global.__NK__ = {};
@@ -102,7 +102,7 @@ global.__NK__.langs.supported = Object.keys(__NK__.langs.list);
 const dataArray = [];
 __NK__.langs.supported.forEach(lang => { dataArray.push({ source: `./public/data/locale/common/main.${lang}.yaml`, as: `locale.${lang}` }) });
 
-DataExtend(dataArray, DIR)
+DataExtend(dataArray, __PROJECT_DIR__)
     .then(() => console.log('Data extension complete'))
     .catch(err => console.error('Error extending data:', err));
 
