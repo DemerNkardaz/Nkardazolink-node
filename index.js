@@ -3,6 +3,7 @@ const { DataExtend } = require('./app/hooks/DataExtend.js');
 const { StringHandling } = require('./app/hooks/StringHandling.js');
 const fs = require('fs');
 const express = require('express');
+const socketIO = require('socket.io');
 const cookieParser = require('cookie-parser');
 const path = require('path');
 const sassMiddleware = require('node-sass-middleware');
@@ -104,6 +105,7 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__PROJECT_DIR__, 'public')));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(express.json());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__PROJECT_DIR__, 'app'));
 
@@ -260,4 +262,4 @@ app.get('/wiki', async (request, response) => {
 
 
 const [ PORT, HOST ] = [ 3000, 'localhost' ];
-app.listen(PORT, () => { console.log(`Server is running on http://${HOST}:${PORT}`) });
+const server = app.listen(PORT, HOST, () => { console.log(`Server is running on http://${HOST}:${PORT}`) });
