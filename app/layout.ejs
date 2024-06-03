@@ -1,6 +1,4 @@
-<!DOCTYPE html><script>
-setTimeout(() => {
-  
+<script>
         const savedSettings = localStorage.getItem('savedSettings');
         console.log('Saved settings:', savedSettings);
         const POST = {
@@ -13,6 +11,5 @@ setTimeout(() => {
         if (savedSettings !== null) {
           fetch('/settings', POST).then(response => !response.ok ? console.error(response) : console.log(response)).then(result => console.log(result));
         }
-}, 100);
 </script>
-<html lang="<%= __SETTING_CONFIG__.get('lang') %>"><head><%- HEAD %></head><body><%- BODY %></body></html>
+<!DOCTYPE html><html lang="<%= __SETTING_CONFIG__.get('lang') %>"><head><%- HEAD %></head><body><%- BODY %></body></html>

@@ -99,7 +99,7 @@ app.use((req, res, next) => {
 
 
 app.use(express.static(path.join(__PROJECT_DIR__, 'public')));
-
+app.use(express.urlencoded({ extended: false }));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__PROJECT_DIR__, 'app'));
 
@@ -131,22 +131,30 @@ DataExtend(dataArray, __PROJECT_DIR__)
 global.__META__ = {};
 global.__SETTING_CONFIG__ = [];
 
+global.__STORAGE_GIVEN__ = false;
+
+app.use((request, response, next) => {
+  response.setHeader("X-Content-Type-Options", "nosniff");
+  response.setHeader('Content-Type', 'text/html; charset=utf-8');
+  next();
+});
+
 app.post('/settings', (req, res) => {
   const settingsData = req.body;
   console.log('Полученные настройки:', settingsData);
-  // Делайте здесь что-то с полученными настройками, например, сохраните их в базе данных
   res.send('Настройки успешно получены и обработаны.');
+  __STORAGE_GIVEN__ = true;
 });
+
 
 app.get('/', async (request, response) => {
   try {
-    response.setHeader('Content-Type', 'text/html; charset=utf-8');
     //const savedSettingsResponse = await fetch('/getSavedSettings');
     //const savedSettings = await savedSettingsResponse.json();
     
-    global.__META__.request = request;
-    global.__META__.userURL = request.url;
-    global.__META__.navigatorLanguage = request.headers['accept-language']
+    __META__.request = request;
+    __META__.userURL = request.url;
+    __META__.navigatorLanguage = request.headers['accept-language']
     const getNavigatorLanguage = __META__.navigatorLanguage.includes('-') ? __META__.navigatorLanguage.split('-')[0] : __META__.navigatorLanguage;
     __NK__.langs.navigatorLanguage = __NK__.langs.supported.includes(getNavigatorLanguage) ? getNavigatorLanguage : 'en';
 
