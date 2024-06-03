@@ -1,1 +1,13 @@
 <!DOCTYPE html><html lang="<%= __META__.navigatorLanguage %>"><head><%- HEAD %></head><body><%- BODY %></body></html>
+<script id="POST_LS">
+  const savedSettings = localStorage.getItem('savedSettings');
+  fetch('/savedSettings', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ savedSettings })
+  });
+  console.log('savedSettings', savedSettings || 'empty');
+  setTimeout(() => {document.getElementById('POST_LS').remove()}, 10);
+</script>

@@ -13,6 +13,7 @@ const yaml = require('js-yaml');
 const jsonpath = require('jsonpath');
 const $ = require('jquery');
 const jzsip = require('jszip');
+
 const ejs = require('ejs');
 
 const DIR = path.resolve(__dirname);
@@ -61,27 +62,33 @@ global.__NK__.langs.supported = Object.keys(__NK__.langs.list);
 
 
 const dataArray = [];
-global.__NK__.langs.supported.forEach(lang => { dataArray.push({ source: `./public/data/locale/common/main.${lang}.yaml`, as: `locale.${lang}` }) });
+__NK__.langs.supported.forEach(lang => { dataArray.push({ source: `./public/data/locale/common/main.${lang}.yaml`, as: `locale.${lang}` }) });
 
 DataExtend(dataArray, DIR)
     .then(() => console.log('Data extension complete'))
     .catch(err => console.error('Error extending data:', err));
 
 
-
-
-
 global.__META__ = {};
+global.__SETTING_CONFIG__ = [];
 
 
 app.get('/', async (request, response) => {
   try {
     response.setHeader('Content-Type', 'text/html; charset=utf-8');
+    //const savedSettingsResponse = await fetch('/getSavedSettings');
+    //const savedSettings = await savedSettingsResponse.json();
+
     global.__META__.request = request;
     global.__META__.userURL = request.url;
     global.__META__.navigatorLanguage = request.headers['accept-language']
     const getNavigatorLanguage = __META__.navigatorLanguage.includes('-') ? __META__.navigatorLanguage.split('-')[0] : __META__.navigatorLanguage;
     __NK__.langs.navigatorLanguage = __NK__.langs.supported.includes(getNavigatorLanguage) ? getNavigatorLanguage : 'en';
+
+    __SETTING_CONFIG__ = new Map([
+      ['lang', __NK__.langs.navigatorLanguage],
+    ]);
+
 
     const COMPONENT = {
       HEADER: await loadComponent('components/header'),
@@ -98,7 +105,6 @@ app.get('/', async (request, response) => {
     response.status(500).send(error.message);
   }
 });
-
 
 const [ PORT, HOST ] = [ 3000, 'localhost' ];
 server.listen(PORT, HOST, () => { console.log(`Server is running on http://${HOST}:${PORT}`) });
