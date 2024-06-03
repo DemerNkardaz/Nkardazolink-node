@@ -158,7 +158,6 @@ async function PagePrerender(pageTemplate, data) {
 }
 
 
-
 app.get('/', async (request, response) => {
   try {
     const cookies = {};
@@ -197,6 +196,7 @@ app.get('/', async (request, response) => {
         return null;
       }
     }
+    console.log(request.headers['accept-language']);
     const __META__ = {
       ...cookies,
       request: request,
@@ -216,7 +216,7 @@ app.get('/', async (request, response) => {
       }
     }
     
-    const getNavigatorLanguage = __META__.navigatorLanguage.includes('-') ? __META__.navigatorLanguage.split('-')[0] : __META__.navigatorLanguage;
+    const getNavigatorLanguage = __META__.navigatorLanguage.substring(0, 2); // Получаем первые две буквы языка
     __META__.navigatorLanguage = __NK__.langs.supported.includes(getNavigatorLanguage) ? getNavigatorLanguage : 'en';
 
     const __SETTING_CONFIG__ = new Map([

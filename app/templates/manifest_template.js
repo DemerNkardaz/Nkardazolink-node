@@ -1,4 +1,4 @@
-export const MANIFEST = {
+const MANIFEST = {
   id: 'com.demernkardaz.app',
   name: { ru: 'Нкардазолинк', en: 'Nkardazolink' },
   short_name: { ru: 'Нкардаз', en: 'Nkardaz', ja: 'ナカルダズ', zh: '尼卡尔达兹', ko: '니카르다즈', vi: 'Nkarđaz' },
@@ -56,4 +56,6 @@ export const MANIFEST = {
     { src: './screenshot720p_mob.webp', sizes: '324x720', type: 'image/webp', form_factor: 'narrow', platform: 'android' }
   ],
   serviceworker: { src: './serviceworker.js', scope: './', use_cache: true }
-}
+};
+
+module.exports = { MANIFEST };
