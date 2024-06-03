@@ -1,13 +1,6 @@
 require('dotenv').config();
 require('./nk.config.js');
 
-const app = express();
-
-global.__PROJECT_DIR__ = path.resolve(__dirname);
-
-const sqlite3 = require('sqlite3').verbose();
-const dbPath = path.resolve(__dirname, 'data_base/index.db');
-
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('Ошибка при открытии базы данных: ', err.message);
@@ -82,11 +75,9 @@ app.use(express.json());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__PROJECT_DIR__, 'app'));
 
-
-global.__NK__ = {};
-global.__NK__.url = [];
-global.__NK__.langs = {};
-global.__NK__.langs.list = {
+__NK__.url = [];
+__NK__.langs = {};
+__NK__.langs.list = {
   ru: { emoji: '🇷🇺', name: 'Русский' },
   en: { emoji: '🇬🇧', name: 'English' },
   ja: { emoji: '🇯🇵', name: '日本語' },
@@ -96,7 +87,7 @@ global.__NK__.langs.list = {
   mo: { emoji: '🇲🇩', name: 'Молдовеняскэ' },
   ro: { emoji: '🇷🇴', name: 'Română' },
 };
-global.__NK__.langs.supported = Object.keys(__NK__.langs.list);
+__NK__.langs.supported = Object.keys(__NK__.langs.list);
 
 
 const dataArray = [];

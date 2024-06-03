@@ -1,3 +1,9 @@
+Globals:
+  - __PROJECT_DIR__: 'path.resolve(__dirname)'
+  - __NK__: { }
+  - app: 'express()'
+  - sqlite3: 'require("sqlite3").verbose()'
+  - dbPath: 'path.resolve(__dirname, "data_base/index.db")'
 IndexDependencies:
   - fs: 'fs'
   - js-yaml: 'yaml'
@@ -7,14 +13,12 @@ IndexDependencies:
   - ejs: 'ejs'
   - url: '{ URL }'
   - stream: '{ Readable }'
-    
   - sass: 'sass'
   - cookie-parser: 'cookieParser'
   - jsonpath: 'jsonpath'
   - jszip: 'jzsip'
   - jquery: '$'
   - os: 'os'
-    
 ProjectDependencies:
   - ./app/hooks/DataExtend.js: '{ DataExtend }'
   - ./app/hooks/StringHandling.js: '{ StringHandling }'
