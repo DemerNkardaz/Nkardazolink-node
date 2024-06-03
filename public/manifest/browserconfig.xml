@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<browserconfig>
+    <msapplication>
+        <tile>
+            <square70x70logo src="./android/android_72x72.png"/>
+            <square150x150logo src="./android/android_192x192.png"/>
+            <wide310x150logo src="./android/android_192x192.png"/>
+            <square310x310logo src="./android/android_512x512.png"/>
+            <TileColor>#333333</TileColor>
+            <TileImage src="./android/android_512x512.png"/>
+            <description>Demer Nkardaz's personal website.</description>
+        </tile>
+        <task name="Demer Nkardaz" action-uri="/Nkardazolink/" icon-uri="./icon-shortcut-64x64.png"/>
+        <task name="Monjōshō | The Gallery of Crests" action-uri="/Nkardazolink/?mode=kamon" icon-uri="./icon-shortcut-64x64.png"/>
+        <task name="Sashimono Tenrankai | The Banners Exhibition" action-uri="/Nkardazolink/?mode=banners" icon-uri="./icon-shortcut-64x64.png"/>
+    </msapplication>
+</browserconfig>

@@ -1,0 +1,65 @@
+kamon:
+  rarities:
+    inferior: Низшие
+    common: Обычные
+    normal: Влиятельные
+    venerable: Почтенные
+    elite: Элита
+    grand: Благородные
+    regal: Регальные
+    great: Великие
+    legendary: Легендарные
+    divine: Божественные
+    mythical: Мифические
+    museiryoku: 無勢力
+    koshizoku: 小氏族
+    hirazoku: 平族
+    igenshi: 威厳氏
+    seimon: 勢門
+    monbatsu: 門閥
+    daimon: 大門
+    daitenshi: 大天氏
+    jinshi: 神氏
+    shinwashi: 神話氏
+DemerNkardaz: デメル・ナカルダズ
+Nkardaz:
+  name: デマル・ナカルダス
+  fursona: ケルタヒロヌ、原キャラ（化身
+  copyright: >-
+    &copy;&nbsp;${returnCopyright('CJK')}&#x3000;${nk.locale.get('Nkardaz.name')}・全著作権所有｜
+Skins:
+  Current: '現在の眺め：{{ ?skin-key }}'
+  Byakujou: 「白城」
+  Aoguro-no Getsu: 「青黒月」
+  Akatsuki-no Kurai: 「暁の暗い」
+  Sekiban: 「石盤」
+  Azumatsuyu: 「東露」
+Meta_Pereferences:
+  titles:
+    default: デメル・ナカルダズ・2D・3D・Писательство・Вёрстка
+    kamon: 家紋のじょうしょう-дзōсё | Галерея Монсё・Царства Шагора・Демер Нкардаз
+    banners: 挿物の展覧会
+    pattern: Моньё-тэнтō | Галерея Узора
+    cv2d: Демер Нкардаз・2D-Художник
+    cv3d: Демер Нкардаз・3D-Художник
+    webs: Веб-проекты | Галерея Ресурсов
+    mods: Моды | Галерея
+    license: 'Контентная лицензия [DN—License]'
+  meta:
+    desc:
+      default: "\U0001F9CA Портфолио и ссылки на контент-ресурсы: я писатель в жанре фэнтези, автор вселенной «Царства Шагора», Hard-Surface моделер, художник и верстальщик."
+      kamon: Коллекция восточных гербов фэнтезийной вселенной «Царства Шагора»
+      banners: Коллекция штандартов японских кланов вселенной «Царства Шагора»
+      pattern: Коллекция восточных орнаментов
+      cv2d: 'CV Демера Нкардаза, художника в области 2D'
+      cv3d: 'CV Демера Нкардаза, художника в области 3D'
+    image:
+      default: 'https://demernkardaz.github.io/Nkardazolink/resource/images/seo/img.png'
+inputs:
+  kamon_search: 紋章を探す。。。
+console: コンソール：システムユーザーインターフェイス
+Naeda_Kitetsugi: 菜枝 鬼鉄義
+Site_Title_Nkardaz: デメル・ナカルダズ・２Ｄ・３Ｄ・ピサツレスト・ヴォーストカ
+save_search_result: 検索入力を保存
+save_selected_item: 最後に選択したアイテムを保存
+turn_off_preloader: プレロードアニメーションをオフ

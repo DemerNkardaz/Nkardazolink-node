@@ -44,27 +44,29 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(DIR, 'app'));
 
 
-app.get('/', async (request, resource) => {
+
+app.get('/', async (request, response) => {
   try {
-    resource.setHeader('Content-Type', 'text/html; charset=utf-8');
+    response.setHeader('Content-Type', 'text/html; charset=utf-8');
     const META = {
       request: request,
       userURL: request.url,
       navigatorLanguage: request.headers['accept-language']
     }
-    
-    const transferedData = {
-      title: 'Server-Side Rendering with Node.js',
-      message: 'Hello from the server!',
-      ...META,
-      HEADER: await loadComponent('header', META)
+
+    const COMPONENT = {
+      HEADER: await loadComponent('components/header', META),
     }
 
+    const DOCUMENT = {
+      HEAD: await loadComponent('document/head', { ...META, ...COMPONENT }),
+      BODY: await loadComponent('document/body', { ...META, ...COMPONENT })
+    }
 
-    resource.render('index.page.ejs', transferedData);
-  }
-  catch (error) {
-    resource.render(error.message);
+    response.render('layout.ejs', { ...META, ...DOCUMENT });
+  } catch (error) {
+    console.error(error);
+    response.status(500).send(error.message);
   }
 });
 

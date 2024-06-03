@@ -1,0 +1,171 @@
+Nkardaz:
+  name: Demer Nkardaz
+  fursona: Khertahiron — Original Character (Person)
+  copyright: "Copyright&nbsp;&copy;&nbsp;{{ ?copy }}&nbsp;{{ Nkardaz.name }}. All rights reserved&ensp;|&ensp;"
+prevtest:
+  preview:
+    image:
+      src: >-
+        https://www.kcpinternational.com/wp-content/uploads/2023/02/Shogun-Tokugawa-Ieyasu.png
+      shift: center -100px
+      blur: ''
+      opacity: 1
+    content: |
+        {{ ?tooltip-h1: The Matsudaira Clan ^ resources/svg/japan/Mon_of_clan_Matsudaira@32px.png }}
+        <p>An ancient clan of Nihonshoto(⁛macron⁛){{ ?tooltip-quest: NihonshotoDesc^top-start^meta-nihon_0 }}, descending one's lineage from Minamoto, and to the elden tenno(⁛macron⁛).</p>
+        <p>Sed ut perspiciatis, unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt, explicabo. Nemo enim ipsam voluptatem, quia voluptas sit, aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos, qui ratione voluptatem sequi nesciunt, neque porro quisquam est, qui dolorem ipsum, quia dolor sit, amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt, ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit, qui in ea voluptate velit esse, quam nihil molestiae consequatur, vel illum, qui dolorem eum fugiat, quo voluptas nulla pariatur? At vero eos et accusamus et iusto odio dignissimos ducimus, qui blanditiis praesentium voluptatum deleniti atque corrupti, quos dolores et quas molestias excepturi sint, obcaecati cupiditate non provident, similique sunt in culpa, qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio, cumque nihil impedit, quo minus id, quod maxime placeat, facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet, ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat. </p>
+    subscript: Kyo(⁛macron⁛)to “Clans' chronicles”
+NihonshotoDesc: 'The eastern archipelago of Rising Sun, home of Yamato'
+Languages:
+  template: Language “$(place_0)”<br>$(place_1)
+  Russia: Russia
+  UK/USA: UK/USA
+  Japan: Japan
+  China: China
+  Korea: Korea
+  Vietnam: Vietnam
+  Moldova: Moldova
+  Romania: Romania
+links:
+  ContentLinks: 'The Co(⁛macron_z,0.175⁛)ntentum'
+  SocialLinks: The Socialus
+  Ficbook:
+    title: Ficbook
+    alt: Avatar on Ficbook
+    tooltip: '<span>The&nbsp;Wikipedia:“Black Clover”/Black Clover-?&nbsp;anime</span>'
+  AuthorToday:
+    title: Author.Today
+    alt: Avatar on Author.Today
+    tooltip: <span>Art by&nbsp;Google:@PeroPicnic/(PeroPicnic | Pero) (site:pixiv.net | site:x.com)-?&nbsp;@twitter@pixiv&nbsp;The&nbsp;Wikipedia:«Heike-monogatari»/The_Heike_Story_(anime)-?&nbsp;anime</span>
+  ArtStation:
+    title: ArtStation
+    alt: Avatar on ArtStation
+    tooltip: <span>The&nbsp;Wikipedia:Hachiman-?, The Shinto(⁛macron⁛) god of war</span>
+  ShagorRealms:
+    title: “Shagor Realms”
+    alt: “Shagor Realms” community's avatar
+    tooltip: '{{ links.ArtStation.tooltip }}'
+  DTF_Blog:
+    title: Blog on DTF
+    alt: Avatar of DTF Blog
+    tooltip: '<span>The&nbsp;Wikipedia:“Naruto”/Naruto-?&nbsp;anime</span>'
+  Naeda_Kitetsugi:
+    title: Naeda Kitetsugi
+    alt: Naeda Kitetsugi public's avatar
+    tooltip: '{{ Nkardaz.fursona }}'
+  Shikimori:
+    title: Shikimori
+    alt: Avatar on Shikimori
+    subscription: Manganime list
+    tooltip: '{{ links.DTF_Blog.tooltip }}'
+  Steam:
+    title: STEAM
+    alt: Avatar on STEAM
+    subscription: Games
+    tooltip: Hi
+Skins:
+  Current: 'Сurrent view: {{ ?skin }}'
+  Byakujou: '“Byakujo(⁛macron_0.255⁛)”{{ ja:Skins.Byakujou }}'
+  Aoguro-no Getsu: '“Aoguro-no Getsu”{{ ja:Skins.Aoguro-no Getsu }}'
+  Akatsuki-no Kurai: '“Akatsuki-no Kurai”{{ ja:Skins.Akatsuki-no Kurai }}'
+  Sekiban: '“Sekiban”{{ ja:Skins.Sekiban }}'
+  Azumatsuyu: '“Azumatsuyu”{{ ja:Skins.Azumatsuyu }}'
+ContentLinks: Content
+SocialLinks: Socialus
+Ficbook: Fickbook
+AuthorToday: Author.Today
+ArtStation: ArtStation
+ShagorRealms: “Shagor Realms”
+DTF_Blog: Blog on DTF
+Naeda_Kitetsugi: Naeda Kitetsugi
+Shikimori: Shikimori
+Shikimori_description: Manganime list
+Steam: STEAM
+Steam_description: Games
+Steam_Hi: Hi
+Anime_Naruto_Tooltip: “Naruto” Anime
+Anime_BlackClover_Tooltip: “Black Clover” Anime
+Anime_Heike-monogatari: 'Peropicnic artist, “Heike-monogatari” Anime'
+Hachiman-jin_Tooltip: 'Hachiman, The God of War'
+console: 'CONSOLE : System user interface'
+Site_Title_Nkardaz: Demer Nkardaz・2D・3D・Writer・Layout
+save_search_result: Save search input
+save_selected_item: Save last selected item
+turn_off_preloader: Turn off preloader animation
+OCKhertahiron: Hertahiron - Original Character (Persona)
+buttonLabels:
+  fullres: Open fullresolution image
+  fullres_off: Close fullresolution image
+inputs:
+  kamon_search: Search of symbols…
+Meta_Pereferences:
+  titles:
+    default: Демер Нкардаз・2D・3D・Писательство・Вёрстка
+    kamon: Мон-дзōсё | Галерея Монсё・Царства Шагора・Демер Нкардаз
+    banners: Сасимоно Тэнранкай | Выставка Штандартов
+    pattern: Моньё-тэнтō | Галерея Узора
+    cv2d: Демер Нкардаз・2D-Художник
+    cv3d: Демер Нкардаз・3D-Художник
+    webs: Веб-проекты | Галерея Ресурсов
+    mods: Моды | Галерея
+    license: 'Контентная лицензия [DN—License]'
+  meta:
+    desc:
+      default: "\U0001F9CA Портфолио и ссылки на контент-ресурсы: я писатель в жанре фэнтези, автор вселенной «Царства Шагора», Hard-Surface моделер, художник и верстальщик."
+      kamon: Коллекция восточных гербов фэнтезийной вселенной «Царства Шагора»
+      banners: Коллекция штандартов японских кланов вселенной «Царства Шагора»
+      pattern: Коллекция восточных орнаментов
+      cv2d: 'CV Демера Нкардаза, художника в области 2D'
+      cv3d: 'CV Демера Нкардаза, художника в области 3D'
+    image:
+      default: 'https://demernkardaz.github.io/Nkardazolink/resource/images/seo/img.png'
+    manifest: ./app/data/manifest/manifest.en.webmanifest
+kamon:
+  rarities:
+    inferior: Низшие
+    common: Обычные
+    normal: Влиятельные
+    venerable: Почтенные
+    elite: Элита
+    grand: Благородные
+    regal: Регальные
+    great: Великие
+    legendary: Легендарные
+    divine: Божественные
+    mythical: Мифические
+    museiryoku: Мусэйрёку
+    koshizoku: Косидзоку
+    hirazoku: Хирадзоку
+    igenshi: Игэн-си
+    seimon: Сэймон
+    monbatsu: Момбацу
+    daimon: Даймон
+    daitenshi: Дайтэнси
+    jinshi: Дзинси
+    shinwashi: Синва-си
+  rarity_descriptions:
+    museiryoku: Кланы с низким статусом.
+    koshizoku: Небогатые и небольшие кланы.
+    hirazoku: Кланы среднего или высокого статуса.
+    igenshi: Кланы почтенного статуса.
+    seimon: Влиятельные рода.
+    monbatsu: 'Знатные рода высокого статуса, нередко правители регионов'
+    daimon: 'Великие рода, правящие большими территориями.'
+    daitenshi: 'Легендарнейшие из родов, когда-либо бывших в мире.'
+    jinshi: Божественные рода.
+    shinwashi: ''
+dropdown:
+  music_attribution: |
+    {{ ?drop-head: Attribution : Ambient ^ attribution }}
+    <div>
+      This music was created by <a href="https://pixabay.com/users/valentineseasons-38534292/" target="_blank">ValentineSeasons | Pixabay</a>
+    </div>
+    Композиции:
+    <ul>
+      <li>
+        <a href="https://pixabay.com/music/world-missing-in-wind-japanese-ancient-flute-simulate-wind-sound-166932/" target="_blank">«ValentineSeasons — Missing in wind»</a>
+      </li>
+      <li>
+        <a href="https://pixabay.com/music/world-sakura-dance-background-music-traditional-japanese-165338/" target="_blank">«ValentineSeasons — Sakura dance»</a>
+      </li>
+    </ul>

@@ -1,0 +1,4 @@
+linkIcon: <a class="inline-link-icon" href="$(place_link)" target="_blank"><img class="me-2" width="20px" alt="" src="$(place_img)">$(place_text)</a>
+
+
+
