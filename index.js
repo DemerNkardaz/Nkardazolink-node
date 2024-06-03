@@ -144,10 +144,18 @@ const VALID_SELECTED = ['2d', '3d'];
 
 app.get('/', async (request, response) => {
   try {
-    const cookiePromises = VALID_COOKIES.map(async (cookie) => { return request.cookies[cookie] ? { [cookie]: request.cookies[cookie] } : null });
-    const cookies = await Promise.all(cookiePromises);
-    const userCookie = cookies.reduce((acc, cookie) => { cookie && Object.assign(acc, cookie); return acc; }, {});
-    console.log(userCookie);
+    const cookies = {};
+    for (const cookieName in request.cookies) {
+      for (const validCookie of VALID_COOKIES) {
+        if (cookieName.startsWith(validCookie)) {
+          const cookieKey = cookieName.split('.')[0]; // Получаем первую часть куки (до точки)
+          const cookieValue = request.cookies[cookieName];
+          cookies[cookieKey] = cookies[cookieKey] || {};
+          cookies[cookieKey][cookieName.substring(cookieKey.length + 1)] = cookieValue;
+        }
+      }
+    }
+    console.log(cookies);
 
     async function parseUrl() {
       try {
@@ -162,7 +170,6 @@ app.get('/', async (request, response) => {
           urlParamsObject[key] = value;
         }
 
-        // Если объект пустой, возвращаем null
         if (Object.keys(urlParamsObject).length === 0) {
           return null;
         }
@@ -173,14 +180,13 @@ app.get('/', async (request, response) => {
         return null;
       }
     }
-    
     const __META__ = {
-      cookies: userCookie,
+      ...cookies,
       request: request,
       userURL: request.url,
       navigatorLanguage: request.headers['accept-language'],
       urlModes: await parseUrl(),
-    }; console.log(__META__.urlModes);
+    };
     
     if (__META__.urlModes !== null) {
       if (
@@ -201,7 +207,6 @@ app.get('/', async (request, response) => {
 
 
     const __COMPILED_PACK = { __META__, __SETTING_CONFIG__ };
-    //console.log(__COMPILED_PACK);
 
     const COMPONENT = {
       HEADER: await loadComponent('components/header', { ...__COMPILED_PACK }),
