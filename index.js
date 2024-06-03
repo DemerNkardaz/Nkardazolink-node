@@ -1,5 +1,5 @@
+const { DataExtend } = require('./app/hooks/DataExtend.js');
 
-const DIR = __dirname;
 const fs = require('fs');
 const express = require('express');
 const http = require('http');
@@ -15,6 +15,7 @@ const $ = require('jquery');
 const jzsip = require('jszip');
 const ejs = require('ejs');
 
+const DIR = path.resolve(__dirname);
 
 const currencyConverter = require('currency-converter-lt');
 const CC = (from, to, amount) => new Promise((resolve, reject) => {
@@ -29,7 +30,7 @@ const CC = (from, to, amount) => new Promise((resolve, reject) => {
 
 async function loadComponent(component, data) {
   try {
-    const template = await ejs.renderFile(`app/${component}.ejs`, data);
+    const template = await ejs.renderFile(`app/${component}.ejs`, data || {});
     return template;
   }
   catch (error) {
@@ -44,26 +45,54 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(DIR, 'app'));
 
 
+global.__NK__ = {};
+global.__NK__.langs = {};
+global.__NK__.langs.list = {
+  ru: { emoji: '🇷🇺', name: 'Русский' },
+  en: { emoji: '🇬🇧', name: 'English' },
+  ja: { emoji: '🇯🇵', name: '日本語' },
+  zh: { emoji: '🇨🇳', name: '简体中文' },
+  ko: { emoji: '🇰🇷', name: '한국어' },
+  vi: { emoji: '🇻🇳', name: 'Tiếng Việt' },
+  mo: { emoji: '🇲🇩', name: 'Молдовеняскэ' },
+  ro: { emoji: '🇷🇴', name: 'Română' },
+};
+global.__NK__.langs.supported = Object.keys(__NK__.langs.list);
+
+
+const dataArray = [];
+global.__NK__.langs.supported.forEach(lang => { dataArray.push({ source: `./public/data/locale/common/main.${lang}.yaml`, as: `locale.${lang}` }) });
+
+DataExtend(dataArray, DIR)
+    .then(() => console.log('Data extension complete'))
+    .catch(err => console.error('Error extending data:', err));
+
+
+
+
+
+global.__META__ = {};
+
 
 app.get('/', async (request, response) => {
   try {
     response.setHeader('Content-Type', 'text/html; charset=utf-8');
-    const META = {
-      request: request,
-      userURL: request.url,
-      navigatorLanguage: request.headers['accept-language']
-    }
+    global.__META__.request = request;
+    global.__META__.userURL = request.url;
+    global.__META__.navigatorLanguage = request.headers['accept-language']
+    const getNavigatorLanguage = __META__.navigatorLanguage.includes('-') ? __META__.navigatorLanguage.split('-')[0] : __META__.navigatorLanguage;
+    __NK__.langs.navigatorLanguage = __NK__.langs.supported.includes(getNavigatorLanguage) ? getNavigatorLanguage : 'en';
 
     const COMPONENT = {
-      HEADER: await loadComponent('components/header', META),
+      HEADER: await loadComponent('components/header'),
     }
 
     const DOCUMENT = {
-      HEAD: await loadComponent('document/head', { ...META, ...COMPONENT }),
-      BODY: await loadComponent('document/body', { ...META, ...COMPONENT })
+      HEAD: await loadComponent('document/head', { ...COMPONENT }),
+      BODY: await loadComponent('document/body', { ...COMPONENT })
     }
 
-    response.render('layout.ejs', { ...META, ...DOCUMENT });
+    response.render('layout.ejs', { ...DOCUMENT });
   } catch (error) {
     console.error(error);
     response.status(500).send(error.message);
