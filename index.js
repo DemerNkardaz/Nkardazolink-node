@@ -10,7 +10,7 @@ app.get('/', (req, res) => {
     res.render('index.page.ejs', { title: 'Server-Side Rendering with Node.js', message: 'Hello from the server!' });
 });
 
-// Запуск сервера
+
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
