@@ -1,5 +1,5 @@
+require('dotenv').config();
 const { DataExtend } = require('./app/hooks/DataExtend.js');
-
 const fs = require('fs');
 const express = require('express');
 const path = require('path');
