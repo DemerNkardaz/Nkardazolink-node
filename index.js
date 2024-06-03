@@ -3,6 +3,8 @@ const { DataExtend } = require('./app/hooks/DataExtend.js');
 const fs = require('fs');
 const express = require('express');
 const path = require('path');
+const sassMiddleware = require('node-sass-middleware');
+const sass = require('sass');
 const markdownIt = require('markdown-it');
 const app = express();
 const os = require('os');
@@ -12,11 +14,12 @@ const jsonpath = require('jsonpath');
 const $ = require('jquery');
 const jzsip = require('jszip');
 const ejs = require('ejs');
+const { Readable } = require('stream');
 
 const DIR = path.resolve(__dirname);
 
 const sqlite3 = require('sqlite3').verbose();
-const dbPath = require('path').resolve(__dirname, 'data_base/index.db');
+const dbPath = path.resolve(__dirname, 'data_base/index.db');
 
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
@@ -47,6 +50,31 @@ async function loadComponent(component, data) {
     console.error(error);
   }
 }
+
+app.use((req, res, next) => {
+    if (req.url.endsWith('.css')) {
+        res.setHeader('Content-Type', 'text/css');
+        const scssFilePath = path.join(__dirname, 'app', 'styles', req.url.replace('.css', '.scss'));
+
+        if (fs.existsSync(scssFilePath)) {
+            // Компилируем SCSS в CSS на лету
+            const result = sass.compile(scssFilePath, { style: 'compressed' });
+
+            // Создаем Readable stream с результатом компиляции
+            const stream = new Readable();
+            stream._read = () => {};
+            stream.push(result.css);
+            stream.push(null);
+
+            // Отправляем скомпилированный CSS клиенту
+            stream.pipe(res);
+        } else {
+            next();
+        }
+    } else {
+        next();
+    }
+});
 
 
 app.use(express.static(path.join(DIR, 'public')));
