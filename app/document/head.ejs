@@ -16,7 +16,7 @@
   <meta name="geo.region" content="MD" />
   <meta name="geo.placename" content="Chișinău" />
 
-  <base href="/" />
+  <base href="./" />
   <title>
 
   </title>
@@ -26,14 +26,15 @@
   %>
 
   <% desktopSizes.forEach(size => { %>
-    <link rel="icon" href="./manifest/desktop/desktop-<%= size %>x<%= size %>.png" sizes="<%= size %>x<%= size %>" type="image/png">
-    <link rel="shortcut icon" href="./manifest/desktop/desktop-<%= size %>x<%= size %>.png" sizes="<%= size %>x<%= size %>" type="image/png">
+    <link rel="icon" href="/manifest/desktop/desktop-<%= size %>x<%= size %>.png" sizes="<%= size %>x<%= size %>" type="image/png">
+    <link rel="shortcut icon" href="/manifest/desktop/desktop-<%= size %>x<%= size %>.png" sizes="<%= size %>x<%= size %>" type="image/png">
   <% }); %>
 
   <% iOSSizes.forEach(size => { %>
-    <link rel="apple-touch-icon" href="./manifest/iOS/iOS-<%= size %>.png" sizes="<%= size %>x<%= size %>">
+    <link rel="apple-touch-icon" href="/manifest/iOS/iOS-<%= size %>.png" sizes="<%= size %>x<%= size %>">
   <% }); %>
 
 
-  <script type="text/javascript" src="script/client_components_reg.js"></script>
-  <link rel="stylesheet" href="index.css" />
+  <script type="text/javascript" src="/script/client_components_reg.js"></script>
+  <link rel="stylesheet" href="/index.css" />
+  <link rel="stylesheet" href="/skins/sekiban.css" />

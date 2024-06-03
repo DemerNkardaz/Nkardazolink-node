@@ -57,19 +57,40 @@ app.use((req, res, next) => {
         const scssFilePath = path.join(__dirname, 'app', 'styles', req.url.replace('.css', '.scss'));
 
         if (fs.existsSync(scssFilePath)) {
-            // Компилируем SCSS в CSS на лету
             const result = sass.compile(scssFilePath, { style: 'compressed' });
 
-            // Создаем Readable stream с результатом компиляции
             const stream = new Readable();
             stream._read = () => {};
             stream.push(result.css);
             stream.push(null);
 
-            // Отправляем скомпилированный CSS клиенту
             stream.pipe(res);
         } else {
-            next();
+            const scssSkinFilePath = path.join(__dirname, 'app', 'styles', 'skins', req.url.replace('.css', '.scss'));
+            if (fs.existsSync(scssSkinFilePath)) {
+                const child = spawn('node', ['-e', `
+                    const sass = require('sass');
+                    const fs = require('fs');
+                    const scssFilePath = '${scssSkinFilePath}';
+                    const result = sass.compile(scssFilePath, { style: 'compressed' });
+                    process.stdout.write(result.css);
+                `]);
+
+                child.stdout.on('data', (data) => {
+                    res.write(data);
+                });
+
+                child.on('close', (code) => {
+                    res.end();
+                });
+
+                child.stderr.on('data', (data) => {
+                    console.error(`Ошибка: ${data}`);
+                    res.status(500).send('Ошибка компиляции SCSS');
+                });
+            } else {
+                next();
+            }
         }
     } else {
         next();
