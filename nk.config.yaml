@@ -1,0 +1,20 @@
+IndexDependencies:
+  - fs: 'fs'
+  - js-yaml: 'yaml'
+  - path: 'path'
+  - express: 'express'
+  - socket.io: 'socketIO'
+  - ejs: 'ejs'
+  - url: '{ URL }'
+  - stream: '{ Readable }'
+    
+  - sass: 'sass'
+  - cookie-parser: 'cookieParser'
+  - jsonpath: 'jsonpath'
+  - jszip: 'jzsip'
+  - jquery: '$'
+  - os: 'os'
+    
+ProjectDependencies:
+  - ./app/hooks/DataExtend.js: '{ DataExtend }'
+  - ./app/hooks/StringHandling.js: '{ StringHandling }'

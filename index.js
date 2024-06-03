@@ -1,24 +1,7 @@
 require('dotenv').config();
-const { DataExtend } = require('./app/hooks/DataExtend.js');
-const { StringHandling } = require('./app/hooks/StringHandling.js');
-const fs = require('fs');
-const express = require('express');
-const socketIO = require('socket.io');
-const cookieParser = require('cookie-parser');
-const path = require('path');
-const sassMiddleware = require('node-sass-middleware');
-const sass = require('sass');
-const markdownIt = require('markdown-it');
+require('./nk.config.js');
+
 const app = express();
-const os = require('os');
-const md = markdownIt();
-const yaml = require('js-yaml');
-const jsonpath = require('jsonpath');
-const $ = require('jquery');
-const jzsip = require('jszip');
-const ejs = require('ejs');
-const { Readable } = require('stream');
-const { URL } = require('url');
 
 global.__PROJECT_DIR__ = path.resolve(__dirname);
 
@@ -34,16 +17,6 @@ const db = new sqlite3.Database(dbPath, (err) => {
 });
 
 
-const currencyConverter = require('currency-converter-lt');
-const CC = (from, to, amount) => new Promise((resolve, reject) => {
-  new currencyConverter({ from, to, amount })
-    .convert()
-    .then(resolve)
-    .catch(reject);
-});
-
-//const USD_to_JPY = CC('USD', 'JPY', 100).then(result => console.log(result)).catch(console.error);
-  
 
 async function loadComponent(component, data) {
   try {
@@ -143,11 +116,19 @@ app.use((request, response, next) => {
 });
 
 
-const VALID_COOKIES = ['savedSettings', 'latestCommands', 'selectedItems'];
+const VALID_COOKIES = ['savedSettings', 'latestCommands', 'selectedItems', 'NK'];
 const VALID_MODES = ['kamon', 'banners', 'clans', 'cv', 'landing', 'tree', 'license', 'pattern', 'reader'];
 const VALID_SELECTED = ['2d', '3d'];
 
-
+function generateUserId(length) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let userId = '';
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        userId += characters.charAt(randomIndex);
+    }
+    return userId;
+}
 
 async function PagePrerender(pageTemplate, data) {
   try {
