@@ -184,10 +184,11 @@ app.get('/', async (request, response) => {
       ...cookies,
       request: request,
       userURL: request.url,
+      userDevice: os.platform(),
       navigatorLanguage: request.headers['accept-language'],
       urlModes: await parseUrl(),
     };
-    
+    console.log(__META__.userDevice);
     if (__META__.urlModes !== null) {
       if (
         __META__.urlModes.mode && !VALID_MODES.includes(__META__.urlModes.mode) ||
@@ -206,18 +207,18 @@ app.get('/', async (request, response) => {
     ]);
 
 
-    const __COMPILED_PACK = { __META__, __SETTING_CONFIG__ };
+    const __COMPILED_DATA = { __META__, __SETTING_CONFIG__ };
 
     const COMPONENT = {
-      HEADER: await loadComponent('components/header', { ...__COMPILED_PACK }),
+      HEADER: await loadComponent('components/header', { ...__COMPILED_DATA }),
     }
 
     const DOCUMENT = {
-      HEAD: await loadComponent('document/head', { ...COMPONENT, ...__COMPILED_PACK }),
-      BODY: await loadComponent('document/body', { ...COMPONENT, ...__COMPILED_PACK }),
+      HEAD: await loadComponent('document/head', { ...COMPONENT, ...__COMPILED_DATA }),
+      BODY: await loadComponent('document/body', { ...COMPONENT, ...__COMPILED_DATA }),
     }
 
-    response.render('layout.ejs', { ...DOCUMENT, ...__COMPILED_PACK });
+    response.render('layout.ejs', { ...DOCUMENT, ...__COMPILED_DATA });
   } catch (error) {
     console.error(error);
     response.status(500).send(error.message);
