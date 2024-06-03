@@ -2,21 +2,30 @@ const { DataExtend } = require('./app/hooks/DataExtend.js');
 
 const fs = require('fs');
 const express = require('express');
-const http = require('http');
 const path = require('path');
 const markdownIt = require('markdown-it');
 const app = express();
-const server = http.createServer((request, resource) => { app(request, resource) });
 const os = require('os');
 const md = markdownIt();
 const yaml = require('js-yaml');
 const jsonpath = require('jsonpath');
 const $ = require('jquery');
 const jzsip = require('jszip');
-
 const ejs = require('ejs');
 
 const DIR = path.resolve(__dirname);
+
+const sqlite3 = require('sqlite3').verbose();
+const dbPath = require('path').resolve(__dirname, 'data_base/index.db');
+
+const db = new sqlite3.Database(dbPath, (err) => {
+  if (err) {
+    console.error('Ошибка при открытии базы данных: ', err.message);
+  } else {
+    console.log('Успешно подключено к базе данных SQLite');
+  }
+});
+
 
 const currencyConverter = require('currency-converter-lt');
 const CC = (from, to, amount) => new Promise((resolve, reject) => {
@@ -47,6 +56,7 @@ app.set('views', path.join(DIR, 'app'));
 
 
 global.__NK__ = {};
+global.__NK__.url = [];
 global.__NK__.langs = {};
 global.__NK__.langs.list = {
   ru: { emoji: '🇷🇺', name: 'Русский' },
@@ -72,13 +82,19 @@ DataExtend(dataArray, DIR)
 global.__META__ = {};
 global.__SETTING_CONFIG__ = [];
 
+app.post('/settings', (req, res) => {
+  const settingsData = req.body;
+  console.log('Полученные настройки:', settingsData);
+  // Делайте здесь что-то с полученными настройками, например, сохраните их в базе данных
+  res.send('Настройки успешно получены и обработаны.');
+});
 
 app.get('/', async (request, response) => {
   try {
     response.setHeader('Content-Type', 'text/html; charset=utf-8');
     //const savedSettingsResponse = await fetch('/getSavedSettings');
     //const savedSettings = await savedSettingsResponse.json();
-
+    
     global.__META__.request = request;
     global.__META__.userURL = request.url;
     global.__META__.navigatorLanguage = request.headers['accept-language']
@@ -87,6 +103,7 @@ app.get('/', async (request, response) => {
 
     __SETTING_CONFIG__ = new Map([
       ['lang', __NK__.langs.navigatorLanguage],
+      []
     ]);
 
 
@@ -107,4 +124,4 @@ app.get('/', async (request, response) => {
 });
 
 const [ PORT, HOST ] = [ 3000, 'localhost' ];
-server.listen(PORT, HOST, () => { console.log(`Server is running on http://${HOST}:${PORT}`) });
+app.listen(PORT, () => { console.log(`Server is running on http://${HOST}:${PORT}`) });
