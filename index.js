@@ -1,5 +1,6 @@
 require('dotenv').config();
 const { DataExtend } = require('./app/hooks/DataExtend.js');
+const { StringHandling } = require('./app/hooks/StringHandling.js');
 const fs = require('fs');
 const express = require('express');
 const cookieParser = require('cookie-parser');
@@ -142,6 +143,22 @@ const VALID_COOKIES = ['savedSettings', 'latestCommands', 'selectedItems'];
 const VALID_MODES = ['kamon', 'banners', 'clans', 'cv', 'landing', 'tree', 'license', 'pattern', 'reader'];
 const VALID_SELECTED = ['2d', '3d'];
 
+
+
+async function PagePrerender(pageTemplate, data) {
+  try {
+    const template = await ejs.renderFile(`app/${pageTemplate}.ejs`, data || {});
+    const processedPage = eval('`' + await StringHandling(template) + '`');
+
+    return processedPage;
+  } catch (error) {
+    console.error('Ошибка при обработке страницы:', error);
+    return null;
+  }
+}
+
+
+
 app.get('/', async (request, response) => {
   try {
     const cookies = {};
@@ -218,7 +235,9 @@ app.get('/', async (request, response) => {
       BODY: await loadComponent('document/body', { ...COMPONENT, ...__COMPILED_DATA }),
     }
 
-    response.render('layout.ejs', { ...DOCUMENT, ...__COMPILED_DATA });
+    const Builded = await PagePrerender('layout', { ...DOCUMENT, ...__COMPILED_DATA });
+
+    response.send(Builded);
   } catch (error) {
     console.error(error);
     response.status(500).send(error.message);
