@@ -203,6 +203,7 @@ app.get('/', async (request, response) => {
       ...cookies,
       request: request,
       userURL: request.url,
+      fullURL: `${request.protocol}://${request.get('host')}${request.url}`,
       userDevice: os.platform(),
       navigatorLanguage: request.headers['accept-language'],
       urlModes: await parseUrl(),
@@ -245,6 +246,18 @@ app.get('/', async (request, response) => {
     response.status(500).send(error.message);
   }
 });
+
+
+app.get('/wiki', async (request, response) => {
+  try {
+
+    response.send('Future WIKI Section')
+  } catch (error) {
+    console.error(error);
+    response.status(500).send(error.message);
+  }
+});
+
 
 const [ PORT, HOST ] = [ 3000, 'localhost' ];
 app.listen(PORT, () => { console.log(`Server is running on http://${HOST}:${PORT}`) });
