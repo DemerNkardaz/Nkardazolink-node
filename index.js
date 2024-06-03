@@ -2,6 +2,7 @@ require('dotenv').config();
 const { DataExtend } = require('./app/hooks/DataExtend.js');
 const fs = require('fs');
 const express = require('express');
+const cookieParser = require('cookie-parser');
 const path = require('path');
 const sassMiddleware = require('node-sass-middleware');
 const sass = require('sass');
@@ -15,6 +16,7 @@ const $ = require('jquery');
 const jzsip = require('jszip');
 const ejs = require('ejs');
 const { Readable } = require('stream');
+const { URL } = require('url');
 
 global.__PROJECT_DIR__ = path.resolve(__dirname);
 
@@ -100,6 +102,7 @@ app.use((req, res, next) => {
 
 app.use(express.static(path.join(__PROJECT_DIR__, 'public')));
 app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__PROJECT_DIR__, 'app'));
 
@@ -128,52 +131,88 @@ DataExtend(dataArray, __PROJECT_DIR__)
     .catch(err => console.error('Error extending data:', err));
 
 
-global.__META__ = {};
-global.__SETTING_CONFIG__ = [];
-
-global.__STORAGE_GIVEN__ = false;
-
 app.use((request, response, next) => {
   response.setHeader("X-Content-Type-Options", "nosniff");
   response.setHeader('Content-Type', 'text/html; charset=utf-8');
   next();
 });
 
-app.post('/settings', (req, res) => {
-  const settingsData = req.body;
-  console.log('Полученные настройки:', settingsData);
-  res.send('Настройки успешно получены и обработаны.');
-  __STORAGE_GIVEN__ = true;
-});
 
+const VALID_COOKIES = ['savedSettings', 'latestCommands', 'selectedItems'];
+const VALID_MODES = ['kamon', 'banners', 'clans', 'cv', 'landing', 'tree', 'license', 'pattern', 'reader'];
+const VALID_SELECTED = ['2d', '3d'];
 
 app.get('/', async (request, response) => {
   try {
-    //const savedSettingsResponse = await fetch('/getSavedSettings');
-    //const savedSettings = await savedSettingsResponse.json();
-    
-    __META__.request = request;
-    __META__.userURL = request.url;
-    __META__.navigatorLanguage = request.headers['accept-language']
-    const getNavigatorLanguage = __META__.navigatorLanguage.includes('-') ? __META__.navigatorLanguage.split('-')[0] : __META__.navigatorLanguage;
-    __NK__.langs.navigatorLanguage = __NK__.langs.supported.includes(getNavigatorLanguage) ? getNavigatorLanguage : 'en';
+    const cookiePromises = VALID_COOKIES.map(async (cookie) => { return request.cookies[cookie] ? { [cookie]: request.cookies[cookie] } : null });
+    const cookies = await Promise.all(cookiePromises);
+    const userCookie = cookies.reduce((acc, cookie) => { cookie && Object.assign(acc, cookie); return acc; }, {});
+    console.log(userCookie);
 
-    __SETTING_CONFIG__ = new Map([
-      ['lang', __NK__.langs.navigatorLanguage],
-      []
+    async function parseUrl() {
+      try {
+        const protocol = request.protocol;
+        const host = request.get('host');
+        const urlPath = `${protocol}://${host}${request.url}`;
+        const urlObject = new URL(urlPath);
+        const urlSearchParams = urlObject.searchParams;
+
+        const urlParamsObject = {};
+        for (const [key, value] of urlSearchParams.entries()) {
+          urlParamsObject[key] = value;
+        }
+
+        // Если объект пустой, возвращаем null
+        if (Object.keys(urlParamsObject).length === 0) {
+          return null;
+        }
+
+        return urlParamsObject;
+      } catch (error) {
+        console.error(error);
+        return null;
+      }
+    }
+    
+    const __META__ = {
+      cookies: userCookie,
+      request: request,
+      userURL: request.url,
+      navigatorLanguage: request.headers['accept-language'],
+      urlModes: await parseUrl(),
+    }; console.log(__META__.urlModes);
+    
+    if (__META__.urlModes !== null) {
+      if (
+        __META__.urlModes.mode && !VALID_MODES.includes(__META__.urlModes.mode) ||
+        __META__.urlModes.select && !VALID_SELECTED.includes(__META__.urlModes.select)
+      ) {
+        response.redirect('/');
+        return;
+      }
+    }
+    
+    const getNavigatorLanguage = __META__.navigatorLanguage.includes('-') ? __META__.navigatorLanguage.split('-')[0] : __META__.navigatorLanguage;
+    __META__.navigatorLanguage = __NK__.langs.supported.includes(getNavigatorLanguage) ? getNavigatorLanguage : 'en';
+
+    const __SETTING_CONFIG__ = new Map([
+      ['lang', __META__.navigatorLanguage],
     ]);
 
 
+    const __COMPILED_PACK = { __META__, __SETTING_CONFIG__ };
+    //console.log(__COMPILED_PACK);
+
     const COMPONENT = {
-      HEADER: await loadComponent('components/header'),
+      HEADER: await loadComponent('components/header', { ...__COMPILED_PACK }),
     }
 
     const DOCUMENT = {
-      HEAD: await loadComponent('document/head', { ...COMPONENT }),
-      BODY: await loadComponent('document/body', { ...COMPONENT })
+      HEAD: await loadComponent('document/head', { ...COMPONENT, ...__COMPILED_PACK }),
+      BODY: await loadComponent('document/body', { ...COMPONENT, ...__COMPILED_PACK }),
     }
 
-    response.render('layout.ejs', { ...DOCUMENT });
+    response.render('layout.ejs', { ...DOCUMENT, ...__COMPILED_PACK });
   } catch (error) {
     console.error(error);
     response.status(500).send(error.message);
