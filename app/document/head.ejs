@@ -1,3 +1,8 @@
+<% 
+  const URLMODE = __META__.urlModes ? __META__.urlModes.mode : 'default';
+  const TITLE = locale[__META__.navigatorLanguage].Meta_Pereferences.titles[URLMODE];
+  const PAGE_URL = locale.common.Meta_Pereferences.meta.url[URLMODE];
+%>
 <!DOCTYPE html>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta charset="UTF-8" />
@@ -17,9 +22,15 @@
   <meta name="geo.placename" content="Chișinău" />
 
   <base href="./" />
-  <title>
 
-  </title>
+
+  <!-- ***** OG:META *****-->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="<%= TITLE %>" data-key="Meta_Pereferences.titles.<%= URLMODE %>">
+  <meta property="og:url" content="<%= PAGE_URL %>" data-key="Meta_Pereferences.meta.url.<%= URLMODE %>">
+
+
+  <title data-key="Meta_Pereferences.titles.<%= URLMODE %>"><%= TITLE %></title>
   <% 
     const desktopSizes = [16, 32, 64, 128, 256, 512];
     const iOSSizes = [16, 20, 32, 64, 72, 128, 144, 192, 256, 512, 1024];
@@ -35,6 +46,7 @@
   <% }); %>
 
   <link rel="manifest" href="/manifest/manifest.<%= __META__.navigatorLanguage %>.webmanifest">
+  <link ref="test" href="<%= locale[`${__META__.navigatorLanguage}`]['Nkardaz']['name'] %>"
 
 
   <script type="module" src="/script/index.client.js"></script>

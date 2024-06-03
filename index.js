@@ -126,6 +126,8 @@ global.__NK__.langs.supported = Object.keys(__NK__.langs.list);
 
 const dataArray = [];
 __NK__.langs.supported.forEach(lang => { dataArray.push({ source: `./public/data/locale/common/main.${lang}.yaml`, as: `locale.${lang}` }) });
+dataArray.push({ source: `./public/data/locale/common/asset.common.yaml`, as: `locale.common` });
+dataArray.push({ source: `./public/data/locale/common/asset.templates.yaml`, as: `locale.templates` });
 
 DataExtend(dataArray, __PROJECT_DIR__)
     .then(() => console.log('Data extension complete'))
@@ -205,6 +207,7 @@ app.get('/', async (request, response) => {
       navigatorLanguage: request.headers['accept-language'],
       urlModes: await parseUrl(),
     };
+    
     console.log(__META__.userDevice);
     if (__META__.urlModes !== null) {
       if (
@@ -222,7 +225,6 @@ app.get('/', async (request, response) => {
     const __SETTING_CONFIG__ = new Map([
       ['lang', __META__.navigatorLanguage],
     ]);
-
 
     const __COMPILED_DATA = { __META__, __SETTING_CONFIG__ };
 
