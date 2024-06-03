@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js",
-    "build": ""
+    "dev": "concurrently \"nodemon index.js\" \"node build_manifest.js\"",
+    "build": "node build_manifest.js"
   },
   "keywords": [],
   "author": "",
