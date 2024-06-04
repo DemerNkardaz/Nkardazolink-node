@@ -1,5 +1,3 @@
-const { PostProcessor } = require('./app/scripts/PostProcessor.js');
-
 require('dotenv').config();
 require('./nk.config.js');
 
@@ -133,6 +131,26 @@ function generateUserId(length) {
 
 
 
+async function getLastModifiedInFolders() {
+    try {
+        const paths = ['./', './app', './public'];
+        const lastModifiedDates = await Promise.all(paths.map(async folderPath => {
+            const files = await fs.promises.readdir(folderPath);
+            const lastModifiedDates = await Promise.all(files.map(async file => {
+                const filePath = path.join(folderPath, file);
+                const stats = await fs.promises.stat(filePath);
+                return stats.mtime;
+            }));
+            return Math.max(...lastModifiedDates);
+        }));
+        return Math.max(...lastModifiedDates);
+    } catch (error) {
+        console.error('Ошибка при получении даты последнего обновления:', error);
+        throw error;
+    }
+}
+
+
 async function loadComponent(component, data, renderer) {
   const renderers = {
     pug: [pug.renderFile, 'pug'],
@@ -165,6 +183,7 @@ async function PagePrerender(pageTemplate, data) {
 
 app.get('/', async (request, response) => {
   try {
+    console.log(new Date(await getLastModifiedInFolders()).toLocaleString());
     const cookies = {};
     for (const cookieName in request.cookies) {
       for (const validCookie of VALID_COOKIES) {
