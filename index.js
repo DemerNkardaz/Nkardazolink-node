@@ -1,25 +1,34 @@
+const { PostProcessor } = require('./app/scripts/PostProcessor.js');
+
 require('dotenv').config();
 require('./nk.config.js');
 
-const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error('Ошибка при открытии базы данных: ', err.message);
-  } else {
-    console.log('Успешно подключено к базе данных SQLite');
-  }
-});
+(async () => {
+    const db = dbHandle('./data_base/index.db');
+
+    try {
+        // Устанавливаем значение
+        const setResult = await db.set('TestingTable', 'TestingKey', 'TestingValue');
+        console.log(setResult); // "Value set for key 'TestingKey' in table 'TestingTable'"
+
+        // Получаем значение
+        const getResult = await db.get('TestingTable', 'TestingKey');
+        console.log(getResult); // "TestingValue"
+
+        // Удаляем ключ
+        const removeResult = await db.remove('TestingTable', 'TestingKey');
+        console.log(removeResult); // "Key 'TestingKey' removed from table 'TestingTable'"
+
+        // Пытаемся получить значение снова после удаления
+        const getResultAfterRemove = await db.get('TestingTable', 'TestingKey');
+        console.log(getResultAfterRemove); // "Key 'TestingKey' not found in table 'TestingTable'"
+    } catch (error) {
+        console.error(error);
+    }
+})();
 
 
 
-async function loadComponent(component, data) {
-  try {
-    const template = await ejs.renderFile(`app/${component}.ejs`, data || {});
-    return template;
-  }
-  catch (error) {
-    console.error(error);
-  }
-}
 
 app.use((req, res, next) => {
     if (req.url.endsWith('.css')) {
@@ -121,10 +130,30 @@ function generateUserId(length) {
     return userId;
 }
 
+
+
+
+async function loadComponent(component, data, renderer) {
+  const renderers = {
+    pug: [pug.renderFile, 'pug'],
+    ejs: [ejs.renderFile, 'ejs']
+  }
+  try {
+    let template;
+    const transferedData = [`app/${component}.${renderers[renderer] ? renderers[renderer][1] : 'ejs'}`, data || {}];
+    template = await renderers[renderer] ? renderers[renderer][0](...transferedData) : renderers['ejs'][0](...transferedData);
+    return template;
+  }
+  catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 async function PagePrerender(pageTemplate, data) {
   try {
     const template = await ejs.renderFile(`app/${pageTemplate}.ejs`, data || {});
-    const processedPage = eval('`' + await StringHandling(template) + '`');
+    const processedPage = await PostProcessor(template);
 
     return processedPage;
   } catch (error) {
@@ -210,6 +239,7 @@ app.get('/', async (request, response) => {
     const DOCUMENT = {
       HEAD: await loadComponent('document/head', { ...COMPONENT, ...__COMPILED_DATA }),
       BODY: await loadComponent('document/body', { ...COMPONENT, ...__COMPILED_DATA }),
+      TEST: await loadComponent('test', { ...COMPONENT, ...__COMPILED_DATA }, 'pug'),
     }
 
     const Builded = await PagePrerender('layout', { ...DOCUMENT, ...__COMPILED_DATA });

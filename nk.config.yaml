@@ -11,6 +11,7 @@ IndexDependencies:
   - express: 'express'
   - socket.io: 'socketIO'
   - ejs: 'ejs'
+  - pug: 'pug'
   - url: '{ URL }'
   - stream: '{ Readable }'
   - sass: 'sass'
@@ -22,3 +23,5 @@ IndexDependencies:
 ProjectDependencies:
   - ./app/hooks/DataExtend.js: '{ DataExtend }'
   - ./app/hooks/StringHandling.js: '{ StringHandling }'
+  - ./app/scripts/PostProcessor.js: '{ PostProcessor }'
+  - ./app/scripts/DataBaseHandling.js: '{ dbHandle }'

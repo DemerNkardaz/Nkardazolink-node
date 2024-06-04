@@ -14,7 +14,8 @@ String.prototype.evalStringCommands = function () {
 
 async function StringHandling(text) {
   localise.get();
-  return text.evalStringCommands();
+  text = text.evalStringCommands();
+  return text;
 }
 
 
