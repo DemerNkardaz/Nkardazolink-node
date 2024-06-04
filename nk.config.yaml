@@ -27,7 +27,26 @@ ProjectDependencies:
 Globals: 
   - Vars
   - __PROJECT_DIR__: 'path.resolve(__dirname)'
-  - __NK__: { }
+  - __NK__:
+      url: []
+      langs:
+        list:
+          ru: { emoji: '🇷🇺', name: 'Русский' } 
+          en: { emoji: '🇬🇧', name: 'English' } 
+          ja: { emoji: '🇯🇵', name: '日本語' } 
+          zh: { emoji: '🇨🇳', name: '简体中文' } 
+          ko: { emoji: '🇰🇷', name: '한국어' } 
+          vi: { emoji: '🇻🇳', name: 'Tiếng Việt' } 
+          mo: { emoji: '🇲🇩', name: 'Молдовеняскэ' } 
+          ro: { emoji: '🇷🇴', name: 'Română' }
+        supported: ['ru', 'en', 'ja', 'zh', 'ko', 'vi', 'mo', 'ro']
   - app: 'express()'
   - sqlite3: 'require("sqlite3").verbose()'
   - dbPath: 'path.resolve(__dirname, "data_base/index.db")'
+  - VALID_COOKIES: ['savedSettings', 'latestCommands', 'selectedItems', 'NK']
+  - VALID_MODES: ['kamon', 'banners', 'clans', 'cv', 'landing', 'tree', 'license', 'pattern', 'reader']
+  - VALID_SELECTED: ['2d', '3d']
+
+
+
+

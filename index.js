@@ -84,22 +84,6 @@ app.use((req, res, next) => {
 });
 
 
-
-__NK__.url = [];
-__NK__.langs = {};
-__NK__.langs.list = {
-  ru: { emoji: '🇷🇺', name: 'Русский' },
-  en: { emoji: '🇬🇧', name: 'English' },
-  ja: { emoji: '🇯🇵', name: '日本語' },
-  zh: { emoji: '🇨🇳', name: '简体中文' },
-  ko: { emoji: '🇰🇷', name: '한국어' },
-  vi: { emoji: '🇻🇳', name: 'Tiếng Việt' },
-  mo: { emoji: '🇲🇩', name: 'Молдовеняскэ' },
-  ro: { emoji: '🇷🇴', name: 'Română' },
-};
-__NK__.langs.supported = Object.keys(__NK__.langs.list);
-
-
 const dataArray = [];
 __NK__.langs.supported.forEach(lang => { dataArray.push({ source: `./public/data/locale/common/main.${lang}.yaml`, as: `locale.${lang}` }) });
 dataArray.push({ source: `./public/data/locale/common/asset.common.yaml`, as: `locale.common` });
@@ -115,11 +99,6 @@ app.use((request, response, next) => {
   response.setHeader('Content-Type', 'text/html; charset=utf-8');
   next();
 });
-
-
-const VALID_COOKIES = ['savedSettings', 'latestCommands', 'selectedItems', 'NK'];
-const VALID_MODES = ['kamon', 'banners', 'clans', 'cv', 'landing', 'tree', 'license', 'pattern', 'reader'];
-const VALID_SELECTED = ['2d', '3d'];
 
 function generateUserId(length) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

@@ -49,7 +49,3 @@ const config = (file) => {
 }
 
 module.exports = { config };
-/*
-[...config.IndexDependencies, ...config.ProjectDependencies].forEach(dep => { configHandle(dep); });
-[...config.Globals].forEach(dep => { configHandle(dep, true); });
-*/
