@@ -133,36 +133,6 @@ async function getLastModifiedInFolders() {
 }
 
 
-async function loadComponent(component, data, renderer) {
-  const renderers = {
-    pug: [pug.renderFile, 'pug'],
-    ejs: [ejs.renderFile, 'ejs']
-  }
-  try {
-    let template;
-    const transferedData = [`app/${component}.${renderers[renderer] ? renderers[renderer][1] : 'ejs'}`, data || {}];
-    template = await renderers[renderer] ? renderers[renderer][0](...transferedData) : renderers['ejs'][0](...transferedData);
-    return template;
-  }
-  catch (error) {
-    console.error(error);
-    throw error;
-  }
-}
-
-async function PagePrerender(pageTemplate, data) {
-  try {
-    const template = await ejs.renderFile(`app/${pageTemplate}.ejs`, data || {});
-    const processedPage = await PostProcessor(template);
-
-    return processedPage;
-  } catch (error) {
-    console.error('Ошибка при обработке страницы:', error);
-    return null;
-  }
-}
-
-
 app.get('/', async (request, response) => {
   try {
     console.log(new Date(await getLastModifiedInFolders()).toLocaleString());
@@ -170,7 +140,7 @@ app.get('/', async (request, response) => {
     for (const cookieName in request.cookies) {
       for (const validCookie of VALID_COOKIES) {
         if (cookieName.startsWith(validCookie)) {
-          const cookieKey = cookieName.split('.')[0]; // Получаем первую часть куки (до точки)
+          const cookieKey = cookieName.split('.')[0];
           const cookieValue = request.cookies[cookieName];
           cookies[cookieKey] = cookies[cookieKey] || {};
           cookies[cookieKey][cookieName.substring(cookieKey.length + 1)] = cookieValue;
@@ -224,9 +194,15 @@ app.get('/', async (request, response) => {
       }
     }
     
-    const getNavigatorLanguage = __META__.navigatorLanguage.substring(0, 2); // Получаем первые две буквы языка
-    __META__.navigatorLanguage = __NK__.langs.supported.includes(getNavigatorLanguage) ? getNavigatorLanguage : 'en';
-
+    __META__.navigatorLanguage =
+      __META__.urlModes && __META__.urlModes.lang ?
+        __META__.urlModes.lang :
+        (
+          __NK__.langs.supported.includes(__META__.navigatorLanguage.substring(0, 2)) ?
+            __META__.navigatorLanguage.substring(0, 2) :
+            'en'
+        );
+    console.log(__META__.navigatorLanguage);
     const __SETTING_CONFIG__ = new Map([
       ['lang', __META__.navigatorLanguage],
     ]);

@@ -1,20 +1,16 @@
-const localise = require('./LocalisationHandling');
-function evalStringCommands(text) {
+async function evalStringCommands(text, data) {
   return text
     .replace(/\{{ (.*?)\ }}/g, function (match, p1) {
-      return eval(`locale.ru.${p1}`);
+      return eval(`locale.${data.__META__.navigatorLanguage}.${p1}`);
     });
 }
 
-String.prototype.evalStringCommands = function () {
-  return evalStringCommands(this);
-}
+String.prototype.evalStringCommands = (data) => { return evalStringCommands(this, data) }
 
 
 
-async function StringHandling(text) {
-  localise.get();
-  text = text.evalStringCommands();
+async function StringHandling(text, data) {
+  text = await evalStringCommands(text, data);
   return text;
 }
 

@@ -1,8 +1,8 @@
 
-async function PostProcessor(data) {
-  data = await StringHandling(data);
-  data = eval('`' + data + '`');
-  return data;
+async function PostProcessor(page, data) {
+  page = await StringHandling(page, data);
+  page = eval('`' + page + '`');
+  return page;
 } 
 
 

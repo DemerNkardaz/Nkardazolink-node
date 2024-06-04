@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "concurrently \"node build_manifest.js\" \"nodemon index.js\"",
-    "build": "node build_manifest.js"
+    "build": "node build_manifest.js && babel index.js -o index.prod.js --minified"
   },
   "keywords": [],
   "author": "",
@@ -40,11 +40,14 @@
     "sharp": "^0.33.4",
     "socket.io": "^4.7.5",
     "sqlite3": "^5.1.7",
+    "typescript": "^5.4.5",
     "xml2js": "^0.6.2",
     "xmlbuilder": "^15.1.1"
   },
   "devDependencies": {
+    "@babel/cli": "^7.24.6",
     "@babel/core": "^7.24.6",
+    "@babel/preset-env": "^7.24.6",
     "babel-minify": "^0.5.2",
     "browser-sync": "^3.0.2",
     "concurrently": "^8.2.2",

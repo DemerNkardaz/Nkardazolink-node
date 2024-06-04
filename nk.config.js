@@ -10,13 +10,15 @@ const config = (file) => {
     if (!isNotRequire) {
       if (depAlias.startsWith('{') && depAlias.endsWith('}')) {
         depAlias = depAlias.substring(1, depAlias.length - 1);
-        eval(`global.${depAlias} = require('${depName}').${depAlias}`);
-      } else {
+        if (depAlias.includes(', '))
+          depAlias = depAlias.split(', '),
+          depAlias.forEach(dep => eval(`global.${dep} = require('${depName}').${dep}`));
+        else
+          eval(`global.${depAlias} = require('${depName}').${depAlias}`);
+      } else
         global[depAlias] = require(depName);
-      }
-    } else {
-      global[depName] = eval(depAlias);
     }
+    else global[depName] = eval(depAlias);
   };
 
   methods.init = (...args) => {
@@ -25,23 +27,17 @@ const config = (file) => {
         const isString = typeof domain[0] === 'string';
         const stringValue = isString && domain[0];
         isString && delete domain[0];
-        if (stringValue === 'AutoEval') {
-          for (let command of domain) {
-              eval(command);
-          }
-        } else {
-          Object.values(domain).forEach(dependency => {
-            methods.handle(dependency, isString);
-          });
-        }
+        if (stringValue === 'AutoEval')
+          for (let command of domain)
+            eval(command);
+        else
+          Object.values(domain).forEach(dependency => methods.handle(dependency, isString));
       });
     } else {
       args.forEach(domain => {
-        const isVars = configFile[domain][0] === 'Vars';
-        isVars && delete configFile[domain][0];
-        Object.values(configFile[domain]).forEach(dep => {
-          methods.handle(dep, isVars);
-        });
+        const isString = typeof domain[0] === 'string';
+        isString && delete configFile[domain][0];
+        Object.values(configFile[domain]).forEach(dependency => methods.handle(dependency, isVars));
       });
     }
   };
