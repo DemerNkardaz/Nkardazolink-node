@@ -1,11 +1,8 @@
+require('./nk.config.js').config().init('Globals');
 const fs = require('fs');
 const path = require('path');
 const { MANIFEST } = require('./app/templates/manifest_template');
 
-// Фиксированный массив языков
-const languages = ['ru', 'en', 'ja', 'zh', 'ko', 'vi'];
-
-// Функция для создания файла манифеста для указанного языка
 const createManifest = (lang, manifest) => {
   const translate = (obj) => {
     if (typeof obj !== 'object' || obj === null) {
@@ -38,13 +35,13 @@ const createManifest = (lang, manifest) => {
   fs.writeFileSync(outputPath, minifiedManifest);
 };
 
-// Создание директории для манифестов, если она не существует
+
 const outputDir = path.join(__dirname, 'public', 'manifest');
 if (!fs.existsSync(outputDir)) {
   fs.mkdirSync(outputDir, { recursive: true });
 }
 
-// Создание манифестов для каждого языка
-languages.forEach(lang => createManifest(lang, MANIFEST));
+
+__NK__.langs.supported.forEach(lang => createManifest(lang, MANIFEST));
 
 console.log('Manifests created successfully!');
