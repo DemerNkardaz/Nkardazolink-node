@@ -28,6 +28,7 @@
     "jsdom": "^24.1.0",
     "jsonpath": "^1.1.1",
     "jszip": "^3.10.1",
+    "libxmljs": "^1.0.11",
     "markdown-it": "^14.1.0",
     "multer": "^1.4.5-lts.1",
     "node-fetch": "^3.3.2",
@@ -38,7 +39,9 @@
     "sass": "^1.77.4",
     "sharp": "^0.33.4",
     "socket.io": "^4.7.5",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.1.7",
+    "xml2js": "^0.6.2",
+    "xmlbuilder": "^15.1.1"
   },
   "devDependencies": {
     "@babel/core": "^7.24.6",
