@@ -1,23 +1,19 @@
-Globals:
-  - __PROJECT_DIR__: 'path.resolve(__dirname)'
-  - __NK__: { }
-  - app: 'express()'
-  - sqlite3: 'require("sqlite3").verbose()'
-  - dbPath: 'path.resolve(__dirname, "data_base/index.db")'
+Renderers:
+  - ejs: 'ejs'
+  - pug: 'pug'
+Interpretators:
+  - sass: 'sass'
 IndexDependencies:
   - fs: 'fs'
   - js-yaml: 'yaml'
   - path: 'path'
   - express: 'express'
   - socket.io: 'socketIO'
-  - ejs: 'ejs'
-  - pug: 'pug'
   - url: '{ URL }'
   - xml2js: 'xml2js'
   - xmlbuilder: 'xmlbuilder'
   - libxmljs: 'libxmljs'
   - stream: '{ Readable }'
-  - sass: 'sass'
   - cookie-parser: 'cookieParser'
   - jsonpath: 'jsonpath'
   - jszip: 'jzsip'
@@ -28,3 +24,10 @@ ProjectDependencies:
   - ./app/hooks/StringHandling.js: '{ StringHandling }'
   - ./app/scripts/PostProcessor.js: '{ PostProcessor }'
   - ./app/scripts/DataBaseHandling.js: '{ dbHandle }'
+Globals: 
+  - Vars
+  - __PROJECT_DIR__: 'path.resolve(__dirname)'
+  - __NK__: { }
+  - app: 'express()'
+  - sqlite3: 'require("sqlite3").verbose()'
+  - dbPath: 'path.resolve(__dirname, "data_base/index.db")'

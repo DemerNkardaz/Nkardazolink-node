@@ -1,5 +1,5 @@
 require('dotenv').config();
-require('./nk.config.js');
+require('./nk.config.js').initializeConfig();
 
 (async () => {
     const db = dbHandle('./data_base/index.db');
