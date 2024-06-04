@@ -1,5 +1,14 @@
 require('dotenv').config();
-require('./nk.config.js').initializeConfig();
+require('./nk.config.js').config().init();
+app.use(express.static(path.join(__PROJECT_DIR__, 'public')));
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(express.json());
+app.set('view engine', 'ejs');
+app.set('views', path.join(__PROJECT_DIR__, 'app'));
+
+
+
 
 (async () => {
     const db = dbHandle('./data_base/index.db');
@@ -75,12 +84,6 @@ app.use((req, res, next) => {
 });
 
 
-app.use(express.static(path.join(__PROJECT_DIR__, 'public')));
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.json());
-app.set('view engine', 'ejs');
-app.set('views', path.join(__PROJECT_DIR__, 'app'));
 
 __NK__.url = [];
 __NK__.langs = {};

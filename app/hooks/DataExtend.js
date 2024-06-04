@@ -1,7 +1,3 @@
-const fs = require('fs');
-const path = require('path');
-const yaml = require('js-yaml');
-
 async function DataExtend(dataArray, rootDir) {
     for (const item of dataArray) {
         const filePath = path.resolve(rootDir, item.source);

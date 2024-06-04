@@ -1,5 +1,3 @@
-const sqlite3 = require('sqlite3').verbose();
-
 function dbHandle(filePath) {
     const db = new sqlite3.Database(filePath);
     console.log(`Connected to the SQLite database at ${filePath}`);
