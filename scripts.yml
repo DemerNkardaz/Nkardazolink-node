@@ -1,0 +1,13 @@
+start:
+  - label: "Executing website in production mode"
+    command: node index.prod.js
+dev:
+  - label: "Executing website in development mode"
+    command: |
+      concurrently "nodemon run-script.js build" "nodemon index.js"
+build:
+  - label: "Building website"
+    command: |
+      terser ./index.js -o ./index.prod.js --compress --mangle --keep-fnames --keep-classnames
+      node build.js
+      node build_manifest.js

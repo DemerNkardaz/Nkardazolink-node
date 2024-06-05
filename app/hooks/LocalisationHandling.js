@@ -1,8 +1,1 @@
-let localise = {};
-
-localise.get = function (key, data) {
-  
-}
-localise.update = function (key) { }
-
-module.exports = localise
+let localise={get:function(e,l){},update:function(e){}};module.exports=localise;

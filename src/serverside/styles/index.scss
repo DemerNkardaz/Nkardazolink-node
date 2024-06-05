@@ -1,0 +1,16 @@
+@import 'roots/fonts';
+$base-font-size: 12pt;
+$base-line-height: 1.45em;
+
+html {
+  font-size: $base-font-size;
+  line-height: $base-line-height;
+  font-family: $cormorant-garamond;
+}
+
+*,
+::after,
+::before {
+  scroll-behavior: smooth;
+  box-sizing: border-box;
+}
