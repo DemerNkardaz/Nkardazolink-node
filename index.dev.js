@@ -15,8 +15,9 @@ app.set('views', path.join(__PROJECT_DIR__, 'app'));
 
 async function writeRobots_x_SiteMap() {
   try {
-    const content = `User-agent: *n\nSitemap: http://${process.env.HOST}:${process.env.PORT}/sitemap.index.xml.gz\nSitemap: http://${process.env.HOST}:${process.env.PORT}/sitemap.index.xml`;
-    fs.writeFileSync('./site.maps/robots.txt', content, 'utf-8');
+    const content = `User-agent: *\nSitemap: http://${process.env.HOST}:${process.env.PORT}/sitemap.index.xml.gz\nSitemap: http://${process.env.HOST}:${process.env.PORT}/sitemap.index.xml`;
+    await fs.writeFileSync('./site.maps/robots.txt', content, 'utf-8');
+    console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Write robots.txt completed\x1b[39m`);
 
     const locations = [
       { url: `http://${process.env.HOST}:${process.env.PORT}/`, lastmod: new Date().toISOString(), changefreq: 'daily', priority: '1.0' },
@@ -81,13 +82,16 @@ async function writeRobots_x_SiteMap() {
       .ele('loc', `http://${process.env.HOST}:${process.env.PORT}/${sitemap.url}`).up()
       .ele('lastmod', sitemap.lastmod).up();
     });
-    sitemaps.push({ url: 'sitemap.index.xml', lastmod: new Date().toISOString(), content: sitemapXMLIndex.end({ pretty: false })});
-    console.log(sitemapXMLIndex.end({ pretty: false }));
+sitemaps.push({ url: 'sitemap.index.xml', lastmod: new Date().toISOString(), content: sitemapXMLIndex.end({ pretty: false })});
     sitemaps.forEach(sitemap => {
       fs.writeFileSync(`./site.maps/${sitemap.url}`, sitemap.content, 'utf-8');
+      console.log(`\x1b[34m[${new Date().toLocaleString().replace(',', '')}] :: 🔵 > [SITEMAP] :: [${sitemap.url}] created\x1b[39m`);
       zlib.gzip(sitemap.content, (err, zipped) => {
         if (err) console.error(err);
-        else fs.writeFileSync(`./site.maps/${sitemap.url}.gz`, zipped, 'binary');
+        else {
+          fs.writeFileSync(`./site.maps/${sitemap.url}.gz`, zipped, 'binary');
+          console.log(`\x1b[34m[${new Date().toLocaleString().replace(',', '')}] :: 🔵 > [SITEMAP] :: [${sitemap.url}] compressed with GZIP\x1b[39m`);
+        }
       });
     });
   } catch (error) {
@@ -269,10 +273,6 @@ app.get('/', async (request, response) => {
       navigatorLanguage: request.headers['accept-language'],
       urlModes: await parseUrl(),
     };
-console.log(`\x1b[31mThis is a red log\x1b[39m`);
-console.log(`\x1b[32mThis is a green log\x1b[39m`);
-console.log(`\x1b[34mThis is a blue log\x1b[39m`);
-    console.log(__META__.userDevice);
     if (__META__.urlModes !== null) {
       if (
         __META__.urlModes.mode && !VALID_MODES.includes(__META__.urlModes.mode) ||
@@ -314,7 +314,8 @@ console.log(`\x1b[34mThis is a blue log\x1b[39m`);
     response.send(Builded);
   } catch (error) {
     console.error(error);
-    response.status(500).send(error.message);
+    const errorText = error.stack.replace(/\n/g, '<br>');
+    response.status(500).send(await loadComponent('500', { errorText: errorText, navigatorLanguage: request.headers['accept-language'] }, 'pug'));
   }
 });
 
