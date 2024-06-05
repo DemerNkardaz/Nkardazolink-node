@@ -21,7 +21,7 @@ const checkForIndex = async () => {
     await fs.access(path.join(__dirname, 'index.js'));
     execSync('node index.js', { stdio: 'inherit' });
   } catch (error) {
-    console.log(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > Not found [index.js], runnig % builder %`);
+    console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > Not found [index.js], runnig % builder %`);
     execSync('node build.js index', { stdio: 'inherit' });
   }
 }
@@ -63,7 +63,7 @@ async function copyFilesAndMinify(sourceDir, destinationDir) {
     } else if (entry.isDirectory()) {
       await copyFilesAndMinify(sourcePath, destinationPath);
     }
-    console.log(`[${new Date().toLocaleString().replace(',', '')}] :: 🟨 > “${destinationPath}\\${entry.name}” created successfully!`);
+    console.log(`\x1b[33m[${new Date().toLocaleString().replace(',', '')}] :: 🟨 > [BUILDER] % “${destinationPath}\\${entry.name}” created successfully!\x1b[39m`);
   }
 }
 
@@ -97,7 +97,7 @@ const createManifest = async (lang, manifest) => {
   const outputPath = path.join(__dirname, 'public', 'manifest', `manifest.${lang}.webmanifest`);
   const minifiedManifest = JSON.stringify({ lang, ...translatedManifest }, null, 0);
   await fs.writeFile(outputPath, minifiedManifest, 'utf-8');
-  console.log(`[${new Date().toLocaleString().replace(',', '')}] :: 🟨 > Manifest for [${lang.toUpperCase()}] created successfully!`);
+  console.log(`\x1b[33m[${new Date().toLocaleString().replace(',', '')}] :: 🟨 > [BUILDER] % Manifest for [${lang.toUpperCase()}] created successfully!\x1b[39m`);
 };
 
 
@@ -114,20 +114,20 @@ async function index() {
   });
   await writeFilePromise(destinationPath, minified.code);
 
-  console.log(`[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [BUILDER] :: “${destinationPath}” Index file builded`);
+  console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [BUILDER] :: “${destinationPath}” Index file builded\x1b[39m`);
 }
 async function build() {
   try {
     await copyFilesAndMinify(clientSource, clientDestination);
     await copyFilesAndMinify(serverSource, serverDestination)
-      .then(() => console.log(`[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [BUILDER] :: Files copied and minified successfully`))
+      .then(() => console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [BUILDER] :: Files copied and minified successfully\x1b[39m`))
       .catch(error => console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > Error during copy and minify: ${error.message}`));
     const manifestOutput = path.join(__dirname, 'public', 'manifest');
     if (!fs.existsSync(manifestOutput)) fs.mkdirSync(manifestOutput, { recursive: true });
     const { MANIFEST } = await require('./app/templates/manifest_template.js');
     const createManifestPromises = await __NK__.langs.supported.map(lang => createManifest(lang, MANIFEST));
     await Promise.all(createManifestPromises)
-      .then(() => console.log(`[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [BUILDER] :: All manifests created successfully`)).catch(error => console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > Error during build: ${error.message}`));
+      .then(() => console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [BUILDER] :: All manifests created successfully\x1b[39m`)).catch(error => console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > Error during build: ${error.message}`));
 
   } catch (error) {
     console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > Error during build: ${error.message}`);

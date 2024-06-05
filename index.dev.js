@@ -1,6 +1,6 @@
 require('dotenv').config();
 require('./nk.config.js').config().init();
-console.log(`[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Server started`);
+console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Server started\x1b[39m`);
 const readFileAsync = promisify(fs.readFile);
 app.use(compression());
 app.use(express.static(path.join(__PROJECT_DIR__, 'public')));
@@ -91,8 +91,8 @@ dataArray.push({ source: `./public/data/locale/common/asset.common.yaml`, as: `l
 dataArray.push({ source: `./public/data/locale/common/asset.templates.yaml`, as: `locale.templates` });
 
 DataExtend(dataArray, __PROJECT_DIR__)
-    .then(() => console.log(`[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [DATA-EXTEND] :: Extension of data completed`))
-    .catch(err => console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [DATA-EXTEND] :: Error extending data: ${err.message}`));
+    .then(() => console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [DATA-EXTEND] :: Extension of data completed\x1b[39m`))
+    .catch(err => console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > [DATA-EXTEND] :: Error extending data: ${err.message}`));
 
 
 app.use((request, response, next) => {
@@ -184,7 +184,9 @@ app.get('/', async (request, response) => {
       navigatorLanguage: request.headers['accept-language'],
       urlModes: await parseUrl(),
     };
-    
+console.log(`\x1b[31mThis is a red log\x1b[39m`);
+console.log(`\x1b[32mThis is a green log\x1b[39m`);
+console.log(`\x1b[34mThis is a blue log\x1b[39m`);
     console.log(__META__.userDevice);
     if (__META__.urlModes !== null) {
       if (
@@ -245,5 +247,5 @@ app.get('/wiki', async (request, response) => {
 
 const [PORT, HOST] = [3000, 'localhost'];
 const server = app.listen(PORT, HOST, () => { 
-  console.log(`[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Runned server at [http://${HOST}:${PORT}]`);
+  console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Runned server at [http://${HOST}:${PORT}]\x1b[39m`);
 });
