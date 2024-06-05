@@ -14,4 +14,3 @@ build:
     command: |
       terser ./index.dev.js -o ./index.js --compress --mangle --keep-fnames --keep-classnames
       node build.js
-      node build_manifest.js

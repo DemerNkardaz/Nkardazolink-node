@@ -1,4 +1,4 @@
-require('./nk.config.js').config().init('AppVariables');
+require('./nk.config.js').config().init(['AppVariables']);
 const fs = require('fs-extra');
 const path = require('path');
 const terser = require('terser');

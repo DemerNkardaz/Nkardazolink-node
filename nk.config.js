@@ -5,32 +5,38 @@ const config = (file) => {
   let methods = {};
   const configFile = yaml.load(fs.readFileSync(`${file || 'nk.config'}.yaml`, 'utf8'));
   methods.handle = (dependency, isNotRequire) => {
-    let depName = Object.keys(dependency)[0];
-    let depAlias = dependency[depName];
+    let key = Object.keys(dependency)[0];
+    let value = dependency[key];
     if (!isNotRequire) {
-      if (depAlias.startsWith('{') && depAlias.endsWith('}')) {
-        depAlias = depAlias.substring(1, depAlias.length - 1);
-        if (depAlias.includes(', '))
-          depAlias = depAlias.split(', '),
-          depAlias.forEach(dep => eval(`global.${dep} = require('${depName}').${dep}`));
+      if (value.startsWith('{') && value.endsWith('}')) {
+        value = value.substring(1, value.length - 1);
+        if (value.includes(', '))
+          value = value.split(', '),
+          value.forEach(dep => eval(`global.${dep} = require('${key}').${dep}`));
         else
-          eval(`global.${depAlias} = require('${depName}').${depAlias}`);
+          eval(`global.${value} = require('${key}').${value}`);
       } else
-        global[depAlias] = require(depName);
+        global[value] = require(key);
     }
-    else global[depName] = eval(depAlias);
+    else global[key] = eval(value);
   };
 
-  methods.init = (...args) => {
-    
-    if (args[0] === 'Vars' || typeof args[0] === 'undefined' || typeof args[0] === 'null')
-      Object.values(configFile).forEach(domain => {
-        Object.values(domain).forEach(dependency => methods.handle(dependency, args[0] === 'Vars'));
-      })
-    else
-      args.forEach(argument => {
-        Object.values(configFile[argument]).forEach(dependency => methods.handle(dependency));
-      })
+  methods.init = (args) => {
+    if (args !== null && Array.isArray(args)) {
+      for (let i = 0; i < args.length; i++) {
+        let variable = configFile[args[i]][0] === 'Vars';
+        variable && configFile[args[i]].shift();
+        Object.values(configFile[args[i]]).forEach(dependency => methods.handle(dependency, variable));
+      }
+    } else {
+      Object.values(configFile).forEach(domains => {
+        let variable = domains[0] === 'Vars';
+        variable && domains.shift();
+        Object.values(domains).forEach(dependency => {
+          methods.handle(dependency, variable);
+        });
+      });
+    }
   };
   return methods;
 }
