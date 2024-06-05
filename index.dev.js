@@ -10,6 +10,15 @@ app.use(express.json());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__PROJECT_DIR__, 'app'));
 
+async function writeRobots_x_SiteMap() {
+  try {
+    const content = `User-agent: *\nSitemap: http://${process.env.HOST}:${process.env.PORT}/sitemap.xml`;
+    fs.writeFileSync('./robots.txt', content, 'utf-8');
+  } catch (error) {
+    console.error(error);
+  }
+};
+(async () => { await writeRobots_x_SiteMap(); })();
 
 (async () => {
     const db = dbHandle('./data_base/index.db');
@@ -244,8 +253,6 @@ app.get('/wiki', async (request, response) => {
   }
 });
 
-
-const [PORT, HOST] = [3000, 'localhost'];
-const server = app.listen(PORT, HOST, () => { 
-  console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Runned server at [http://${HOST}:${PORT}]\x1b[39m`);
+const server = app.listen(process.env.PORT, () => { 
+  console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Runned server at [http://${process.env.HOST}:${process.env.PORT}]\x1b[39m`);
 });
