@@ -10,10 +10,62 @@ app.use(express.json());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__PROJECT_DIR__, 'app'));
 
+
+
 async function writeRobots_x_SiteMap() {
   try {
     const content = `User-agent: *\nSitemap: http://${process.env.HOST}:${process.env.PORT}/sitemap.xml`;
     fs.writeFileSync('./robots.txt', content, 'utf-8');
+
+    const locations = [
+      { url: `http://${process.env.HOST}:${process.env.PORT}/`, lastmod: new Date().toISOString(), changefreq: 'daily', priority: '0.8' },
+      { url: `http://${process.env.HOST}:${process.env.PORT}/sitemap.xml`, lastmod: new Date().toISOString(), changefreq: 'daily', priority: '0.6' },
+      { url: `http://${process.env.HOST}:${process.env.PORT}/wiki/`, lastmod: new Date().toISOString(), changefreq: 'daily', priority: '0.4' },
+    ];
+    VALID_MODES.forEach(mode => {
+      if (mode === 'cv') {
+        VALID_SELECTED.forEach(selected => {
+          locations.push({ url: `http://${process.env.HOST}:${process.env.PORT}/?mode=${mode}&selected=${selected}`, lastmod: new Date().toISOString(), changefreq: 'daily', priority: '0.6' });
+        });
+      } else {
+        locations.push({ url: `http://${process.env.HOST}:${process.env.PORT}/?mode=${mode}`, lastmod: new Date().toISOString(), changefreq: 'daily', priority: '0.6' });
+      }
+    });
+    const getFileExtensions = (urls) => {
+        const extensions = new Set();
+        urls.forEach(url => {
+            const match = url.match(/\.([^.\/\?]+)(?:\?|$)/);
+            if (match) {
+                extensions.add(match[1]);
+            }
+        });
+        return Array.from(extensions);
+    };
+    
+    const fileExtensions = getFileExtensions(locations.map(url => url.url));
+    
+    __NK__.langs.supported.forEach(lang => {
+        locations.forEach(url => {
+            if (!url.url.includes('lang') && !fileExtensions.some(ext => url.url.endsWith(ext))) {
+                const prefix = url.url.includes('/?') ? '&' : '?';
+                locations.push({ url: `${url.url}${prefix}lang=${lang}`, lastmod: new Date().toISOString(), changefreq: 'daily', priority: '0.    6' });
+            }
+        });
+    });
+
+    const xml = xmlbuilder.create('urlset', { version: '1.0', encoding: 'UTF-8' })
+      .att('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9');
+
+    locations.forEach(location => {
+      const url = xml.ele('url')
+        .ele('loc', location.url).up()
+        .ele('lastmod', location.lastmod).up()
+        .ele('changefreq', location.changefreq).up()
+        .ele('priority', location.priority);
+    });
+
+    const xmlContent = xml.end({ pretty: false });
+    fs.writeFileSync('./sitemap.xml', xmlContent, 'utf-8');
   } catch (error) {
     console.error(error);
   }
