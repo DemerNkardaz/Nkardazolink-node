@@ -19,7 +19,7 @@ async function writeRobots_x_SiteMap() {
     fs.writeFileSync('./site.maps/robots.txt', content, 'utf-8');
 
     const locations = [
-      { url: `http://${process.env.HOST}:${process.env.PORT}/`, lastmod: new Date().toISOString(), changefreq: 'daily', priority: '0.8' },
+      { url: `http://${process.env.HOST}:${process.env.PORT}/`, lastmod: new Date().toISOString(), changefreq: 'daily', priority: '1.0' },
       { url: `http://${process.env.HOST}:${process.env.PORT}/sitemap.index.xml.gz`, lastmod: new Date().toISOString(), changefreq: 'daily', priority: '0.6' },
       { url: `http://${process.env.HOST}:${process.env.PORT}/sitemap.index.xml`, lastmod: new Date().toISOString(), changefreq: 'daily', priority: '0.6' },
       { url: `http://${process.env.HOST}:${process.env.PORT}/wiki/`, lastmod: new Date().toISOString(), changefreq: 'daily', priority: '0.4' },
@@ -50,7 +50,7 @@ async function writeRobots_x_SiteMap() {
       locations.forEach(url => {
         if (!url.url.includes('lang') && !fileExtensions.some(ext => url.url.endsWith(ext))) {
           const prefix = url.url.includes('/?') ? '&' : '?';
-          locations.push({ url: `${url.url}${prefix}lang=${lang}`, lastmod: new Date().toISOString(), changefreq: 'daily', priority: '0.    6' });
+          locations.push({ url: `${url.url}${prefix}lang=${lang}`, lastmod: new Date().toISOString(), changefreq: 'daily', priority: '0.6' });
         }
       });
     });
