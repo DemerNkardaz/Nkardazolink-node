@@ -1,7 +1,7 @@
 require('dotenv').config();
 require('./nk.config.js').config().init();
 console.log(`[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Server started`);
-
+const readFileAsync = promisify(fs.readFile);
 app.use(compression());
 app.use(express.static(path.join(__PROJECT_DIR__, 'public')));
 app.use(express.urlencoded({ extended: false }));
@@ -179,6 +179,7 @@ app.get('/', async (request, response) => {
       request: request,
       userURL: request.url,
       fullURL: `${request.protocol}://${request.get('host')}${request.url}`,
+      domainURL: `${request.protocol}://${request.get('host')}`,
       userDevice: os.platform(),
       navigatorLanguage: request.headers['accept-language'],
       urlModes: await parseUrl(),
@@ -207,8 +208,9 @@ app.get('/', async (request, response) => {
     const __SETTING_CONFIG__ = new Map([
       ['lang', __META__.navigatorLanguage],
     ]);
-
-    const __COMPILED_DATA = { __META__, __SETTING_CONFIG__ };
+    let __MANIFEST__ = await readFileAsync(path.join(`${__PROJECT_DIR__}/public/manifest/manifest.${__META__.navigatorLanguage}.webmanifest`), 'utf8');
+    __MANIFEST__ = JSON.parse(__MANIFEST__);
+    const __COMPILED_DATA = { __META__, __SETTING_CONFIG__, __MANIFEST__ };
 
     const COMPONENT = {
       HEADER: await loadComponent('components/header', { ...__COMPILED_DATA }),

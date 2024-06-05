@@ -8,6 +8,7 @@ IndexDependencies:
   - zlib: 'zlib'
   - fs: 'fs'
   - js-yaml: 'yaml'
+  - util: '{ promisify }'
   - path: 'path'
   - express: 'express'
   - socket.io: 'socketIO'
