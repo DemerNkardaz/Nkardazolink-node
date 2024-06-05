@@ -15,7 +15,8 @@ app.set('views', path.join(__PROJECT_DIR__, 'app'));
 
 async function writeRobots_x_SiteMap() {
   try {
-    const content = `User-agent: *\nSitemap: http://${process.env.HOST}:${process.env.PORT}/sitemap.index.xml.gz\nSitemap: http://${process.env.HOST}:${process.env.PORT}/sitemap.index.xml`;
+    const asciiArt = await readFileAsync('./fun/ascii.txt', 'utf8');
+    const content = `${asciiArt}\nUser-agent: *\nSitemap: http://${process.env.HOST}:${process.env.PORT}/sitemap.index.xml.gz\nSitemap: http://${process.env.HOST}:${process.env.PORT}/sitemap.index.xml`;
     await fs.writeFileSync('./site.maps/robots.txt', content, 'utf-8');
     console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Write robots.txt completed\x1b[39m`);
 
@@ -69,20 +70,20 @@ async function writeRobots_x_SiteMap() {
         .ele('priority', location.priority);
     });
 
-    sitemaps.push({ url: 'sitemap_headlinks.xml', lastmod: new Date().toISOString(), content: sitemapXMLHeaderLinks.end({ pretty: false })});
+    sitemaps.push({ url: 'sitemap_headlinks.xml', lastmod: new Date().toISOString(), content: sitemapXMLHeaderLinks.end({ pretty: false }) });
     
     const sitemapXMLIndex = xmlbuilder.create('sitemapindex', { version: '1.0', encoding: 'UTF-8' })
       .att('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9');
 
     sitemaps.forEach(sitemap => {
       sitemapXMLIndex.ele('sitemap')
-      .ele('loc', `http://${process.env.HOST}:${process.env.PORT}/${sitemap.url}.gz`).up()
-      .ele('lastmod', sitemap.lastmod).up();
+        .ele('loc', `http://${process.env.HOST}:${process.env.PORT}/${sitemap.url}.gz`).up()
+        .ele('lastmod', sitemap.lastmod).up();
       sitemapXMLIndex.ele('sitemap')
-      .ele('loc', `http://${process.env.HOST}:${process.env.PORT}/${sitemap.url}`).up()
-      .ele('lastmod', sitemap.lastmod).up();
+        .ele('loc', `http://${process.env.HOST}:${process.env.PORT}/${sitemap.url}`).up()
+        .ele('lastmod', sitemap.lastmod).up();
     });
-sitemaps.push({ url: 'sitemap.index.xml', lastmod: new Date().toISOString(), content: sitemapXMLIndex.end({ pretty: false })});
+    sitemaps.push({ url: 'sitemap.index.xml', lastmod: new Date().toISOString(), content: sitemapXMLIndex.end({ pretty: false }) });
     sitemaps.forEach(sitemap => {
       fs.writeFileSync(`./site.maps/${sitemap.url}`, sitemap.content, 'utf-8');
       console.log(`\x1b[34m[${new Date().toLocaleString().replace(',', '')}] :: 🔵 > [SITEMAP] :: [${sitemap.url}] created\x1b[39m`);
@@ -97,7 +98,7 @@ sitemaps.push({ url: 'sitemap.index.xml', lastmod: new Date().toISOString(), con
   } catch (error) {
     console.error(error);
   }
-};
+}
 (async () => { await writeRobots_x_SiteMap(); })();
 
 (async () => {

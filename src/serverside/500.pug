@@ -18,10 +18,6 @@ html(lang=navigatorLanguage)
         button.error__button-copy #{navigatorLanguage.startsWith('ru') ? 'Копировать текст' : 'Copy Error'}
     script.
       document.querySelector('.error__button-copy').addEventListener('click', function() {
-        var errorText = document.querySelector('.error__main').innerText;
-        navigator.clipboard.writeText(errorText).then(function() {
-          alert('Текст ошибки скопирован в буфер обмена');
-        }).catch(function() {
-          alert('Не удалось скопировать текст ошибки в буфер обмена');
-        });
+        const errorText = document.querySelector('.error__main').innerText;
+        navigator.clipboard.writeText(errorText).then(() => alert('Текст ошибки скопирован в буфер обмена'));
       });
