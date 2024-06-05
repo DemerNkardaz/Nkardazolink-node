@@ -1,13 +1,28 @@
 require('./nk.config.js').config().init(['AppVariables']);
+const { execSync } = require('child_process');
 const fs = require('fs-extra');
 const path = require('path');
 const terser = require('terser');
 const htmlMinifier = require('html-minifier');
 const sass = require('node-sass');
-
+const { promisify } = require('util');
+const writeFilePromise = promisify(fs.writeFile);
 const sourceDir = './src/serverside';
 const destinationDir = './app';
 const handlingExtensions = ['.js', '.html', '.scss', '.css'];
+
+
+const runArguments = process.argv.slice(2);
+
+const checkForIndex = async () => {
+  try {
+    await fs.access(path.join(__dirname, 'index.js'));
+    execSync('node index.js', { stdio: 'inherit' });
+  } catch (error) {
+    console.log(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > Not found [index.js], runnig % builder %`);
+    execSync('node build.js index', { stdio: 'inherit' });
+  }
+}
 
 async function copyFilesAndMinify(sourceDir, destinationDir) {
   await fs.ensureDir(destinationDir);
@@ -83,6 +98,22 @@ const createManifest = async (lang, manifest) => {
   console.log(`[${new Date().toLocaleString().replace(',', '')}] :: 🟨 > Manifest for [${lang.toUpperCase()}] created successfully!`);
 };
 
+
+async function index() {
+  const sourcePath = path.join(__dirname, 'index.dev.js');
+  const destinationPath = path.join(__dirname, 'index.js');
+
+  const fileContent = await fs.readFile(sourcePath, 'utf8');
+  const minified = await terser.minify(fileContent, {
+    compress: true,
+    mangle: true,
+    keep_fnames: true,
+    keep_classnames: true
+  });
+  await writeFilePromise(destinationPath, minified.code);
+
+  console.log(`[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [BUILDER] :: “${destinationPath}” Index file builded`);
+}
 async function build() {
   try {
     await copyFilesAndMinify(sourceDir, destinationDir)
@@ -100,4 +131,20 @@ async function build() {
   }
 }
 
-build();
+const BUILING_PROMISE = new Promise((resolve, reject) => {
+  try {
+    (async () => {
+      if (runArguments.includes('start')) await checkForIndex();
+      if (!runArguments.includes('index_rebuild')) await build();
+      if (runArguments.includes('index') || runArguments.includes('index_rebuild')) await index();
+      resolve();
+    })();
+  } catch (error) {
+    reject(error);
+  }
+});
+BUILING_PROMISE
+  .then(() => {
+    const exec = runArguments.includes('start') ? 'node' : (runArguments.includes('watch') ? 'nodemon' : null);
+    exec !== null && execSync(`${exec} index.js`, { stdio: 'inherit' });
+  });

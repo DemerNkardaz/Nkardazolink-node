@@ -1,6 +1,6 @@
 require('dotenv').config();
 require('./nk.config.js').config().init();
-
+console.log(`[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Server started`);
 
 app.use(compression());
 app.use(express.static(path.join(__PROJECT_DIR__, 'public')));
@@ -91,8 +91,8 @@ dataArray.push({ source: `./public/data/locale/common/asset.common.yaml`, as: `l
 dataArray.push({ source: `./public/data/locale/common/asset.templates.yaml`, as: `locale.templates` });
 
 DataExtend(dataArray, __PROJECT_DIR__)
-    .then(() => console.log('Data extension complete'))
-    .catch(err => console.error('Error extending data:', err));
+    .then(() => console.log(`[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [DATA-EXTEND] :: Extension of data completed`))
+    .catch(err => console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [DATA-EXTEND] :: Error extending data: ${err.message}`));
 
 
 app.use((request, response, next) => {
@@ -241,5 +241,7 @@ app.get('/wiki', async (request, response) => {
 });
 
 
-const [ PORT, HOST ] = [ 3000, 'localhost' ];
-const server = app.listen(PORT, HOST, () => { console.log(`Server is running on http://${HOST}:${PORT}`) });
+const [PORT, HOST] = [3000, 'localhost'];
+const server = app.listen(PORT, HOST, () => { 
+  console.log(`[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Runned server at [http://${HOST}:${PORT}]`);
+});

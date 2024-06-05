@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node run-script.js start",
     "dev": "node run-script.js dev",
+    "index_rebuild": "node run-script.js index_rebuild",
     "build": "node run-script.js build"
   },
   "keywords": [],

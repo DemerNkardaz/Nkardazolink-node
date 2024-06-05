@@ -27,7 +27,7 @@ async function DataExtend(dataArray, rootDir) {
 
       parent[parts[parts.length - 1]] = data;
 
-      console.log(`Loaded ${extension.toUpperCase()} file from ${filePath} as '${variableName}'`);
+      console.log(`[${new Date().toLocaleString().replace(',', '')}] :: 🟨 > [DATA-EXTEND] :: [${extension.toUpperCase()}] from [${filePath}] now as “${variableName}”`);
     } catch (err) {
       console.error(`Error loading file ${filePath}: ${err.message}`);
     }

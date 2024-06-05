@@ -1,16 +1,15 @@
 start:
   - label: "Executing website in production mode"
-    command: node index.js
+    command: node build.js start
 dev:
   - label: "Executing website in development mode"
     command: |
-      concurrently "nodemon run-script.js build" "nodemon index.js"
+      nodemon build.js watch index
 index_rebuild:
-  - label: "Rebuilding website"
+  - label: "Rebuilding website index script"
     command: |
-      terser ./index.dev.js -o ./index.js --compress --mangle --keep-fnames --keep-classnames
+      node build.js index_rebuild
 build:
   - label: "Building website"
     command: |
-      terser ./index.dev.js -o ./index.js --compress --mangle --keep-fnames --keep-classnames
-      node build.js
+      node build.js index
