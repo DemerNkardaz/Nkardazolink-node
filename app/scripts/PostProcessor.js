@@ -1,1 +1,0 @@
-async function PostProcessor(page,data){return page=await StringHandling(page,data),page=eval("`"+page+"`"),page}module.exports={PostProcessor:PostProcessor};
