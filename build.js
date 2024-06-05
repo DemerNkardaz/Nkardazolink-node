@@ -7,8 +7,10 @@ const htmlMinifier = require('html-minifier');
 const sass = require('node-sass');
 const { promisify } = require('util');
 const writeFilePromise = promisify(fs.writeFile);
-const sourceDir = './src/serverside';
-const destinationDir = './app';
+const serverSource = './src/serverside';
+const serverDestination = './app';
+const clientSource = './src/clientside';
+const clientDestination = './public';
 const handlingExtensions = ['.js', '.html', '.scss', '.css'];
 
 
@@ -116,7 +118,8 @@ async function index() {
 }
 async function build() {
   try {
-    await copyFilesAndMinify(sourceDir, destinationDir)
+    await copyFilesAndMinify(clientSource, clientDestination);
+    await copyFilesAndMinify(serverSource, serverDestination)
       .then(() => console.log(`[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [BUILDER] :: Files copied and minified successfully`))
       .catch(error => console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > Error during copy and minify: ${error.message}`));
     const manifestOutput = path.join(__dirname, 'public', 'manifest');
