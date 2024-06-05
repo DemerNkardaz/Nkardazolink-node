@@ -4,10 +4,14 @@ start:
 dev:
   - label: "Executing website in development mode"
     command: |
-      concurrently "nodemon index.js"
+      concurrently "nodemon run-script.js build" "nodemon index.js"
+index_rebuild:
+  - label: "Rebuilding website"
+    command: |
+      terser ./index.dev.js -o ./index.js --compress --mangle --keep-fnames --keep-classnames
 build:
   - label: "Building website"
     command: |
-      terser ./index.js -o ./index.prod.js --compress --mangle --keep-fnames --keep-classnames
+      terser ./index.dev.js -o ./index.js --compress --mangle --keep-fnames --keep-classnames
       node build.js
       node build_manifest.js

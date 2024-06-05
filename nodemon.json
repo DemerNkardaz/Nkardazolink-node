@@ -1,7 +1,7 @@
 {
   "watch": ["*.*"],
   "ext": "ejs,js,json,yaml,yml,css,sass,scss,htm,html,xml,xhtml,php,jsonnet,ts,tsx,jsx,vue,asp,aspx,rb,py,pl,jade,haml,coffe,dart",
-  "ignore": ["data_base/*", "public/*", "app/*", "index.*.js"],
+  "ignore": ["data_base/*", "public/*", "app/*", "index.js"],
   "commands": [
     "node run-script.js build",
     "node app.js"
