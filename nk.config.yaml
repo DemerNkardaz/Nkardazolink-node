@@ -22,6 +22,7 @@ IndexDependencies:
   - jquery: '$'
   - os: 'os'
   - child_process: '{ execSync }'
+  - serialize-javascript: 'jsSerialize'
 ProjectDependencies:
   - ./app/hooks/DataExtend.js: '{ DataExtend }'
   - ./app/hooks/StringHandling.js: '{ StringHandling }'
