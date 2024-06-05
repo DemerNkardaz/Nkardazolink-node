@@ -32,4 +32,16 @@
   -webkit-font-smoothing: antialiased;
 }
 
-$cormorant-garamond: 'Cormorant Garamond', serif;
+$font-headings: 'Cormorant Garamond',
+'Noto Serif JP',
+'Noto Serif TC',
+'Noto Serif KR',
+'Noto Color Emoji',
+serif;
+$font-default: 'Philosopher',
+'Noto Serif JP',
+'Noto Serif TC',
+'Noto Serif KR',
+'Noto Color Emoji',
+serif;
+$font-emoji: 'Noto Color Emoji';

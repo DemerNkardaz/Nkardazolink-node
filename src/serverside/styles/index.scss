@@ -2,15 +2,54 @@
 $base-font-size: 12pt;
 $base-line-height: 1.45em;
 
-html {
+button, input {font-family: inherit;}
+html, body {
   font-size: $base-font-size;
   line-height: $base-line-height;
-  font-family: $cormorant-garamond;
+  font-family: $font-default;
+  margin: 0;
+  padding: 0;
+  scroll-behavior: smooth;
 }
-
+p, hr {margin: 0;}
+hr {
+  margin: 1rem 0;
+  color: inherit;
+  border: 0;
+  border-top: 1px solid;
+  opacity: .25;
+}
 *,
 ::after,
 ::before {
   scroll-behavior: smooth;
   box-sizing: border-box;
+}
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond&family=Noto+Serif+JP&family=Noto+Serif+TC&family=Noto+Serif+KR&family=Noto+Color+Emoji&display=swap');
+
+@mixin font-size($size) {
+  font-size: $size;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: $font-headings;
+  margin: 0;
+
+  @include font-size(1.75rem);
+
+  @at-root h2 {
+    @include font-size(1.60rem);
+  }
+  @at-root h3 {
+    @include font-size(1.45rem);
+  }
+  @at-root h4 {
+    @include font-size(1.30rem);
+  }
+  @at-root h5 {
+    @include font-size(1.15rem);
+  }
+  @at-root h6 {
+    @include font-size(1.00rem);
+  }
 }
