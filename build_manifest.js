@@ -1,7 +1,7 @@
 require('./nk.config.js').config().init('Globals');
 const fs = require('fs');
 const path = require('path');
-const { MANIFEST } = require('./app/templates/manifest_template');
+const { MANIFEST } = require('./app/templates/manifest_template.js');
 
 const createManifest = (lang, manifest) => {
   const translate = (obj) => {

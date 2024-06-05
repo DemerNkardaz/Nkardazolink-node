@@ -1,13 +1,14 @@
 require('dotenv').config();
 require('./nk.config.js').config().init();
+
+
+app.use(compression());
 app.use(express.static(path.join(__PROJECT_DIR__, 'public')));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.json());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__PROJECT_DIR__, 'app'));
-
-
 
 
 (async () => {

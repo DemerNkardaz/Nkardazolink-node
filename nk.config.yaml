@@ -4,6 +4,8 @@ Renderers:
 Interpretators:
   - sass: 'sass'
 IndexDependencies:
+  - compression: 'compression'
+  - zlib: 'zlib'
   - fs: 'fs'
   - js-yaml: 'yaml'
   - path: 'path'
@@ -19,6 +21,7 @@ IndexDependencies:
   - jszip: 'jzsip'
   - jquery: '$'
   - os: 'os'
+  - child_process: '{ execSync }'
 ProjectDependencies:
   - ./app/hooks/DataExtend.js: '{ DataExtend }'
   - ./app/hooks/StringHandling.js: '{ StringHandling }'

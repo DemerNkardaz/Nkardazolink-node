@@ -1,10 +1,10 @@
 start:
   - label: "Executing website in production mode"
-    command: node index.prod.js
+    command: node index.js
 dev:
   - label: "Executing website in development mode"
     command: |
-      concurrently "nodemon run-script.js build" "nodemon index.js"
+      concurrently "nodemon index.js"
 build:
   - label: "Building website"
     command: |
