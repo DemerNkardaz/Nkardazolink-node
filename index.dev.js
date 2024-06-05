@@ -16,7 +16,7 @@ app.set('views', path.join(__PROJECT_DIR__, 'app'));
 async function writeRobots_x_SiteMap() {
   try {
     const content = `User-agent: *n\nSitemap: http://${process.env.HOST}:${process.env.PORT}/sitemap.index.xml.gz\nSitemap: http://${process.env.HOST}:${process.env.PORT}/sitemap.index.xml`;
-    fs.writeFileSync('./robots.txt', content, 'utf-8');
+    fs.writeFileSync('./site.maps/robots.txt', content, 'utf-8');
 
     const locations = [
       { url: `http://${process.env.HOST}:${process.env.PORT}/`, lastmod: new Date().toISOString(), changefreq: 'daily', priority: '0.8' },
