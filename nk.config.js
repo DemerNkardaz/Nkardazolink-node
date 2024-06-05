@@ -1,6 +1,6 @@
 const fs = require('fs');
 const yaml = require('js-yaml');
-
+const path = require('path');
 const config = (file) => {
   let methods = {};
   const configFile = yaml.load(fs.readFileSync(`${file || 'nk.config'}.yaml`, 'utf8'));
@@ -22,24 +22,15 @@ const config = (file) => {
   };
 
   methods.init = (...args) => {
-    if (typeof args[0] === 'string' || typeof args[0] === 'undefined' || typeof args[0] === 'null') {
+    
+    if (args[0] === 'Vars' || typeof args[0] === 'undefined' || typeof args[0] === 'null')
       Object.values(configFile).forEach(domain => {
-        const isString = typeof domain[0] === 'string';
-        const stringValue = isString && domain[0];
-        isString && delete domain[0];
-        if (stringValue === 'AutoEval')
-          for (let command of domain)
-            eval(command);
-        else
-          Object.values(domain).forEach(dependency => methods.handle(dependency, isString));
-      });
-    } else {
-      args.forEach(domain => {
-        const isString = typeof domain[0] === 'string';
-        isString && delete configFile[domain][0];
-        Object.values(configFile[domain]).forEach(dependency => methods.handle(dependency, isVars));
-      });
-    }
+        Object.values(domain).forEach(dependency => methods.handle(dependency, args[0] === 'Vars'));
+      })
+    else
+      args.forEach(argument => {
+        Object.values(configFile[argument]).forEach(dependency => methods.handle(dependency));
+      })
   };
   return methods;
 }
