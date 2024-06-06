@@ -32,9 +32,7 @@ const config = (file) => {
       Object.values(configFile).forEach(domains => {
         let variable = domains[0] === 'Vars';
         variable && domains.shift();
-        Object.values(domains).forEach(dependency => {
-          methods.handle(dependency, variable);
-        });
+        Object.values(domains).forEach(dependency => methods.handle(dependency, variable));
       });
     }
   };

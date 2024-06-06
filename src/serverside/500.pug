@@ -7,10 +7,15 @@ html(lang=navigatorLanguage)
     link(rel="stylesheet" href="/errors.css")
 
   body
+    video.error-bacgkround(autoplay='true' loop='true' muted='true' playsinline='true')
+      source(src='https://videos.pexels.com/video-files/3130284/3130284-hd_1280_720_30fps.mp4' type='video/mp4')
     section.error
       header.error__header
         h1 500 :: #{navigatorLanguage.startsWith('ru') ? 'Внутрення ошибка сервера' : 'Internal Server Error'}
       main.error__main
+        p.error__current-link
+          |#{navigatorLanguage.startsWith('ru') ? 'Адрес: ' : 'URL: '}
+          a(href=currentURL)=currentURL
         != errorText 
       footer.error__footer
         | #{navigatorLanguage.startsWith('ru') ? 'Сообшить об ошибке: ' : 'Report bug: '}

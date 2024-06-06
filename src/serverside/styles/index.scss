@@ -2,6 +2,9 @@
 $base-font-size: 12pt;
 $base-line-height: 1.45em;
 
+
+//! touch-action: none; БЛОКИРОВКА МОБИЛЬНОГО ТАЧА ДЛЯ БЛОКА С ЗУМОМ ИЗОБРАЖЕНИЙ
+
 button, input {font-family: inherit;}
 html, body {
   font-size: $base-font-size;

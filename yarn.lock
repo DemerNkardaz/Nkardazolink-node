@@ -4722,11 +4722,6 @@ negotiator@0.6.3, negotiator@^0.6.2, negotiator@^0.6.3:
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.3.tgz#58e323a72fedc0d6f9cd4d31fe49f51479590ccd"
   integrity sha512-+EUsqGPLsM+j/zdChZjsnX51g4XrHFOIXwfnCVPGlQk/k5giakcKsuxCObBRu6DSm9opw/O6slWbJdghQM4bBg==
 
-nestjs@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/nestjs/-/nestjs-0.0.1.tgz#e4b3b82fbbd0bbf993a7c7a137b3ad59ccecf6b6"
-  integrity sha512-LJTf2zDRtWE69B6R2DUW6/LCftgVOq3kp3aqxPsB0eei8OX+lW2RFjzREZWRL1GUD/jGdBSMhM3Q5YWLC2uHNg==
-
 nice-try@^1.0.4:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/nice-try/-/nice-try-1.0.5.tgz#a3378a7696ce7d223e88fc9b764bd7ef1089e366"

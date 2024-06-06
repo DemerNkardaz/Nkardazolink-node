@@ -34,7 +34,6 @@
     "libxmljs": "^1.0.11",
     "markdown-it": "^14.1.0",
     "multer": "^1.4.5-lts.1",
-    "nestjs": "^0.0.1",
     "node-fetch": "^3.3.2",
     "node-localstorage": "^3.0.5",
     "node-sass": "^9.0.0",

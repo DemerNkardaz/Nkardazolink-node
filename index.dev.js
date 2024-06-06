@@ -56,7 +56,6 @@ async function writeRobots_x_SiteMap() {
         }
       });
     });
-
     const sitemaps = [];
 
     const sitemapXMLHeaderLinks = xmlbuilder.create('urlset', { version: '1.0', encoding: 'UTF-8' })
@@ -89,10 +88,9 @@ async function writeRobots_x_SiteMap() {
       console.log(`\x1b[34m[${new Date().toLocaleString().replace(',', '')}] :: 🔵 > [SITEMAP] :: [${sitemap.url}] created\x1b[39m`);
       zlib.gzip(sitemap.content, (err, zipped) => {
         if (err) console.error(err);
-        else {
-          fs.writeFileSync(`./site.maps/${sitemap.url}.gz`, zipped, 'binary');
+        else
+          fs.writeFileSync(`./site.maps/${sitemap.url}.gz`, zipped, 'binary'),
           console.log(`\x1b[34m[${new Date().toLocaleString().replace(',', '')}] :: 🔵 > [SITEMAP] :: [${sitemap.url}] compressed with GZIP\x1b[39m`);
-        }
       });
     });
   } catch (error) {
@@ -100,32 +98,6 @@ async function writeRobots_x_SiteMap() {
   }
 }
 (async () => { await writeRobots_x_SiteMap(); })();
-
-(async () => {
-    const db = dbHandle('./data_base/index.db');
-
-    try {
-        // Устанавливаем значение
-        const setResult = await db.set('TestingTable', 'TestingKey', 'TestingValue');
-        console.log(setResult); // "Value set for key 'TestingKey' in table 'TestingTable'"
-
-        // Получаем значение
-        const getResult = await db.get('TestingTable', 'TestingKey');
-        console.log(getResult); // "TestingValue"
-
-        // Удаляем ключ
-        const removeResult = await db.remove('TestingTable', 'TestingKey');
-        console.log(removeResult); // "Key 'TestingKey' removed from table 'TestingTable'"
-
-        // Пытаемся получить значение снова после удаления
-        const getResultAfterRemove = await db.get('TestingTable', 'TestingKey');
-        console.log(getResultAfterRemove); // "Key 'TestingKey' not found in table 'TestingTable'"
-    } catch (error) {
-        console.error(error);
-    }
-})();
-
-
 
 
 app.use((req, res, next) => {
@@ -226,7 +198,7 @@ async function getLastModifiedInFolders() {
 
 app.get('/', async (request, response) => {
   try {
-    console.log(new Date(await getLastModifiedInFolders()).toLocaleString());
+    console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 💠 > [SERVER] :: Latest modify date is [${new Date(await getLastModifiedInFolders()).toLocaleString()}]\x1b[39m`);
     const cookies = {};
     for (const cookieName in request.cookies) {
       for (const validCookie of VALID_COOKIES) {
@@ -238,7 +210,6 @@ app.get('/', async (request, response) => {
         }
       }
     }
-    console.log(cookies);
 
     async function parseUrl() {
       try {
@@ -263,7 +234,6 @@ app.get('/', async (request, response) => {
         return null;
       }
     }
-    console.log(request.headers['accept-language']);
     const __META__ = {
       ...cookies,
       request: request,
@@ -292,7 +262,6 @@ app.get('/', async (request, response) => {
             __META__.navigatorLanguage.substring(0, 2) :
             'en'
         );
-    console.log(__META__.navigatorLanguage);
     const __SETTING_CONFIG__ = new Map([
       ['lang', __META__.navigatorLanguage],
     ]);
@@ -316,7 +285,7 @@ app.get('/', async (request, response) => {
   } catch (error) {
     console.error(error);
     const errorText = error.stack.replace(/\n/g, '<br>');
-    response.status(500).send(await loadComponent('500', { errorText: errorText, navigatorLanguage: request.headers['accept-language'] }, 'pug'));
+    response.status(500).send(await loadComponent('500', { errorText: errorText, navigatorLanguage: request.headers['accept-language'], currentURL: `${request.protocol}://${request.get('host')}${request.url}` }, 'pug'));
   }
 });
 
