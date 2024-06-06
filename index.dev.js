@@ -13,7 +13,34 @@ markdown.core.ruler.enable(['abbr']);
 markdown.inline.ruler.enable(['ins', 'mark','footnote_inline', 'sub', 'sup']);
 markdown.block.ruler.enable(['footnote', 'deflist']);
 
-
+markdown.renderFile = async function (filePath, data) {
+  const fileContent = await readFileAsync(filePath, 'utf8');
+  const parsedContent = fileContent
+    .replace(/\${((?!{[^{]*}).*?)}/g, (match, code) => {
+      const varLink = code.match(/\.[\s\S]*?\)/g) ?
+        code.replace(/\.[\s\S]*?\)/g, '').split('.').map(key => `[\"${key}\"]`)
+        : !code.includes('(') ? code.split('.').map(key => `[\"${key}\"]`) : code;
+      const varMethods = code.match(/(\.\w+\(.*?\))/g) ? code.match(/(\.\w+\(.*?\))/g).join('') : '';
+      try {
+        return new Function('data', `return data${varLink}${varMethods}`)(data);
+      } catch (err) {
+        try {
+          return new Function(`return ${varLink}`)()
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    })
+    .replace(/%{([\s\S]*?)\}%/g, (match, code) => {
+      try {
+        return new Function(code)();
+      } catch (err) {
+        console.log(err);
+        return match;
+      }
+    });
+  return await markdown.render(parsedContent);
+};
 async function writeRobots_x_SiteMap() {
   try {
     const asciiArt = await readFileAsync('./fun/ascii.txt', 'utf8');

@@ -1,11 +1,11 @@
 Renderers:
   - ejs: 'ejs'
   - pug: 'pug'
-  - marked: 'marked'
   - remarkable: '{ Remarkable }'
+  - remarkable/linkify: '{ linkify  }'
 Remarkable-settings:
   - Vars
-  - markdown: 'new Remarkable({ html: true, breaks: true })'
+  - markdown: 'new Remarkable({ html: true }).use(linkify)'
 Interpretators:
   - sass: 'sass'
 IndexDependencies:

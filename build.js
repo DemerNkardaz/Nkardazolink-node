@@ -149,5 +149,6 @@ const BUILING_PROMISE = new Promise((resolve, reject) => {
 BUILING_PROMISE
   .then(() => {
     const exec = runArguments.includes('start') ? 'node' : (runArguments.includes('watch') ? 'nodemon' : null);
-    exec !== null && execSync(`${exec} index.js`, { stdio: 'inherit' });
+    const index = runArguments.includes('watch') ? 'index.dev.js': 'index.js';
+    exec !== null && execSync(`${exec} ${index}`, { stdio: 'inherit' });
   });
