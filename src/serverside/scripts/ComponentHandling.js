@@ -7,7 +7,6 @@ async function loadComponent(component, data, renderer) {
   try {
     let template;
     const transferedData = [`app/${component}.${renderers[renderer] ? renderers[renderer][1] : 'ejs'}`, data || {}];
-    if (renderer === 'md') return await markdown.renderFile(...transferedData);
     template = await renderers[renderer] ? renderers[renderer][0](...transferedData) : renderers['ejs'][0](...transferedData);
     return template;
   }

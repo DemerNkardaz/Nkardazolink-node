@@ -22,18 +22,24 @@ H~2~O
 
 19^th^
 
-%{
+
+```js %
   const date = new Date();
   const getDate = () => {
     return `Текущая дата: ${date} ${data.HEADER}<br>Текущий язык: ${data.__SETTING_CONFIG__.get('lang')}<br>`;
   }
   return getDate();
-}%
+```
 
 
-${new Date()}
-${new Date().toISOString()}
+```js 
+  return new Date()
+```
+```js 
+  return new Date().toISOString()
+```
 ${HEADER}
 ${__META__.domainURL}
 
 ${__SETTING_CONFIG__.get('lang')}
+

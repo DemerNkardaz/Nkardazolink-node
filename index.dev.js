@@ -12,13 +12,13 @@ app.set('views', path.join(__PROJECT_DIR__, 'app'));
 markdown.core.ruler.enable(['abbr']);
 markdown.inline.ruler.enable(['ins', 'mark','footnote_inline', 'sub', 'sup']);
 markdown.block.ruler.enable(['footnote', 'deflist']);
+require('./app/plugins/remarkable/renderFile.js');
 
 markdown.renderFile = async function (filePath, data) {
   const fileContent = await readFileAsync(filePath, 'utf8');
   const parsedContent = fileContent
-    .replace(/%{([\s\S]*?)\}%/g, (match, code) => {
+    .replace(/```js\s\%([\s\S]*?)```/g, (match, code) => {
       try {
-        // Создаем функцию, привязывая контекст данных к ней
         const boundFunction = new Function('data', code).bind(null, data);
         return boundFunction();
       } catch (err) {
@@ -38,11 +38,13 @@ markdown.renderFile = async function (filePath, data) {
           return new Function('data', `return ${code}`)(data)
         } catch (err) {
           console.log(err);
+          return match;
         }
       }
     });
   return await markdown.render(parsedContent);
 };
+
 async function writeRobots_x_SiteMap() {
   try {
     const asciiArt = await readFileAsync('./fun/ascii.txt', 'utf8');
