@@ -4,7 +4,7 @@
   const DESCRIPTION = locale[__META__.navigatorLanguage].Meta_Pereferences.meta.desc[URLMODE];
   const IMAGE = locale[__META__.navigatorLanguage].Meta_Pereferences.meta.image[URLMODE];
   const AUTHOR = locale[`${__META__.navigatorLanguage}`].Nkardaz.name;
-  const VIEWPORT_MODE = __META__.urlModes.mode && /(ipad|phone|android|mobile|pixel|miui|win)/i.test(__META__.userDevice.toLowerCase()) && /(kamon|banners|pattern)/i.test(__META__.urlModes.mode) ? ', orientation=landscape' : null;
+  const VIEWPORT_MODE = __META__.urlModes && /(ipad|phone|android|mobile|pixel|miui|win)/i.test(__META__.userDevice.toLowerCase()) && /(kamon|banners|pattern)/i.test(__META__.urlModes.mode) ? ', orientation=landscape' : null;
 %>
 <!DOCTYPE html>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />

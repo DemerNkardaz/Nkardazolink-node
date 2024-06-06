@@ -1,5 +1,7 @@
 {
   "version": 2,
+  "cleanUrls": true,
+  "installCommand": "yarn install",
   "builds": [
     {
       "src": "index.js",
