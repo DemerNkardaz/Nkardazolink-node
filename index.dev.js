@@ -16,27 +16,29 @@ markdown.block.ruler.enable(['footnote', 'deflist']);
 markdown.renderFile = async function (filePath, data) {
   const fileContent = await readFileAsync(filePath, 'utf8');
   const parsedContent = fileContent
+    .replace(/%{([\s\S]*?)\}%/g, (match, code) => {
+      try {
+        // Создаем функцию, привязывая контекст данных к ней
+        const boundFunction = new Function('data', code).bind(null, data);
+        return boundFunction();
+      } catch (err) {
+        console.log(err);
+        return match;
+      }
+    })
     .replace(/\${((?!{[^{]*}).*?)}/g, (match, code) => {
       const varLink = code.match(/\.[\s\S]*?\)/g) ?
-        code.replace(/\.[\s\S]*?\)/g, '').split('.').map(key => `[\"${key}\"]`)
-        : !code.includes('(') ? code.split('.').map(key => `[\"${key}\"]`) : code;
+        code.replace(/\.[\s\S]*?\)/g, '').split('.').map(key => `[\"${key}\"]`).join('')
+        : !code.includes('(') ? code.split('.').map(key => `[\"${key}\"]`).join('') : code;
       const varMethods = code.match(/(\.\w+\(.*?\))/g) ? code.match(/(\.\w+\(.*?\))/g).join('') : '';
       try {
         return new Function('data', `return data${varLink}${varMethods}`)(data);
       } catch (err) {
         try {
-          return new Function(`return ${varLink}`)()
+          return new Function('data', `return ${code}`)(data)
         } catch (err) {
           console.log(err);
         }
-      }
-    })
-    .replace(/%{([\s\S]*?)\}%/g, (match, code) => {
-      try {
-        return new Function(code)();
-      } catch (err) {
-        console.log(err);
-        return match;
       }
     });
   return await markdown.render(parsedContent);
