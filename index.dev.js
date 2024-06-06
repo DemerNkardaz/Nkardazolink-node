@@ -1,7 +1,6 @@
 require('dotenv').config();
 require('./nk.config.js').config().init();
 console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Server started\x1b[39m`);
-const readFileAsync = promisify(fs.readFile);
 app.use(compression());
 app.use(express.static(path.join(__PROJECT_DIR__, 'public')));
 app.use(express.static(path.join(__PROJECT_DIR__, 'site.maps')));
@@ -10,7 +9,9 @@ app.use(cookieParser());
 app.use(express.json());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__PROJECT_DIR__, 'app'));
-
+markdown.core.ruler.enable(['abbr']);
+markdown.inline.ruler.enable(['ins', 'mark','footnote_inline', 'sub', 'sup']);
+markdown.block.ruler.enable(['footnote', 'deflist']);
 
 
 async function writeRobots_x_SiteMap() {
@@ -277,6 +278,7 @@ app.get('/', async (request, response) => {
       HEAD: await loadComponent('document/head', { ...COMPONENT, ...__COMPILED_DATA }),
       BODY: await loadComponent('document/body', { ...COMPONENT, ...__COMPILED_DATA }),
       TEST: await loadComponent('test', { ...COMPONENT, ...__COMPILED_DATA }, 'pug'),
+      TEST2: await loadComponent('test', { ...COMPONENT, ...__COMPILED_DATA }, 'md'),
     }
 
     const Builded = await PagePrerender('layout', { ...DOCUMENT, ...__COMPILED_DATA });

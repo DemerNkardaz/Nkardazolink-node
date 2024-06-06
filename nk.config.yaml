@@ -1,6 +1,11 @@
 Renderers:
   - ejs: 'ejs'
   - pug: 'pug'
+  - marked: 'marked'
+  - remarkable: '{ Remarkable }'
+Remarkable-settings:
+  - Vars
+  - markdown: 'new Remarkable({ html: true, breaks: true })'
 Interpretators:
   - sass: 'sass'
 IndexDependencies:
@@ -36,6 +41,7 @@ AppFuncs:
   - app: 'express()'
   - sqlite3: 'require("sqlite3").verbose()'
   - dbPath: 'path.resolve(__dirname, "data_base/index.db")'
+  - readFileAsync: 'promisify(fs.readFile)'
 AppVariables: 
   - Vars
   - __PROJECT_DIR__: 'path.resolve(__dirname)'
