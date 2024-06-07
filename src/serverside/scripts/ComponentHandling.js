@@ -5,10 +5,12 @@ async function loadComponent(component, data, renderer) {
     md: [markdown.renderFile, 'md']
   }
   try {
-    let template;
+    for (const [key, [renderFile, ext]] of Object.entries(renderers)) {
+      if (ext.includes(component.split('.').pop()))
+        return await renderFile(`app/${component}`, data || {});
+    }
     const transferedData = [`app/${component}.${renderers[renderer] ? renderers[renderer][1] : 'ejs'}`, data || {}];
-    template = await renderers[renderer] ? renderers[renderer][0](...transferedData) : renderers['ejs'][0](...transferedData);
-    return template;
+    return await renderers[renderer] ? renderers[renderer][0](...transferedData) : renderers['ejs'][0](...transferedData);
   }
   catch (error) {
     console.error(error);

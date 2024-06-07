@@ -1,3 +1,5 @@
+const { loadComponent } = require('./src/serverside/scripts/ComponentHandling.js');
+
 require('dotenv').config();
 require('./nk.config.js').config().init();
 console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Server started\x1b[39m`);
@@ -301,15 +303,14 @@ app.get('/', async (request, response) => {
     __MANIFEST__ = JSON.parse(__MANIFEST__);
     const __COMPILED_DATA = { __META__, __SETTING_CONFIG__, __MANIFEST__ };
 
-    const COMPONENT = {
-      HEADER: await loadComponent('components/header', { ...__COMPILED_DATA }),
+    let DOCUMENT = {}, COMPONENT = {};
+    for (let names of ['HEADER']) {
+      let [variable, path] = names.includes('=') ? names.split('=') : [names, names.toLowerCase()];
+      COMPONENT[variable] = await loadComponent(path.includes('components') ? path : `components/${path}`, { ...__COMPILED_DATA })
     }
-
-    const DOCUMENT = {
-      HEAD: await loadComponent('document/head', { ...COMPONENT, ...__COMPILED_DATA }),
-      BODY: await loadComponent('document/body', { ...COMPONENT, ...__COMPILED_DATA }),
-      TEST: await loadComponent('test', { ...COMPONENT, ...__COMPILED_DATA }, 'pug'),
-      TEST2: await loadComponent('test', { ...COMPONENT, ...__COMPILED_DATA }, 'md'),
+    for (let names of ['TEST=test.pug', 'TEST2=test.md', 'HEAD=document/head', 'BODY=document/body']) {
+      let [variable, path] = names.split('=');
+      DOCUMENT[variable] = await loadComponent(path, { ...COMPONENT, ...__COMPILED_DATA })
     }
 
     const Builded = await PagePrerender('layout', { ...DOCUMENT, ...__COMPILED_DATA });
@@ -318,7 +319,7 @@ app.get('/', async (request, response) => {
   } catch (error) {
     console.error(error);
     const errorText = error.stack.replace(/\n/g, '<br>');
-    response.status(500).send(await loadComponent('500', { errorText: errorText, navigatorLanguage: request.headers['accept-language'], currentURL: `${request.protocol}://${request.get('host')}${request.url}` }, 'pug'));
+    response.status(500).send(await loadComponent('500.pug', { errorText: errorText, navigatorLanguage: request.headers['accept-language'], currentURL: `${request.protocol}://${request.get('host')}${request.url}` }));
   }
 });
 
@@ -332,6 +333,14 @@ app.get('/wiki', async (request, response) => {
     response.status(500).send(error.message);
   }
 });
+
+
+app.use(async (req, res, next) => {
+  const page = await loadComponent('404.pug', { navigatorLanguage: req.headers['accept-language'], currentURL: `${req.protocol}://${req.get('host')}${req.url}` });
+  await res.status(404).send(page);
+  next();
+});
+
 
 const server = app.listen(process.env.PORT, () => { 
   console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Runned server at [http://${process.env.HOST}:${process.env.PORT}]\x1b[39m`);

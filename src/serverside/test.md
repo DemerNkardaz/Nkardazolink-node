@@ -35,6 +35,11 @@ H~2~O
   return getDate();
 ```
 
+```js %
+  let result = [];
+  ['1', '2', '3', 'Апчихба', '5'].forEach(elements => result.push(`* The element: ${elements}`));
+  return `## Это список\n${result.join('\n')}`;
+```
 
 ```js 
   return new Date()
