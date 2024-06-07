@@ -330,7 +330,7 @@ app.get('/wiki', async (request, response) => {
     response.send('Future WIKI Section')
   } catch (error) {
     console.error(error);
-    response.status(500).send(error.message);
+    response.status(500).send(await loadComponent('500.pug', { errorText: errorText, navigatorLanguage: request.headers['accept-language'], currentURL: `${request.protocol}://${request.get('host')}${request.url}` }));
   }
 });
 
