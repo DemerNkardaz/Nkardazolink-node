@@ -29,6 +29,8 @@ IndexDependencies:
   - os: 'os'
   - child_process: '{ execSync }'
   - serialize-javascript: 'jsSerialize'
+BuildingDependencies:
+  - ./server.workers/server/sitemap.gen.js: '{ generateSitemaps }'
 ProjectDependencies:
   - ./app/hooks/DataExtend.js: '{ DataExtend }'
   - ./app/hooks/StringHandling.js: '{ StringHandling }'
