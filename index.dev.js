@@ -1,5 +1,4 @@
 const { loadComponent } = require('./src/serverside/scripts/ComponentHandling.js');
-
 require('dotenv').config();
 require('./nk.config.js').config().init();
 console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Server started\x1b[39m`);
@@ -313,7 +312,7 @@ app.get('/', async (request, response) => {
       DOCUMENT[variable] = await loadComponent(path, { ...COMPONENT, ...__COMPILED_DATA })
     }
 
-    const Builded = await PagePrerender('layout', { ...DOCUMENT, ...__COMPILED_DATA });
+    const Builded = await loadComponent('layout', { ...DOCUMENT, ...__COMPILED_DATA }).PostProcessor({ ...DOCUMENT, ...__COMPILED_DATA });
 
     response.send(Builded);
   } catch (error) {

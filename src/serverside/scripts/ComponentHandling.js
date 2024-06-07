@@ -18,16 +18,14 @@ async function loadComponent(component, data, renderer) {
   }
 }
 
-async function PagePrerender(pageTemplate, data) {
+Promise.prototype.PostProcessor = async function (data) {
+  console.log(await this);
   try {
-    const template = await ejs.renderFile(`app/${pageTemplate}.ejs`, data || {});
-    const processedPage = await PostProcessor(template, data);
-
-    return processedPage;
+    return await PostProcessor(await this, data);
   } catch (error) {
-    console.error('Ошибка при обработке страницы:', error);
-    return null;
+    console.error(error);
+    throw error;
   }
-}
+};
 
-module.exports = { loadComponent, PagePrerender };
+module.exports = { loadComponent };

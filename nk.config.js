@@ -3,7 +3,7 @@ const yaml = require('js-yaml');
 const path = require('path');
 const config = (file) => {
   let methods = {};
-  const configFile = yaml.load(fs.readFileSync(`${file || 'nk.config'}.yaml`, 'utf8'));
+  const configFile = yaml.load(fs.readFileSync(`./${file || 'nk.config'}.yaml`, 'utf8'));
   methods.handle = (dependency, isNotRequire) => {
     let key = Object.keys(dependency)[0];
     let value = dependency[key];
