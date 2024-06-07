@@ -2,8 +2,9 @@ require('dotenv').config();
 require('./nk.config.js').config().init();
 console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Server started\x1b[39m`);
 app.use(compression());
-app.use(express.static(path.join(__PROJECT_DIR__, 'public')));
-app.use(express.static(path.join(__PROJECT_DIR__, 'site.maps')));
+app.use(express.static(path.join(__PROJECT_DIR__, 'static/assets')));
+app.use(express.static(path.join(__PROJECT_DIR__, 'static/public')));
+app.use(express.static(path.join(__PROJECT_DIR__, 'static/site.maps')));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.json());
@@ -12,7 +13,6 @@ app.set('views', path.join(__PROJECT_DIR__, 'app'));
 markdown.core.ruler.enable(['abbr']);
 markdown.inline.ruler.enable(['ins', 'mark','footnote_inline', 'sub', 'sup']);
 markdown.block.ruler.enable(['footnote', 'deflist']);
-require('./app/plugins/remarkable/renderFile.js');
 
 markdown.renderFile = async function (filePath, data) {
   const fileContent = await readFileAsync(filePath, 'utf8');
@@ -36,9 +36,9 @@ markdown.renderFile = async function (filePath, data) {
       } catch (err) {
         try {
           return new Function('data', `return ${code}`)(data)
-        } catch (err) {
+          } catch (err) {
           console.log(err);
-          return match;
+          return `<span title="${err}" style="cursor: help">${match}</span>`;
         }
       }
     });
@@ -49,7 +49,7 @@ async function writeRobots_x_SiteMap() {
   try {
     const asciiArt = await readFileAsync('./fun/ascii.txt', 'utf8');
     const content = `${asciiArt}\nUser-agent: *\nSitemap: http://${process.env.HOST}:${process.env.PORT}/sitemap.index.xml.gz\nSitemap: http://${process.env.HOST}:${process.env.PORT}/sitemap.index.xml`;
-    await fs.writeFileSync('./site.maps/robots.txt', content, 'utf-8');
+    await fs.writeFileSync('./static/site.maps/robots.txt', content, 'utf-8');
     console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Write robots.txt completed\x1b[39m`);
 
     const locations = [
@@ -116,12 +116,12 @@ async function writeRobots_x_SiteMap() {
     });
     sitemaps.push({ url: 'sitemap.index.xml', lastmod: new Date().toISOString(), content: sitemapXMLIndex.end({ pretty: false }) });
     sitemaps.forEach(sitemap => {
-      fs.writeFileSync(`./site.maps/${sitemap.url}`, sitemap.content, 'utf-8');
+      fs.writeFileSync(`./static/site.maps/${sitemap.url}`, sitemap.content, 'utf-8');
       console.log(`\x1b[34m[${new Date().toLocaleString().replace(',', '')}] :: 🔵 > [SITEMAP] :: [${sitemap.url}] created\x1b[39m`);
       zlib.gzip(sitemap.content, (err, zipped) => {
         if (err) console.error(err);
         else
-          fs.writeFileSync(`./site.maps/${sitemap.url}.gz`, zipped, 'binary'),
+          fs.writeFileSync(`./static/site.maps/${sitemap.url}.gz`, zipped, 'binary'),
           console.log(`\x1b[34m[${new Date().toLocaleString().replace(',', '')}] :: 🔵 > [SITEMAP] :: [${sitemap.url}] compressed with GZIP\x1b[39m`);
       });
     });
@@ -180,9 +180,9 @@ app.use((req, res, next) => {
 
 
 const dataArray = [];
-__NK__.langs.supported.forEach(lang => { dataArray.push({ source: `./public/data/locale/common/main.${lang}.yaml`, as: `locale.${lang}` }) });
-dataArray.push({ source: `./public/data/locale/common/asset.common.yaml`, as: `locale.common` });
-dataArray.push({ source: `./public/data/locale/common/asset.templates.yaml`, as: `locale.templates` });
+__NK__.langs.supported.forEach(lang => { dataArray.push({ source: `./static/assets/locale/common/main.${lang}.yaml`, as: `locale.${lang}` }) });
+dataArray.push({ source: `./static/assets/locale/common/asset.common.yaml`, as: `locale.common` });
+dataArray.push({ source: `./static/assets/locale/common/asset.templates.yaml`, as: `locale.templates` });
 
 DataExtend(dataArray, __PROJECT_DIR__)
     .then(() => console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [DATA-EXTEND] :: Extension of data completed\x1b[39m`))
@@ -210,7 +210,7 @@ function generateUserId(length) {
 
 async function getLastModifiedInFolders() {
     try {
-        const paths = ['./', './app', './public'];
+        const paths = ['./', './app', './static'];
         const lastModifiedDates = await Promise.all(paths.map(async folderPath => {
             const files = await fs.promises.readdir(folderPath);
             const lastModifiedDates = await Promise.all(files.map(async file => {
@@ -297,7 +297,7 @@ app.get('/', async (request, response) => {
     const __SETTING_CONFIG__ = new Map([
       ['lang', __META__.navigatorLanguage],
     ]);
-    let __MANIFEST__ = await readFileAsync(path.join(`${__PROJECT_DIR__}/public/manifest/manifest.${__META__.navigatorLanguage}.webmanifest`), 'utf8');
+    let __MANIFEST__ = await readFileAsync(path.join(`${__PROJECT_DIR__}/static/public/manifest/manifest.${__META__.navigatorLanguage}.webmanifest`), 'utf8');
     __MANIFEST__ = JSON.parse(__MANIFEST__);
     const __COMPILED_DATA = { __META__, __SETTING_CONFIG__, __MANIFEST__ };
 

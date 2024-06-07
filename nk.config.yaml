@@ -40,7 +40,7 @@ AppFuncs:
   - Vars
   - app: 'express()'
   - sqlite3: 'require("sqlite3").verbose()'
-  - dbPath: 'path.resolve(__dirname, "data_base/index.db")'
+  - dbPath: 'path.resolve(__dirname, "static/data_base/index.db")'
   - readFileAsync: 'promisify(fs.readFile)'
 AppVariables: 
   - Vars

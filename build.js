@@ -10,7 +10,7 @@ const writeFilePromise = promisify(fs.writeFile);
 const serverSource = './src/serverside';
 const serverDestination = './app';
 const clientSource = './src/clientside';
-const clientDestination = './public';
+const clientDestination = './static/public';
 const handlingExtensions = ['.js', '.html', '.scss', '.css'];
 
 
@@ -94,7 +94,7 @@ const createManifest = async (lang, manifest) => {
   };
 
   const translatedManifest = translate(manifest);
-  const outputPath = path.join(__dirname, 'public', 'manifest', `manifest.${lang}.webmanifest`);
+  const outputPath = path.join(__dirname, `static/public/manifest/manifest.${lang}.webmanifest`);
   const minifiedManifest = JSON.stringify({ lang, ...translatedManifest }, null, 0);
   await fs.writeFile(outputPath, minifiedManifest, 'utf-8');
   console.log(`\x1b[33m[${new Date().toLocaleString().replace(',', '')}] :: 🟨 > [BUILDER] % Manifest for [${lang.toUpperCase()}] created successfully!\x1b[39m`);
@@ -122,7 +122,7 @@ async function build() {
     await copyFilesAndMinify(serverSource, serverDestination)
       .then(() => console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [BUILDER] :: Files copied and minified successfully\x1b[39m`))
       .catch(error => console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > Error during copy and minify: ${error.message}`));
-    const manifestOutput = path.join(__dirname, 'public', 'manifest');
+    const manifestOutput = path.join(__dirname, 'static/public/manifest/');
     if (!fs.existsSync(manifestOutput)) fs.mkdirSync(manifestOutput, { recursive: true });
     const { MANIFEST } = await require('./app/templates/manifest_template.js');
     const createManifestPromises = await __NK__.langs.supported.map(lang => createManifest(lang, MANIFEST));

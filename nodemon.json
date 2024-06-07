@@ -1,7 +1,7 @@
 {
   "watch": ["*.*"],
   "ext": "md,ejs,js,json,pug,yaml,yml,css,sass,scss,htm,html,xml,xhtml,php,jsonnet,ts,tsx,jsx,vue,asp,aspx,rb,py,pl,jade,haml,coffe,dart",
-  "ignore": ["data_base/*", "public/*", "app/*", "index.js", "robots.txt", "sitemap.*", "sitemap_*", "sitemap.*.*", "sitemap_*.*"],
+  "ignore": ["static/*", "app/*", "index.js"],
   "commands": [
     "node run-script.js build",
     "node app.js"

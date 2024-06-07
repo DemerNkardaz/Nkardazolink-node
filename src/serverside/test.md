@@ -24,6 +24,10 @@ H~2~O
 
 
 ```js %
+  return markdown.render('(NH~4~​)~2~​S~2~​O~8~​');
+```
+
+```js %
   const date = new Date();
   const getDate = () => {
     return `Текущая дата: ${date} ${data.HEADER}<br>Текущий язык: ${data.__SETTING_CONFIG__.get('lang')}<br>`;
