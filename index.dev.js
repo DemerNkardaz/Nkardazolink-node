@@ -130,7 +130,7 @@ async function writeRobots_x_SiteMap() {
     console.error(error);
   }
 }
-(async () => { await writeRobots_x_SiteMap(); })();
+writeRobots_x_SiteMap();
 
 
 app.use((req, res, next) => {
