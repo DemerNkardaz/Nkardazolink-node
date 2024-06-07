@@ -4,7 +4,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const terser = require('terser');
 const htmlMinifier = require('html-minifier');
-const sass = require('node-sass');
+const sass = require('sass');
 const { promisify } = require('util');
 const writeFilePromise = promisify(fs.writeFile);
 const serverSource = './src/serverside';
@@ -52,10 +52,7 @@ async function copyFilesAndMinify(sourceDir, destinationDir) {
         });
         await fs.writeFile(destinationPath, minified);
       } else if (path.extname(sourcePath) === '.scss' || path.extname(sourcePath) === '.css') {
-        const result = sass.renderSync({
-          file: sourcePath,
-          outputStyle: 'compressed'
-        });
+        const result = sass.compile(sourcePath, { style: 'compressed' });
         await fs.writeFile(destinationPath, result.css.toString());
       } else if (!handlingExtensions.includes(path.extname(sourcePath))) {
         await fs.copy(sourcePath, destinationPath);

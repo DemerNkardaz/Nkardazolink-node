@@ -48,7 +48,7 @@ markdown.renderFile = async function (filePath, data) {
 
 async function writeRobots_x_SiteMap() {
   try {
-    const asciiArt = await readFileAsync('./fun/ascii.txt', 'utf8');
+    const asciiArt = await readFileAsync('./static/fun_ascii.txt', 'utf8');
     const content = `${asciiArt}\nUser-agent: *\nSitemap: http://${process.env.HOST}:${process.env.PORT}/sitemap.index.xml.gz\nSitemap: http://${process.env.HOST}:${process.env.PORT}/sitemap.index.xml`;
     await fs.writeFileSync('./static/site.maps/robots.txt', content, 'utf-8');
     console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Write robots.txt completed\x1b[39m`);
