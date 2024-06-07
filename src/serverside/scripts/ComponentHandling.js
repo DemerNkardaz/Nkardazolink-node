@@ -19,7 +19,6 @@ async function loadComponent(component, data, renderer) {
 }
 
 Promise.prototype.PostProcessor = async function (data) {
-  console.log(await this);
   try {
     return await PostProcessor(await this, data);
   } catch (error) {

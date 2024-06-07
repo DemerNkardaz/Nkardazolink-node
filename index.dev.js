@@ -302,17 +302,20 @@ app.get('/', async (request, response) => {
     __MANIFEST__ = JSON.parse(__MANIFEST__);
     const __COMPILED_DATA = { __META__, __SETTING_CONFIG__, __MANIFEST__ };
 
-    let DOCUMENT = {}, COMPONENT = {};
-    for (let names of ['HEADER']) {
+    let DOCUMENT = ['TEST=test.pug', 'TEST2=test.md', 'HEAD=document/head', 'BODY=document/body'];
+    let COMPONENT = ['HEADER'];
+    for (let names of COMPONENT) {
       let [variable, path] = names.includes('=') ? names.split('=') : [names, names.toLowerCase()];
-      COMPONENT[variable] = await loadComponent(path.includes('components') ? path : `components/${path}`, { ...__COMPILED_DATA })
+      Array.isArray(COMPONENT) && (COMPONENT = {});
+      COMPONENT[variable] = await loadComponent(path.includes('components') ? path : `components/${path}`, { ...__COMPILED_DATA });
     }
-    for (let names of ['TEST=test.pug', 'TEST2=test.md', 'HEAD=document/head', 'BODY=document/body']) {
+    for (let names of DOCUMENT) {
       let [variable, path] = names.split('=');
+      Array.isArray(DOCUMENT) && (DOCUMENT = {});
       DOCUMENT[variable] = await loadComponent(path, { ...COMPONENT, ...__COMPILED_DATA })
     }
 
-    const Builded = await loadComponent('layout', { ...DOCUMENT, ...__COMPILED_DATA }).PostProcessor({ ...DOCUMENT, ...__COMPILED_DATA });
+    const Builded = await loadComponent('layout', { ...DOCUMENT, ...__COMPILED_DATA }).PostProcessor({ ...__COMPILED_DATA });
 
     response.send(Builded);
   } catch (error) {
