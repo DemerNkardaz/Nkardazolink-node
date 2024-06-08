@@ -215,20 +215,24 @@ app.get('/', async (request, response) => {
     __MANIFEST__ = JSON.parse(__MANIFEST__);
     const __COMPILED_DATA = { __META__, __SETTING_CONFIG__, __MANIFEST__ };
 
-    let DOCUMENT = ['TEST=test.pug', 'TEST2=test.md', 'HEAD=document/head', 'BODY=document/body'];
-    let COMPONENT = ['HEADER'];
-    for (let names of COMPONENT) {
-      let [variable, path] = names.includes('=') ? names.split('=') : [names, names.toLowerCase()];
-      Array.isArray(COMPONENT) && (COMPONENT = {});
-      COMPONENT[variable] = await loadComponent(path.includes('components') ? path : `components/${path}`, { ...__COMPILED_DATA });
+
+    
+    let [$document, $component] = [
+      ['$Test=test.pug', '$Test2=test.md', '$HEAD=document/head', '$BODY=document/body'],
+      ['$Header']
+    ]
+    for (const names of $component) {
+      let [variable, path] = names.includes('=') ? names.split('=') : [names, names.toLowerCase().replace('$', '')];
+      Array.isArray($component) && ($component = {});
+      $component[variable] = await loadComponent(path.includes('components') ? path : `components/${path}`, { ...__COMPILED_DATA });
     }
-    for (let names of DOCUMENT) {
+    for (const names of $document) {
       let [variable, path] = names.split('=');
-      Array.isArray(DOCUMENT) && (DOCUMENT = {});
-      DOCUMENT[variable] = await loadComponent(path, { ...COMPONENT, ...__COMPILED_DATA })
+      Array.isArray($document) && ($document = {});
+      $document[variable] = await loadComponent(path, { ...$component, ...__COMPILED_DATA })
     }
 
-    const Builded = await loadComponent('layout', { ...DOCUMENT, ...__COMPILED_DATA }).PostProcessor({ ...__COMPILED_DATA });
+    const Builded = await loadComponent('layout', { ...$document, ...__COMPILED_DATA }).PostProcessor({ ...__COMPILED_DATA });
 
     response.send(Builded);
   } catch (error) {
@@ -247,6 +251,17 @@ app.get('/wiki', async (request, response) => {
     console.error(error);
     response.status(500).send(await loadComponent('500.pug', { errorText: errorText, navigatorLanguage: request.headers['accept-language'], currentURL: `${request.protocol}://${request.get('host')}${request.url}` }));
   }
+});
+
+app.post('/process-dom', (reqest, response) => {
+  const { window } = new JSDOM();
+  const $ = require('jquery')(window);
+  
+  const { dom } = reqest.body;
+  $('#content').append('<p>Added by server</p>');
+  const processedDom = domInstance.window.document.documentElement.outerHTML;
+
+  response.json({ dom: processedDom });
 });
 
 

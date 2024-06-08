@@ -25,10 +25,11 @@ IndexDependencies:
   - cookie-parser: 'cookieParser'
   - jsonpath: 'jsonpath'
   - jszip: 'jzsip'
-  - jquery: '$'
   - os: 'os'
   - child_process: '{ execSync }'
   - serialize-javascript: 'jsSerialize'
+  - body-parser: 'bodyParser'
+  - jsdom: '{ JSDOM }'
 BuildingDependencies:
   - ./server.workers/server/sitemap.gen.js: '{ generateSitemaps }'
 ProjectDependencies:

@@ -16,6 +16,7 @@ const checkForIndex = async (sourcePath) => {
   } catch (error) {
     console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > Not found [index.js], runnig % builder %`);
     execSync('node build.js index', { stdio: 'inherit' });
+
   }
 }
 
