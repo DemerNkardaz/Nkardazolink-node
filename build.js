@@ -17,8 +17,9 @@ async function build() {
     
     const manifestOutput = path.join(__PROJECT_DIR__, 'static/public/manifest/');
     if (!fs.existsSync(manifestOutput)) fs.mkdirSync(manifestOutput, { recursive: true });
-    const { MANIFEST } = await require('./app/templates/manifest_template.js');
-    const createManifestPromises = await __NK__.langs.supported.map(lang => createManifest(__PROJECT_DIR__, lang, MANIFEST));
+    const { Manifest } = require('./app/templates/manifest_template.js');
+    const manifestTemplate = new Manifest();
+    const createManifestPromises = await __NK__.langs.supported.map(lang => createManifest(__PROJECT_DIR__, lang, manifestTemplate.getManifest()));
     await Promise.all(createManifestPromises)
       .then(() => console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [BUILDER] :: All manifests created successfully\x1b[39m`)).catch(error => console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > Error during build: ${error.message}`));
     require('./server.workers/server/sitemap.gen.js').generateSiteMaps(__PROJECT_DIR__);
