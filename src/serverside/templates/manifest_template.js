@@ -41,6 +41,7 @@ class Manifest {
     };
 
   }
+
   generateIconList(sizes, type, maskable = false) {
     const icons = [];
     sizes.forEach(size => {
@@ -49,6 +50,7 @@ class Manifest {
     });
     return icons;
   }
+  
   getManifest() {
     return {
       id: this.id,

@@ -4,6 +4,7 @@ const path = require('path');
 const readFileAsync = require('util').promisify(fs.readFile);
 const xmlbuilder = require('xmlbuilder');
 const zlib = require('zlib');
+
 async function generateSiteMaps(sourcePath) {
   try {
     if (!fs.existsSync(path.join(sourcePath, 'static/site.maps'))) {
