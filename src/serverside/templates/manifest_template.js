@@ -1,6 +1,9 @@
 class Manifest {
   constructor() {
-    const shortcutSizes = ['48x48', '72x72', '96x96', '144x144', '192x192'];
+    const shortcuts = [
+      { ru: 'Мондзёсё | Галерей Гербов', en: 'Monjōshō | The Gallery of Crests' }, '/Nkardazolink/?mode=kamon',
+      { ru: 'Сасимоно Тэнранкай | Выставка Штандартов', en: 'Sashimono Tenrankai | The Banners Exhibition' }, '/Nkardazolink/?mode=banners'
+    ];
     const iconSizes = ['48x48', '72x72', '96x96', '144x144', '192x192', '256x256', '512x512'];
     
     this.id = 'com.demernkardaz.app';
@@ -17,18 +20,7 @@ class Manifest {
     this.background_color = '#333333';
     this.launch_handler = { client_mode: ['focus-existing', 'auto'] };
     this.categories = ['books', 'literature', '3d', 'art', 'design', 'graphics', 'layout', 'wolrdbuilding', 'lore', 'artist', 'developer'];
-    this.shortcuts = [
-      {
-        name: { ru: 'Мондзёсё | Галерей Гербов', en: 'Monjōshō | The Gallery of Crests' },
-        url: '/Nkardazolink/?mode=kamon',
-        icons: this.generateIconList(shortcutSizes, 'android')
-      },
-      {
-        name: { ru: 'Сасимоно Тэнранкай | Выставка Штандартов', en: 'Sashimono Tenrankai | The Banners Exhibition' },
-        url: '/Nkardazolink/?mode=banners',
-        icons: this.generateIconList(shortcutSizes, 'android')
-      }
-    ];
+    this.shortcuts = this.generateShortcutList(shortcuts);
     this.icons = this.generateIconList(iconSizes, 'android', true);
     this.screenshots = [
       { src: './screenshot720p_win.webp', sizes: '1280x720', type: 'image/webp', form_factor: 'wide', platform: 'windows' },
@@ -40,6 +32,17 @@ class Manifest {
       use_cache: true
     };
 
+  }
+
+  generateShortcutList(array) {
+    const shortcuts = [];
+    const shortcutSizes = ['48x48', '72x72', '96x96', '144x144', '192x192'];
+    for (let i = 0; i < array.length; i += 2) {
+      const names = array[i];
+      const url = array[i + 1];
+      shortcuts.push({ name: names, url: url, icons: this.generateIconList(shortcutSizes, 'android') });
+    }
+    return shortcuts;
   }
 
   generateIconList(sizes, type, maskable = false) {
