@@ -18,9 +18,14 @@ class SessionManager {
   }
 
   async checkSessionFile() {
-    if (!fs.existsSync(path.join(this.sourcePath, 'static/sessions.json'))) {
-      await writeFile(path.join(this.sourcePath, 'static/sessions.json'), this.#encryptSessions({ sessions: [] }), 'utf-8');
-      await writeFile(path.join(this.sourcePath, 'static/sessions.cryptoless.json'), JSON.stringify({ sessions: [] }), 'utf-8');
+    //if (!fs.existsSync(path.join(this.sourcePath, 'static/sessions.json'))) {
+    //  await writeFile(path.join(this.sourcePath, 'static/sessions.json'), this.#encryptSessions({ sessions: [] }), 'utf-8');
+    //  await writeFile(path.join(this.sourcePath, 'static/sessions.cryptoless.json'), JSON.stringify({ sessions: [] }), 'utf-8');
+    //}
+    if (!fs.existsSync(path.join(this.sourcePath, 'static/sessions.bdb'))) {
+      const encryptedRoot = this.#encryptSessions({ sessions: [] });
+      const encryptedBuffer = Buffer.from(encryptedRoot, 'hex');
+      await writeFile(path.join(this.sourcePath, 'static/sessions.bdb'), encryptedBuffer, { flag: 'w' });
     }
   }
 
@@ -28,8 +33,8 @@ class SessionManager {
     const release = await sessionMutex.acquire();
     try {
       if (sessionID !== undefined && settings !== null) {
-        const sessionsPath = path.join(this.sourcePath, 'static/sessions.json');
-        let sessionsJSON = JSON.parse(this.#decryptSessions(await readFile(sessionsPath, 'utf-8')));
+        const sessionsPath = path.join(this.sourcePath, 'static/sessions.bdb');
+        let sessionsJSON = JSON.parse(this.#decryptSessions(await readFile(sessionsPath, 'hex')));
         let writeMessage = true;
 
         const existingSessionIndex = sessionsJSON.sessions.findIndex(session => session.sessionID === sessionID);
@@ -56,8 +61,8 @@ class SessionManager {
         const isValidLength = checkKeyValueMaxLength(settings) && sessionID.length == 40;
 
         if (isValidLength) {
-          await writeFile(sessionsPath, this.#encryptSessions(sessionsJSON), 'utf-8');
-          await writeFile(path.join(this.sourcePath, 'static/sessions.cryptoless.json'), JSON.stringify(sessionsJSON), 'utf-8');
+          const contentBuffer = Buffer.from(this.#encryptSessions(sessionsJSON), 'hex');
+          await writeFile(sessionsPath, contentBuffer, { flag: 'w' });
           writeMessage && console.log(`\x1b[34m[${new Date().toLocaleString().replace(',', '')}] :: 🔷 > [SESSIONS] :: Session ${sessionID} has been written\x1b[39m`);
           return true;
         }
@@ -68,14 +73,14 @@ class SessionManager {
     }
   }
 
-  async readSession(sessionID) {
-    const sessionsPath = path.join(this.sourcePath, 'static/sessions.json');
-    let sessionsJSON = JSON.parse(this.#decryptSessions(await readFile(sessionsPath, 'utf-8')));
-    return sessionsJSON.sessions.find(session => session.sessionID === sessionID);
+  async readSession(sessionID = null, login = null) {
+    const sessionsPath = path.join(this.sourcePath, 'static/sessions.bdb');
+    let sessionsJSON = await JSON.parse(this.#decryptSessions(await readFile(sessionsPath, 'hex')));
+    return await sessionsJSON.sessions.find(session => (session.login && session.login === login) || (session.sessionID === sessionID));
   }
 
-  async registration(sessionID, login, pass, email, userPlatform) {
-    const session = await this.readSession(sessionID);
+  async registration(sessionID = null, login, pass, email, userPlatform) {
+    const session = await this.readSession(sessionID, login);
     if (session && session.login && session.pass) {
       await this.authorization(login, pass, email);
     } else {
@@ -99,8 +104,8 @@ class SessionManager {
   }
 
   async authorization(login, pass, email) {
-    const sessionsPath = path.join(this.sourcePath, 'static/sessions.json');
-    let sessionsJSON = JSON.parse(this.#decryptSessions(await readFile(sessionsPath, 'utf-8')));
+    const sessionsPath = path.join(this.sourcePath, 'static/sessions.bdb');
+    let sessionsJSON = JSON.parse(this.#decryptSessions(await readFile(sessionsPath, 'hex')));
     
     for (const session of sessionsJSON.sessions) {
       if (session && session.login && session.pass) {
@@ -140,8 +145,8 @@ class SessionManager {
 
 
   async #generateUserID() {
-    const sessionsPath = path.join(this.sourcePath, 'static/sessions.json');
-    let sessionsJSON = JSON.parse(this.#decryptSessions(await readFile(sessionsPath, 'utf-8')));
+    const sessionsPath = path.join(this.sourcePath, 'static/sessions.bdb');
+    let sessionsJSON = JSON.parse(this.#decryptSessions(await readFile(sessionsPath, 'hex')));
 
     let maxUserID = -1;
     for (const session of sessionsJSON.sessions) {
