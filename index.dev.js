@@ -169,10 +169,10 @@ async function parseUrl(request) {
 global.sessionManager = new SessionManager(__PROJECT_DIR__);
 const booleanOptions = ['true', 'false'];
 async function jsonDBStessTest() {
-  for (let i = 0; i < 100000; i++) {
+  for (let i = 0; i < 10; i++) {
     
     let randomID = `{${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}-${-(new Date().getTimezoneOffset() / 60)}-${new Date().getTime()}}`;
-    await sessionManager.writeSession(randomID, {
+    await sessionManager.writeSessionToSQL(randomID, {
       savedSettings: {
         lang: await __NK__.langs.supported[Math.floor(Math.random() * __NK__.langs.supported.length)],
         skin: await __NK__.skins.supported[Math.floor(Math.random() * __NK__.skins.supported.length)],
@@ -196,7 +196,7 @@ async function jsonDBStessTest() {
 }
 
 (async () => {
-  //await jsonDBStessTest();
+  await jsonDBStessTest();
   //await sessionManager.explainFile();
 })();
 
