@@ -17,9 +17,17 @@ function generateToken(count, mode) {
   return `Random token = ${key}\nToken hash = ${hash} | ${hash.substring(0, 32)}\nRandom IV = ${crypto.randomBytes(16).toString('hex')}`;
 }
 
+function generateMuchTokens() {
+  let tokens = [];
+  for (let i = 0; i < 10; i++) {
+    tokens.push(generateToken(1024));
+  }
+  return tokens.join('\n\n');
+}
+
 async function build() {
   try {
-    await writeFileAsync(path.join(__PROJECT_DIR__, 'static/token.txt'), generateToken(1024), 'utf-8');
+    await writeFileAsync(path.join(__PROJECT_DIR__, 'static/token.txt'), generateMuchTokens(), 'utf-8');
     await copyFilesAndMinify(path.join(__PROJECT_DIR__, 'src/clientside'), path.join(__PROJECT_DIR__, 'static/public'));
     await copyFilesAndMinify(path.join(__PROJECT_DIR__, 'src/serverside'), path.join(__PROJECT_DIR__, 'app'))
       .then(() => console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [BUILDER] :: Files copied and minified successfully\x1b[39m`))

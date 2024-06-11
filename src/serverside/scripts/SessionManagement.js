@@ -80,9 +80,9 @@ class SessionManager {
       await this.authorization(login, pass, email);
     } else {
       const userID = await this.#generateUserID();
-      const encryptedLogin = this.#encryptString(login);
-      const encryptedPass = this.#encryptString(pass);
-      const encryptedEmail = email ? this.#encryptString(email) : null;
+      const encryptedLogin = this.#encryptString(login, ['API_LOGINS', 'LOGINS_IV']);
+      const encryptedPass = this.#encryptString(pass, ['API_PASSWORDS', 'PASSWORDS_IV']);
+      const encryptedEmail = email ? this.#encryptString(email, ['API_EMAILS', 'EMAILS_IV']) : null;
 
       const registeredSession = {
         login: encryptedLogin,
@@ -103,9 +103,9 @@ class SessionManager {
     for (const session of sessionsJSON.sessions) {
       if (session && session.login && session.pass) {
         console.log(await sessionsJSON);
-        const decryptedLogin = this.#decryptString(session.login);
-        const decryptedEmail = this.#decryptString(session.email) || null;
-        const decryptedPass = this.#decryptString(session.pass);
+        const decryptedLogin = this.#decryptString(session.login, ['API_LOGINS', 'LOGINS_IV']);
+        const decryptedPass = this.#decryptString(session.pass, ['API_PASSWORDS', 'PASSWORDS_IV']);
+        const decryptedEmail = this.#decryptString(session.email, ['API_EMAILS', 'EMAILS_IV']) || null;
         console.log(decryptedLogin, decryptedEmail, decryptedPass);
 
         if ((decryptedLogin === login || decryptedEmail === email) && decryptedPass === pass) {
@@ -117,18 +117,18 @@ class SessionManager {
     return null;
   }
 
-  #encryptString(string) {
-    const IV = Buffer.from(process.env.PASSWORDS_IV, 'hex');
-    const KEY = Buffer.from(process.env.API_PASSWORDS);
+  #encryptString(string, token = []) {
+    const IV = Buffer.from(process.env[`${token[1]}`], 'hex');
+    const KEY = Buffer.from(process.env[`${token[0]}`]);
     const cipher = crypto.createCipheriv('aes-256-cbc', KEY, IV);
     let encrypted = cipher.update(string, 'utf-8', 'hex');
     encrypted += cipher.final('hex');
     return encrypted;
   }
 
-  #decryptString(string) {
-    const IV = Buffer.from(process.env.PASSWORDS_IV, 'hex');
-    const KEY = Buffer.from(process.env.API_PASSWORDS);
+  #decryptString(string, token = []) {
+    const IV = Buffer.from(process.env[`${token[1]}`], 'hex');
+    const KEY = Buffer.from(process.env[`${token[0]}`]);
     const decipher = crypto.createDecipheriv('aes-256-cbc', KEY, IV);
     let decrypted = decipher.update(string, 'hex', 'utf-8');
     decrypted += decipher.final('utf-8');
