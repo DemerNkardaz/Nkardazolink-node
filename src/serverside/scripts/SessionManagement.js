@@ -74,7 +74,7 @@ class SessionManager {
     return sessionsJSON.sessions.find(session => session.sessionID === sessionID);
   }
 
-  async registration(sessionID, login, pass, email) {
+  async registration(sessionID, login, pass, email, userPlatform) {
     const session = await this.readSession(sessionID);
     if (session && session.login && session.pass) {
       await this.authorization(login, pass, email);
@@ -83,12 +83,14 @@ class SessionManager {
       const encryptedLogin = this.#encryptString(login, ['API_LOGINS', 'LOGINS_IV']);
       const encryptedPass = this.#encryptString(pass, ['API_PASSWORDS', 'PASSWORDS_IV']);
       const encryptedEmail = email ? this.#encryptString(email, ['API_EMAILS', 'EMAILS_IV']) : null;
-
+      const encryptedPlatform = userPlatform ? this.#encryptString(userPlatform, ['API_USERMETA', 'USERMETA_IV']) : null;
+      console.log(userPlatform, encryptedPlatform);
       const registeredSession = {
         login: encryptedLogin,
         pass: encryptedPass,
         email: encryptedEmail,
-        userID: userID
+        userID: userID,
+        userPlatform: encryptedPlatform
       };
 
       await this.writeSession(sessionID, session.settings, registeredSession);
@@ -105,8 +107,9 @@ class SessionManager {
         console.log(await sessionsJSON);
         const decryptedLogin = this.#decryptString(session.login, ['API_LOGINS', 'LOGINS_IV']);
         const decryptedPass = this.#decryptString(session.pass, ['API_PASSWORDS', 'PASSWORDS_IV']);
-        const decryptedEmail = this.#decryptString(session.email, ['API_EMAILS', 'EMAILS_IV']) || null;
-        console.log(decryptedLogin, decryptedEmail, decryptedPass);
+        const decryptedEmail = session.email ? this.#decryptString(session.email, ['API_EMAILS', 'EMAILS_IV']) : null;
+        const decryptedPlatform = session.userPlatform ? this.#decryptString(session.userPlatform, ['API_USERMETA', 'USERMETA_IV']) : null;
+        console.log(decryptedLogin, decryptedEmail, decryptedPass, decryptedPlatform);
 
         if ((decryptedLogin === login || decryptedEmail === email) && decryptedPass === pass) {
           return { sessionID: session.sessionID, userID: session.userID };

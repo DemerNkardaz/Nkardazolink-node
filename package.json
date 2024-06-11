@@ -27,6 +27,7 @@
     "ejs": "^3.1.10",
     "express": "^4.19.2",
     "express-session": "^1.18.0",
+    "express-useragent": "^1.0.15",
     "jquery": "^3.7.1",
     "js-yaml": "^4.1.0",
     "jsdom": "^24.1.0",

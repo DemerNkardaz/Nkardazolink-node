@@ -8,6 +8,7 @@ app.use(express.static(path.join(__PROJECT_DIR__, 'static/public')));
 app.use(express.static(path.join(__PROJECT_DIR__, 'static/site.maps')));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(useragent.express());
 app.use(express.json());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__PROJECT_DIR__, 'app'));
@@ -170,7 +171,8 @@ global.sessionManager = new SessionManager(__PROJECT_DIR__);
 app.get('/', async (request, response) => {
   try {
     console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 💠 > [SERVER] :: Latest modify date is [${new Date(await getLastModifiedInFolders()).toLocaleString()}]\x1b[39m`);
-    const session = {settings: {}};
+
+    const session = { settings: {}, platform: request.useragent.source };
 
     for (const cookieName in request.cookies) {
       for (const validCookie of VALID_SESSION) {
@@ -189,7 +191,7 @@ app.get('/', async (request, response) => {
     }
 
     //await sessionManager.writeSession(session.sessionID, session.settings);
-    await sessionManager.registration(session.sessionID, 'Nkardaz', '123', 'example@gmail.com');
+    await sessionManager.registration(session.sessionID, 'Nkardaz', '123', 'example@gmail.com', session.platform);
 
     const metaDataResponse = {
       userSession: await sessionManager.getSettings(session.sessionID),

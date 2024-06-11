@@ -17,6 +17,7 @@ IndexDependencies:
   - util: '{ promisify }'
   - path: 'path'
   - express: 'express'
+  - express-useragent: 'useragent'
   - socket.io: 'socketIO'
   - url: '{ URL }'
   - xml2js: 'xml2js'
