@@ -187,7 +187,7 @@ app.get('/', async (request, response) => {
     }
 
     if (!await sessionManager.readSession(cookies.sessionID)) await sessionManager.writeSession(cookies.sessionID, sessionSettings);
-    
+    console.log(await sessionManager.getSetting(cookies.sessionID, 'savedSettings.lang'));
 
 
     const metaDataResponse = {

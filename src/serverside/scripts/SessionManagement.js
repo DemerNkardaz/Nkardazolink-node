@@ -60,6 +60,24 @@ class SessionManager {
     let sessionsJSON = JSON.parse(await readFile(sessionsPath, 'utf-8'));
     return sessionsJSON.sessions.find(session => session.sessionID === sessionID);
   }
+
+  async getSetting(sessionID, settingName) {
+    const session = await this.readSession(sessionID);
+    if (session !== undefined && session !== null) {
+      const keys = settingName.split('.');
+      let currentObject = session.settings;
+      for (const key of keys) {
+        if (!currentObject || typeof currentObject !== 'object' || !currentObject.hasOwnProperty(key)) {
+          return;
+        }
+        currentObject = currentObject[key];
+      }
+      if (currentObject !== undefined) {
+        return currentObject;
+      }
+    }
+    return;
+  }
 }
 
 module.exports = { SessionManager };
