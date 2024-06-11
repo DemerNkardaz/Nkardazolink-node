@@ -224,6 +224,7 @@ const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
 const { Mutex } = require('async-mutex');
 const sessionMutex = new Mutex();
+const sqlite3 = require('sqlite3').verbose();
 const sha1 = str => crypto.createHash('sha1').update(str).digest('hex');
 
 class SessionManager {
@@ -231,25 +232,69 @@ class SessionManager {
   constructor(sourcePath) {
     if (!process.env.API_SESSIONS) throw new Error('API_SESSIONS environment variable is not set!');
     else if (process.env.API_SESSIONS.length !== 32) throw new Error('API_SESSIONS environment variable is not valid!');
+    const dataBasePath = path.join(sourcePath, 'static/data_base/users.db');
+    this.dataBase = new sqlite3.Database(dataBasePath);
+    this.dataBase.run(`CREATE TABLE IF NOT EXISTS users (sessionID TEXT, settings JSON, authorize JSON)`);
+
+
     this.sourcePath = sourcePath;
-    this.checkSessionFile();
     console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SESSIONS] :: Session manager now installed\x1b[39m`);
   }
 
-  async checkSessionFile() {
-    const sessionsFilePath = path.join(this.sourcePath, 'static/sessions.bdb');
-    if (!fs.existsSync(sessionsFilePath)) {
-      const encryptedRoot = this.#encryptSessions({ sessions: [] });
-      const encryptedBuffer = Buffer.from(encryptedRoot, 'hex');
-      await writeFile(sessionsFilePath, encryptedBuffer, { flag: 'w' });
+
+  async writeSessionToSQL(sessionID, settings, authorize = {}) {
+    try {
+      this.dataBase.run('INSERT INTO users (sessionID, settings, authorize) VALUES (?, ?, ?)', [sha1(sessionID), JSON.stringify(settings), JSON.stringify(authorize)]);
+    } catch (err) {
+      console.log(err);
     }
   }
 
-  async explainFile() {
-    const sessionsFilePath = path.join(this.sourcePath, 'static/sessions.bdb');
-    let sessionsJSON = await JSON.parse(this.#decryptSessions(await readFile(sessionsFilePath, 'hex')));
-    await writeFile(path.join(this.sourcePath, 'static/sessions-explained.json'), JSON.stringify(sessionsJSON, null, 2), 'utf8');
+
+  async readSessionFromSQL(sessionID) {
+    try {
+      return new Promise((resolve, reject) => {
+        this.dataBase.get('SELECT * FROM users WHERE sessionID = ?', [sha1(sessionID)], (err, row) => {
+          if (err) {
+            reject(err);
+          } else {
+            if (row) {
+              const settings = JSON.parse(row.settings);
+              const authorize = JSON.parse(row.authorize);
+              resolve({ settings, authorize });
+            } else {
+              resolve(null);
+            }
+          }
+        });
+      });
+    } catch (err) {
+      console.log(err);
+    }
   }
+
+  async getSettingsFromSQL(sessionID, settingName) {
+    const session = await this.readSessionFromSQL(sessionID);
+    if (session !== undefined && session !== null) {
+      if (settingName === undefined) {
+        return session.settings;
+      } else {
+        const keys = settingName.split('.');
+        let currentObject = session.settings;
+        for (const key of keys) {
+          if (!currentObject || typeof currentObject !== 'object' || !currentObject.hasOwnProperty(key)) {
+            return;
+          }
+          currentObject = currentObject[key];
+        }
+        if (currentObject !== undefined) {
+          return currentObject;
+        }
+      }
+    }
+    return;
+  }
+
 
 
   async writeSession(sessionID, settings, authorize = {}) {

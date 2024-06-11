@@ -222,9 +222,12 @@ app.get('/', async (request, response) => {
       }
     }
 
-    //await sessionManager.writeSession(session.sessionID, session.settings);
-    await sessionManager.registration(session.sessionID, 'Nkardaz', '123', 'example@gmail.com', session.platform);
-    console.log(await sessionManager.readSession(session.sessionID));
+    await sessionManager.writeSessionToSQL(session.sessionID, session.settings);
+    console.log( await sessionManager.readSessionFromSQL(session.sessionID))
+    console.log( await sessionManager.getSettingsFromSQL(session.sessionID, 'savedSettings.lang'))
+    await sessionManager.writeSession(session.sessionID, session.settings);
+    //await sessionManager.registration(session.sessionID, 'Nkardaz', '123', 'example@gmail.com', session.platform);
+    //console.log(await sessionManager.readSession(session.sessionID));
     //await sessionManager.readSession(session.sessionID);
     const metaDataResponse = {
       userSession: await sessionManager.getSettings(session.sessionID),
