@@ -170,26 +170,29 @@ global.sessionManager = new SessionManager(__PROJECT_DIR__);
 app.get('/', async (request, response) => {
   try {
     console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 💠 > [SERVER] :: Latest modify date is [${new Date(await getLastModifiedInFolders()).toLocaleString()}]\x1b[39m`);
-    const cookies = {};
-    const sessionSettings = {};
+    const session = {settings: {}};
 
     for (const cookieName in request.cookies) {
+      for (const validCookie of VALID_SESSION) {
+        if (cookieName.startsWith(validCookie)) {
+          session[cookieName] = request.cookies[cookieName];
+        }
+      }
       for (const validCookie of VALID_COOKIES) {
         if (cookieName.startsWith(validCookie) && cookieName.includes('.')) {
           const cookieKey = cookieName.split('.')[0];
           const cookieValue = request.cookies[cookieName];
-          sessionSettings[cookieKey] = sessionSettings[cookieKey] || {};
-          sessionSettings[cookieKey][cookieName.substring(cookieKey.length + 1)] = cookieValue;
-        } else if (cookieName.startsWith(validCookie) && !cookieName.includes('.')) {
-          cookies[cookieName] = request.cookies[cookieName];
+          session.settings[cookieKey] = session.settings[cookieKey] || {};
+          session.settings[cookieKey][cookieName.substring(cookieKey.length + 1)] = cookieValue;
         }
       }
     }
 
-    await sessionManager.writeSession(cookies.sessionID, sessionSettings);
+    //await sessionManager.writeSession(session.sessionID, session.settings);
+    await sessionManager.registration(session.sessionID, 'Nkardaz', '123', 'example@gmail.com');
 
     const metaDataResponse = {
-      userSession: await sessionManager.getSettings(cookies.sessionID),
+      userSession: await sessionManager.getSettings(session.sessionID),
       request: request,
       userURL: request.url,
       fullURL: `${request.protocol}://${request.get('host')}${request.url}`,
@@ -206,7 +209,7 @@ app.get('/', async (request, response) => {
         return;
       }
     }
-
+    //console.log(await sessionManager.readSession(session.sessionID));
     const isUserLang = metaDataResponse.userSession.savedSettings && metaDataResponse.userSession.savedSettings.lang && metaDataResponse.userSession.savedSettings.lang;
     const isLangUrlMode = metaDataResponse.urlModes && __NK__.langs.supported.includes(metaDataResponse.urlModes.lang) && metaDataResponse.urlModes.lang;
     const isNavigatorLang = __NK__.langs.supported.includes(request.headers['accept-language'].substring(0, 2)) && request.headers['accept-language'].substring(0, 2);

@@ -64,7 +64,8 @@ AppVariables:
           mo: { emoji: '🇲🇩', name: 'Молдовеняскэ' } 
           ro: { emoji: '🇷🇴', name: 'Română' }
         supported: ['ru', 'en', 'ja', 'zh', 'ko', 'vi', 'mo', 'ro']
-  - VALID_COOKIES: ['savedSettings', 'latestCommands', 'selectedItems', 'NK', 'sessionID']
+  - VALID_COOKIES: ['savedSettings', 'latestCommands', 'selectedItems', 'NK']
+  - VALID_SESSION: ['sessionID']
   - VALID_MODES: ['kamon', 'banners', 'clans', 'cv', 'landing', 'tree', 'license', 'pattern', 'reader']
   - VALID_SELECTED: ['2d', '3d']
 
