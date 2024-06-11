@@ -1,5 +1,5 @@
 <% 
-  const { urlModes = null, userDevice, domainURL, fullURL, navigatorLanguage, savedSettings} = metaDataResponse;
+  const { urlModes = null, userDevice, domainURL, fullURL, navigatorLanguage, renderLanguage, userSession} = metaDataResponse;
   const pageUrlMode = urlModes && `${urlModes.mode ? urlModes.mode : 'default'}${urlModes.select ? urlModes.select : ''}` || 'default';
   const [pageTitle, pageDesription, pageSeoImage, pageAuthor, pageViewportMode] = [
     locale[navigatorLanguage].Meta_Pereferences.titles[pageUrlMode],
@@ -36,7 +36,7 @@
   <meta property="og:url" content="<%= fullURL %>">
   <meta property="og:description" content="<%= pageDesription %>" data-key="Meta_Pereferences.meta.desc.<%= pageUrlMode %>">
   <meta property="og:image" content="<%= pageSeoImage %>" data-key="Meta_Pereferences.meta.image.<%= pageUrlMode %>">
-  <meta property="og:locale" content="<%= navigatorLanguage %>">
+  <meta property="og:locale" content="<%= renderLanguage %>">
   
   <!-- ????? TWITTER:META ????? -->
   <meta name="twitter:card" content="summary_large_image">
@@ -78,11 +78,11 @@
   <link rel="me" href="https://vk.com/id273533538">
   <meta name="author" content="<%= pageAuthor %>">
   <meta content="<%= pageDesription %>" name="description" data-key="Meta_Pereferences.meta.desc.<%= pageUrlMode %>">
-  <link rel="manifest" href="/manifest/manifest.<%= navigatorLanguage %>.webmanifest">
+  <link rel="manifest" href="/manifest/manifest.<%= renderLanguage %>.webmanifest">
 
   <script type="module" src="/script/index.client.js"></script>
   <link rel="stylesheet" href="/index.css" />
-  <link rel="stylesheet" href="/skins/<%= (savedSettings && savedSettings.skin) ? savedSettings.skin : 'byakujou' %>.css" />
+  <link rel="stylesheet" href="/skins/<%= (userSession.savedSettings && userSession.savedSettings.skin) ? userSession.savedSettings.skin : 'byakujou' %>.css" />
 
   <meta name="robots" content="index, follow">
   <meta name="revisit-after" content="7 days">

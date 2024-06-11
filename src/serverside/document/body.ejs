@@ -1,12 +1,12 @@
 <% 
-  const { urlModes = null, userDevice, userURL, domainURL, fullURL, navigatorLanguage, savedSettings} = metaDataResponse;
+  const { urlModes = null, userDevice, userURL, domainURL, fullURL, renderLanguage} = metaDataResponse;
   const pageUrlMode = urlModes && `${urlModes.mode ? urlModes.mode : 'default'}${urlModes.select ? urlModes.select : ''}` || 'default';
 %>
 <!DOCTYPE html>
   <%- $Header %>
   <h1>SFASF</h1>
   <%= userURL %><br />
-  <%= navigatorLanguage %>
+  <%= renderLanguage %>
   <div class="material-symbols-rounded">bolt</div>
   <div>
     Lorem ipsum dolor, sit amet consectetur adipisicing elit. Magni corrupti aut accusantium quibusdam excepturi quod nobis, ipsam blanditiis nisi aliquid dolor suscipit rem sequi, a facilis vel enim consequuntur eos!\n

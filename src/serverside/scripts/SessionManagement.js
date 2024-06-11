@@ -19,6 +19,7 @@ class SessionManager {
     }
   }
 
+
   async writeSession(sessionID, settings) {
     if (sessionID !== undefined && settings !== null) {
       const sessionsPath = path.join(this.sourcePath, 'static/sessions.json');
@@ -61,19 +62,23 @@ class SessionManager {
     return sessionsJSON.sessions.find(session => session.sessionID === sessionID);
   }
 
-  async getSetting(sessionID, settingName) {
+  async getSettings(sessionID, settingName) {
     const session = await this.readSession(sessionID);
     if (session !== undefined && session !== null) {
-      const keys = settingName.split('.');
-      let currentObject = session.settings;
-      for (const key of keys) {
-        if (!currentObject || typeof currentObject !== 'object' || !currentObject.hasOwnProperty(key)) {
-          return;
+      if (settingName === undefined) {
+        return session.settings;
+      } else {
+        const keys = settingName.split('.');
+        let currentObject = session.settings;
+        for (const key of keys) {
+          if (!currentObject || typeof currentObject !== 'object' || !currentObject.hasOwnProperty(key)) {
+            return;
+          }
+          currentObject = currentObject[key];
         }
-        currentObject = currentObject[key];
-      }
-      if (currentObject !== undefined) {
-        return currentObject;
+        if (currentObject !== undefined) {
+          return currentObject;
+        }
       }
     }
     return;

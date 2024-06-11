@@ -186,12 +186,11 @@ app.get('/', async (request, response) => {
       }
     }
 
-    if (!await sessionManager.readSession(cookies.sessionID)) await sessionManager.writeSession(cookies.sessionID, sessionSettings);
-    console.log(await sessionManager.getSetting(cookies.sessionID, 'savedSettings.lang'));
-
+    await sessionManager.writeSession(cookies.sessionID, sessionSettings);
 
     const metaDataResponse = {
       ...cookies,
+      userSession: await sessionManager.getSettings(cookies.sessionID),
       request: request,
       userURL: request.url,
       fullURL: `${request.protocol}://${request.get('host')}${request.url}`,
@@ -209,21 +208,16 @@ app.get('/', async (request, response) => {
         return;
       }
     }
+
+    const isUserLang = metaDataResponse.userSession.savedSettings && metaDataResponse.userSession.savedSettings.lang && metaDataResponse.userSession.savedSettings.lang;
+    const isLangUrlMode = metaDataResponse.urlModes && __NK__.langs.supported.includes(metaDataResponse.urlModes.lang);
+    const isNavigatorLang = __NK__.langs.supported.includes(metaDataResponse.navigatorLanguage.substring(0, 2)) && metaDataResponse.navigatorLanguage.substring(0, 2);
     
-    metaDataResponse.navigatorLanguage =
-      metaDataResponse.urlModes && metaDataResponse.urlModes.lang ?
-        metaDataResponse.urlModes.lang :
-        (
-          __NK__.langs.supported.includes(metaDataResponse.navigatorLanguage.substring(0, 2)) ?
-            metaDataResponse.navigatorLanguage.substring(0, 2) :
-            'en'
-        );
-    const settingConfig = new Map([
-      ['lang', metaDataResponse.navigatorLanguage],
-    ]);
+    metaDataResponse.renderLanguage = isUserLang ? isUserLang : isLangUrlMode ? isLangUrlMode : isNavigatorLang || 'en';
+
     let webManifest = await readFileAsync(path.join(`${__PROJECT_DIR__}/static/public/manifest/manifest.${metaDataResponse.navigatorLanguage}.webmanifest`), 'utf8');
     webManifest = JSON.parse(webManifest);
-    const __COMPILED_DATA = { metaDataResponse, settingConfig, webManifest };
+    const __COMPILED_DATA = { metaDataResponse, webManifest };
 
 
 
