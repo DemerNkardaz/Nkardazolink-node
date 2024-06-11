@@ -1,5 +1,5 @@
 <% 
-  const { urlModes = null, userDevice, domainURL, fullURL, navigatorLanguage, renderLanguage, userSession} = metaDataResponse;
+  const { urlModes = null, userDevice, domainURL, fullURL, navigatorLanguage = 'ru', renderLanguage, userSession} = metaDataResponse;
   const pageUrlMode = urlModes && `${urlModes.mode ? urlModes.mode : 'default'}${urlModes.select ? urlModes.select : ''}` || 'default';
   const [pageTitle, pageDesription, pageSeoImage, pageAuthor, pageViewportMode] = [
     locale[navigatorLanguage].Meta_Pereferences.titles[pageUrlMode],

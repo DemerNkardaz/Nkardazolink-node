@@ -196,7 +196,6 @@ app.get('/', async (request, response) => {
       fullURL: `${request.protocol}://${request.get('host')}${request.url}`,
       domainURL: `${request.protocol}://${request.get('host')}`,
       userDevice: os.platform(),
-      navigatorLanguage: request.headers['accept-language'],
       urlModes: await parseUrl(request),
     };
     if (metaDataResponse.urlModes !== null) {
@@ -210,12 +209,13 @@ app.get('/', async (request, response) => {
     }
 
     const isUserLang = metaDataResponse.userSession.savedSettings && metaDataResponse.userSession.savedSettings.lang && metaDataResponse.userSession.savedSettings.lang;
-    const isLangUrlMode = metaDataResponse.urlModes && __NK__.langs.supported.includes(metaDataResponse.urlModes.lang);
-    const isNavigatorLang = __NK__.langs.supported.includes(metaDataResponse.navigatorLanguage.substring(0, 2)) && metaDataResponse.navigatorLanguage.substring(0, 2);
+    const isLangUrlMode = metaDataResponse.urlModes && __NK__.langs.supported.includes(metaDataResponse.urlModes.lang) && metaDataResponse.urlModes.lang;
+    const isNavigatorLang = __NK__.langs.supported.includes(request.headers['accept-language'].substring(0, 2)) && request.headers['accept-language'].substring(0, 2);
+    console.log(isNavigatorLang);
     
-    metaDataResponse.renderLanguage = isUserLang ? isUserLang : isLangUrlMode ? isLangUrlMode : isNavigatorLang || 'en';
+    metaDataResponse.renderLanguage = isLangUrlMode ? isLangUrlMode : isUserLang ? isUserLang : isNavigatorLang || 'en';
 
-    let webManifest = await readFileAsync(path.join(`${__PROJECT_DIR__}/static/public/manifest/manifest.${metaDataResponse.navigatorLanguage}.webmanifest`), 'utf8');
+    let webManifest = await readFileAsync(path.join(`${__PROJECT_DIR__}/static/public/manifest/manifest.${metaDataResponse.renderLanguage}.webmanifest`), 'utf8');
     webManifest = JSON.parse(webManifest);
     const __COMPILED_DATA = { metaDataResponse, webManifest };
 
