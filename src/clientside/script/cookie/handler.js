@@ -52,7 +52,7 @@ nk.cookie = function (key) {
 }
 
 nk.cookieSession = function () {
-  const sessionID = `"{${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}}"`;
+  const sessionID = `"{${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}-${-(new Date().getTimezoneOffset()/60)}-${new Date().getTime()}}"`;
   const decodedCookie = decodeURIComponent(document.cookie);
   let expirationDate = new Date();
   expirationDate.setFullYear(expirationDate.getFullYear() + 2);

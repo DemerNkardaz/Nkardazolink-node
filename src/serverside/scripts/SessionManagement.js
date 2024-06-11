@@ -44,7 +44,7 @@ class SessionManager {
         });
       }
 
-      const isValidLength = checkKeyValueMaxLength(settings) && sessionID.length <= 32;
+      const isValidLength = checkKeyValueMaxLength(settings) && sessionID.length == 40;
 
       if (isValidLength) {
         await writeFile(sessionsPath, JSON.stringify(sessionsJSON), 'utf-8');

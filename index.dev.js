@@ -165,7 +165,7 @@ async function parseUrl(request) {
   }
 }
 
-const sessionManager = new SessionManager(__PROJECT_DIR__);
+global.sessionManager = new SessionManager(__PROJECT_DIR__);
 
 app.get('/', async (request, response) => {
   try {
