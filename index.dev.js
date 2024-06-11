@@ -189,7 +189,6 @@ app.get('/', async (request, response) => {
     await sessionManager.writeSession(cookies.sessionID, sessionSettings);
 
     const metaDataResponse = {
-      ...cookies,
       userSession: await sessionManager.getSettings(cookies.sessionID),
       request: request,
       userURL: request.url,
@@ -211,7 +210,6 @@ app.get('/', async (request, response) => {
     const isUserLang = metaDataResponse.userSession.savedSettings && metaDataResponse.userSession.savedSettings.lang && metaDataResponse.userSession.savedSettings.lang;
     const isLangUrlMode = metaDataResponse.urlModes && __NK__.langs.supported.includes(metaDataResponse.urlModes.lang) && metaDataResponse.urlModes.lang;
     const isNavigatorLang = __NK__.langs.supported.includes(request.headers['accept-language'].substring(0, 2)) && request.headers['accept-language'].substring(0, 2);
-    console.log(isNavigatorLang);
     
     metaDataResponse.renderLanguage = isLangUrlMode ? isLangUrlMode : isUserLang ? isUserLang : isNavigatorLang || 'en';
 

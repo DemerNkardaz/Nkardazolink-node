@@ -2,14 +2,24 @@ require('./nk.config.js').config().init(['AppVariables']);
 const { execSync } = require('child_process');
 const fs = require('fs-extra');
 const path = require('path');
+const { promisify } = require('util');
+const writeFileAsync = promisify(fs.writeFile);
+const readFileAsync = promisify(fs.readFile);
+const crypto = require('crypto');
 const { copyFilesAndMinify, createManifest, index, checkForIndex } = require('./server.workers/server/building.files.js');
 
 
 const runArguments = process.argv.slice(2);
-
+function generateToken(count, mode) {
+  const tokenization = mode === 'aes' ? 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789' : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*~≈×°₽„“”‘’£§‰≠±•«»:;,.<>?/|_\\-+.';
+  const key = Array.from({ length: count || 256 }, () => tokenization.charAt(Math.floor(Math.random() * tokenization.length))).join('');
+  const hash = crypto.createHash('sha256').update(key).digest('base64');
+  return `Random token = ${key}\nToken hash = ${hash} | ${hash.substring(0, 32)}\nRandom IV = ${crypto.randomBytes(16).toString('hex')}`;
+}
 
 async function build() {
   try {
+    await writeFileAsync(path.join(__PROJECT_DIR__, 'static/token.txt'), generateToken(1024), 'utf-8');
     await copyFilesAndMinify(path.join(__PROJECT_DIR__, 'src/clientside'), path.join(__PROJECT_DIR__, 'static/public'));
     await copyFilesAndMinify(path.join(__PROJECT_DIR__, 'src/serverside'), path.join(__PROJECT_DIR__, 'app'))
       .then(() => console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [BUILDER] :: Files copied and minified successfully\x1b[39m`))
