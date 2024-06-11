@@ -52,12 +52,21 @@ nk.cookie = function (key) {
 }
 
 nk.cookieSession = function () {
-  const sessionID = `"{${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}-${-(new Date().getTimezoneOffset()/60)}-${new Date().getTime()}}"`;
+  const sessionID = `"{${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}-${-(new Date().getTimezoneOffset() / 60)}-${new Date().getTime()}}"`;
   const decodedCookie = decodeURIComponent(document.cookie);
   let expirationDate = new Date();
   expirationDate.setFullYear(expirationDate.getFullYear() + 2);
   if (!decodedCookie.includes('sessionID=')) {
     document.cookie = `sessionID=${sessionID}; expires=${expirationDate.toUTCString()}; path=/; SameSite=None; Secure`;
+  } else {
+    const cookieArray = decodedCookie.split('; ');
+    for (let i = 0; i < cookieArray.length; i++) {
+      if (cookieArray[i].startsWith('sessionID=')) {
+        const existingSessionID = cookieArray[i].split('=')[1];
+        document.cookie = `sessionID=${existingSessionID}; expires=${expirationDate.toUTCString()}; path=/; SameSite=None; Secure`;
+        break;
+      }
+    }
   }
 }
 nk.cookieSession();
