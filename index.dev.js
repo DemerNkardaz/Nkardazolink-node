@@ -169,7 +169,7 @@ async function parseUrl(request) {
 global.sessionManager = new SessionManager(__PROJECT_DIR__);
 const booleanOptions = ['true', 'false'];
 async function jsonDBStessTest() {
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 100000; i++) {
     
     let randomID = `{${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}-${-(new Date().getTimezoneOffset() / 60)}-${new Date().getTime()}}`;
     await sessionManager.writeSession(randomID, {
@@ -196,8 +196,8 @@ async function jsonDBStessTest() {
 }
 
 (async () => {
-  await jsonDBStessTest();
-  await sessionManager.explainFile();
+  //await jsonDBStessTest();
+  //await sessionManager.explainFile();
 })();
 
 app.get('/', async (request, response) => {
@@ -222,11 +222,10 @@ app.get('/', async (request, response) => {
       }
     }
 
-    await sessionManager.writeSession(session.sessionID, session.settings);
-
-    //await sessionManager.registration(session.sessionID, 'Nkardaz', '123', 'example@gmail.com', session.platform);
+    //await sessionManager.writeSession(session.sessionID, session.settings);
+    await sessionManager.registration(session.sessionID, 'Nkardaz', '123', 'example@gmail.com', session.platform);
     console.log(await sessionManager.readSession(session.sessionID));
-
+    //await sessionManager.readSession(session.sessionID);
     const metaDataResponse = {
       userSession: await sessionManager.getSettings(session.sessionID),
       request: request,
