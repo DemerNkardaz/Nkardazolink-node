@@ -60,3 +60,4 @@ nk.cookieSession = function () {
     document.cookie = `sessionID=${sessionID}; expires=${expirationDate.toUTCString()}; path=/; SameSite=None; Secure`;
   }
 }
+nk.cookieSession();

@@ -185,9 +185,10 @@ app.get('/', async (request, response) => {
         }
       }
     }
-    console.log(cookies, sessionSettings);
-    sessionManager.writeSession(cookies.sessionID, sessionSettings);
-    console.log(await sessionManager.readSession(cookies.sessionID));
+
+    if (!await sessionManager.readSession(cookies.sessionID)) await sessionManager.writeSession(cookies.sessionID, sessionSettings);
+    
+
 
     const metaDataResponse = {
       ...cookies,
