@@ -3,3 +3,4 @@ app/
 source/
 .vercel
 index.js
+.env
