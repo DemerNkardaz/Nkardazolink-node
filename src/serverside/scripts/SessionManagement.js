@@ -18,16 +18,20 @@ class SessionManager {
   }
 
   async checkSessionFile() {
-    //if (!fs.existsSync(path.join(this.sourcePath, 'static/sessions.json'))) {
-    //  await writeFile(path.join(this.sourcePath, 'static/sessions.json'), this.#encryptSessions({ sessions: [] }), 'utf-8');
-    //  await writeFile(path.join(this.sourcePath, 'static/sessions.cryptoless.json'), JSON.stringify({ sessions: [] }), 'utf-8');
-    //}
-    if (!fs.existsSync(path.join(this.sourcePath, 'static/sessions.bdb'))) {
+    const sessionsFilePath = path.join(this.sourcePath, 'static/sessions.bdb');
+    if (!fs.existsSync(sessionsFilePath)) {
       const encryptedRoot = this.#encryptSessions({ sessions: [] });
       const encryptedBuffer = Buffer.from(encryptedRoot, 'hex');
-      await writeFile(path.join(this.sourcePath, 'static/sessions.bdb'), encryptedBuffer, { flag: 'w' });
+      await writeFile(sessionsFilePath, encryptedBuffer, { flag: 'w' });
     }
   }
+
+  async explainFile() {
+    const sessionsFilePath = path.join(this.sourcePath, 'static/sessions.bdb');
+    let sessionsJSON = await JSON.parse(this.#decryptSessions(await readFile(sessionsFilePath, 'hex')));
+    await writeFile(path.join(this.sourcePath, 'static/sessions-explained.json'), JSON.stringify(sessionsJSON, null, 2), 'utf8');
+  }
+
 
   async writeSession(sessionID, settings, authorize = {}) {
     const release = await sessionMutex.acquire();

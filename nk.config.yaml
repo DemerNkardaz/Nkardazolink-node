@@ -54,6 +54,14 @@ AppVariables:
   - __PROJECT_DIR__: 'path.resolve(__dirname)'
   - __NK__:
       url: []
+      skins:
+        themes:
+          azumatsuyu:     {name: 'Azumatsuyu',        url: 'azumatsuyu',    emoji: '🌸'}
+          byakujou:       {name: 'Byakujou',          url: 'byakujou',      emoji: '🏯'}
+          sekiban:        {name: 'Sekiban',           url: 'sekiban',       emoji: '⛩️'}
+          aogurogetsu:    {name: 'Aoguro-no Getsu',   url: 'aogurogetsu',   emoji: '🌕'}
+          akatsukikurai:  {name: 'Akatsuki-no Kurai', url: 'akatsukikurai', emoji: '🌙'}
+        supported: ['azumatsuyu', 'byakujou', 'sekiban', 'aogurogetsu', 'akatsukikurai']
       langs:
         list:
           ru: { emoji: '🇷🇺', name: 'Русский' } 

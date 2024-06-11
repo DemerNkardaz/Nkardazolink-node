@@ -168,6 +168,34 @@ async function parseUrl(request) {
 
 global.sessionManager = new SessionManager(__PROJECT_DIR__);
 
+async function jsonDBStessTest() {
+  for (let i = 0; i < 1000000; i++) {
+    let settings = {
+      savedSettings: {
+        lang: __NK__.langs.supported[Math.floor(Math.random() * __NK__.langs.supported.length)],
+        skin: __NK__.skins.supported[Math.floor(Math.random() * __NK__.skins.supported.length)],
+        preloader: Math.floor(Math.random() * 2),
+        save_search_result: Math.floor(Math.random() * 2),
+        save_selected_item: Math.floor(Math.random() * 2),
+        turn_off_preloader: Math.floor(Math.random() * 2),
+        ambience_off: Math.floor(Math.random() * 2),
+        change_skin_by_time: Math.floor(Math.random() * 2),
+        current_banner: `${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}-${-(new Date().getTimezoneOffset() / 60)}-${new Date().getTime()}`,
+        latestSearchesKamon: `${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}-${-(new Date().getTimezoneOffset() / 60)}-${new Date().getTime()}`,
+        latestSearchesBanners: `${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}-${-(new Date().getTimezoneOffset() / 60)}-${new Date().getTime()}`,
+        latestSearchesClans: `${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}-${-(new Date().getTimezoneOffset() / 60)}-${new Date().getTime()}`,
+        latestSearchesPattern: `${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}-${-(new Date().getTimezoneOffset() / 60)}-${new Date().getTime()}`,
+        selectedItemsKamon: `${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}-${-(new Date().getTimezoneOffset() / 60)}-${new Date().getTime()}`,
+        selectedItemsBanners: `${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}-${-(new Date().getTimezoneOffset() / 60)}-${new Date().getTime()}`,
+        selectedItemsClans: `${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}-${-(new Date().getTimezoneOffset() / 60)}-${new Date().getTime()}`,
+        selectedItemsPattern: `${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}-${-(new Date().getTimezoneOffset() / 60)}-${new Date().getTime()}`,
+      }
+    }
+    let randomID = `{${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}-${-(new Date().getTimezoneOffset() / 60)}-${new Date().getTime()}}`;
+    await sessionManager.writeSession(randomID, settings);
+  }
+}
+
 app.get('/', async (request, response) => {
   try {
     console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 💠 > [SERVER] :: Latest modify date is [${new Date(await getLastModifiedInFolders()).toLocaleString()}]\x1b[39m`);
@@ -190,8 +218,11 @@ app.get('/', async (request, response) => {
       }
     }
 
-    //await sessionManager.writeSession(session.sessionID, session.settings);
-    await sessionManager.registration(session.sessionID, 'Nkardaz', '123', 'example@gmail.com', session.platform);
+    await sessionManager.writeSession(session.sessionID, session.settings);
+
+    //await sessionManager.registration(session.sessionID, 'Nkardaz', '123', 'example@gmail.com', session.platform);
+    console.log(await sessionManager.readSession(session.sessionID));
+    await sessionManager.explainFile();
 
     const metaDataResponse = {
       userSession: await sessionManager.getSettings(session.sessionID),
