@@ -20,7 +20,7 @@ String.prototype.replaceGREPRules = function () {
 async function evalStringCommands(text, data) {
   return text
     .replace(/\{{ (.*?)\ }}/g, function (match, p1) {
-      return eval(`locale.${data.__META__.navigatorLanguage}.${p1}`);
+      return eval(`locale.${data.metaDataResponse.navigatorLanguage}.${p1}`);
     });
 }
 

@@ -1,6 +1,10 @@
+<% 
+  const { urlModes = null, userDevice, userURL, domainURL, fullURL, navigatorLanguage, savedSettings} = metaDataResponse;
+  const pageUrlMode = urlModes && `${urlModes.mode ? urlModes.mode : 'default'}${urlModes.select ? urlModes.select : ''}` || 'default';
+%>
 <header>
   This is some header
   <%= Math.random() %>
   <%= __NK__.langs.supported %>
-  <%= locale[`${__META__.navigatorLanguage}`].Nkardaz.name %>
+  <%= locale[`${navigatorLanguage}`].Nkardaz.name %>
 </header>

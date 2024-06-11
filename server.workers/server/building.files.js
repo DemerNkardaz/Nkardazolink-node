@@ -20,6 +20,7 @@ const checkForIndex = async (sourcePath) => {
   }
 }
 
+
 async function copyFilesAndMinify(sourceDir, destinationDir) {
   await fs.ensureDir(destinationDir);
   const entries = await fs.readdir(sourceDir, { withFileTypes: true });

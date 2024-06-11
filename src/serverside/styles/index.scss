@@ -4,6 +4,12 @@ $base-line-height: 1.45em;
 
 
 //! touch-action: none; БЛОКИРОВКА МОБИЛЬНОГО ТАЧА ДЛЯ БЛОКА С ЗУМОМ ИЗОБРАЖЕНИЙ
+*,
+::after,
+::before {
+  scroll-behavior: smooth;
+  box-sizing: border-box;
+}
 
 button, input {font-family: inherit;}
 html, body {
@@ -22,13 +28,6 @@ hr {
   border-top: 1px solid;
   opacity: .25;
 }
-*,
-::after,
-::before {
-  scroll-behavior: smooth;
-  box-sizing: border-box;
-}
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond&family=Noto+Serif+JP&family=Noto+Serif+TC&family=Noto+Serif+KR&family=Noto+Color+Emoji&display=swap');
 
 @mixin font-size($size) {
   font-size: $size;

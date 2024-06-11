@@ -141,11 +141,35 @@ async function getLastModifiedInFolders() {
     }
 }
 
+async function parseUrl(request) {
+  try {
+    const protocol = request.protocol;
+    const host = request.get('host');
+    const urlPath = `${protocol}://${host}${request.url}`;
+    const urlObject = new URL(urlPath);
+    const urlSearchParams = urlObject.searchParams;
+    const urlParamsObject = {};
+
+    for (const [key, value] of urlSearchParams.entries()) {
+      urlParamsObject[key] = value;
+    }
+
+    if (Object.keys(urlParamsObject).length === 0) {
+      return null;
+    }
+
+    return urlParamsObject;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
 
 app.get('/', async (request, response) => {
   try {
     console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 💠 > [SERVER] :: Latest modify date is [${new Date(await getLastModifiedInFolders()).toLocaleString()}]\x1b[39m`);
     const cookies = {};
+
     for (const cookieName in request.cookies) {
       for (const validCookie of VALID_COOKIES) {
         if (cookieName.startsWith(validCookie)) {
@@ -157,30 +181,7 @@ app.get('/', async (request, response) => {
       }
     }
 
-    async function parseUrl() {
-      try {
-        const protocol = request.protocol;
-        const host = request.get('host');
-        const urlPath = `${protocol}://${host}${request.url}`;
-        const urlObject = new URL(urlPath);
-        const urlSearchParams = urlObject.searchParams;
-
-        const urlParamsObject = {};
-        for (const [key, value] of urlSearchParams.entries()) {
-          urlParamsObject[key] = value;
-        }
-
-        if (Object.keys(urlParamsObject).length === 0) {
-          return null;
-        }
-
-        return urlParamsObject;
-      } catch (error) {
-        console.error(error);
-        return null;
-      }
-    }
-    const __META__ = {
+    const metaDataResponse = {
       ...cookies,
       request: request,
       userURL: request.url,
@@ -188,46 +189,48 @@ app.get('/', async (request, response) => {
       domainURL: `${request.protocol}://${request.get('host')}`,
       userDevice: os.platform(),
       navigatorLanguage: request.headers['accept-language'],
-      urlModes: await parseUrl(),
+      urlModes: await parseUrl(request),
     };
-    if (__META__.urlModes !== null) {
+    if (metaDataResponse.urlModes !== null) {
       if (
-        __META__.urlModes.mode && !VALID_MODES.includes(__META__.urlModes.mode) ||
-        __META__.urlModes.select && !VALID_SELECTED.includes(__META__.urlModes.select)
+        metaDataResponse.urlModes.mode && !VALID_MODES.includes(metaDataResponse.urlModes.mode) ||
+        metaDataResponse.urlModes.select && !VALID_SELECTED.includes(metaDataResponse.urlModes.select)
       ) {
         response.redirect('/');
         return;
       }
     }
     
-    __META__.navigatorLanguage =
-      __META__.urlModes && __META__.urlModes.lang ?
-        __META__.urlModes.lang :
+    metaDataResponse.navigatorLanguage =
+      metaDataResponse.urlModes && metaDataResponse.urlModes.lang ?
+        metaDataResponse.urlModes.lang :
         (
-          __NK__.langs.supported.includes(__META__.navigatorLanguage.substring(0, 2)) ?
-            __META__.navigatorLanguage.substring(0, 2) :
+          __NK__.langs.supported.includes(metaDataResponse.navigatorLanguage.substring(0, 2)) ?
+            metaDataResponse.navigatorLanguage.substring(0, 2) :
             'en'
         );
-    const __SETTING_CONFIG__ = new Map([
-      ['lang', __META__.navigatorLanguage],
+    const settingConfig = new Map([
+      ['lang', metaDataResponse.navigatorLanguage],
     ]);
-    let __MANIFEST__ = await readFileAsync(path.join(`${__PROJECT_DIR__}/static/public/manifest/manifest.${__META__.navigatorLanguage}.webmanifest`), 'utf8');
-    __MANIFEST__ = JSON.parse(__MANIFEST__);
-    const __COMPILED_DATA = { __META__, __SETTING_CONFIG__, __MANIFEST__ };
+    let webManifest = await readFileAsync(path.join(`${__PROJECT_DIR__}/static/public/manifest/manifest.${metaDataResponse.navigatorLanguage}.webmanifest`), 'utf8');
+    webManifest = JSON.parse(webManifest);
+    const __COMPILED_DATA = { metaDataResponse, settingConfig, webManifest };
 
 
-    
+
     let [$document, $component] = [
       ['$Test=test.pug', '$Test2=test.md', '$HEAD=document/head', '$BODY=document/body'],
       ['$Header']
     ]
     for (const names of $component) {
       let [variable, path] = names.includes('=') ? names.split('=') : [names, names.toLowerCase().replace('$', '')];
+
       Array.isArray($component) && ($component = {});
       $component[variable] = await loadComponent(path.includes('components') ? path : `components/${path}`, { ...__COMPILED_DATA });
     }
     for (const names of $document) {
       let [variable, path] = names.split('=');
+
       Array.isArray($document) && ($document = {});
       $document[variable] = await loadComponent(path, { ...$component, ...__COMPILED_DATA })
     }

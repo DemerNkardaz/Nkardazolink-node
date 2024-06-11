@@ -5,7 +5,7 @@ class Manifest {
       { ru: 'Сасимоно Тэнранкай | Выставка Штандартов', en: 'Sashimono Tenrankai | The Banners Exhibition' }, '/Nkardazolink/?mode=banners'
     ];
     const iconSizes = ['48x48', '72x72', '96x96', '144x144', '192x192', '256x256', '512x512'];
-    
+
     this.id = 'com.demernkardaz.app';
     this.name = { ru: 'Нкардазолинк', en: 'Nkardazolink' };
     this.name.mo = this.name.ru;
@@ -53,7 +53,7 @@ class Manifest {
     });
     return icons;
   }
-  
+
   getManifest() {
     return {
       id: this.id,
