@@ -165,21 +165,29 @@ async function parseUrl(request) {
   }
 }
 
+const sessionManager = new SessionManager(__PROJECT_DIR__);
+
 app.get('/', async (request, response) => {
   try {
     console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 💠 > [SERVER] :: Latest modify date is [${new Date(await getLastModifiedInFolders()).toLocaleString()}]\x1b[39m`);
     const cookies = {};
+    const sessionSettings = {};
 
     for (const cookieName in request.cookies) {
       for (const validCookie of VALID_COOKIES) {
-        if (cookieName.startsWith(validCookie)) {
+        if (cookieName.startsWith(validCookie) && cookieName.includes('.')) {
           const cookieKey = cookieName.split('.')[0];
           const cookieValue = request.cookies[cookieName];
-          cookies[cookieKey] = cookies[cookieKey] || {};
-          cookies[cookieKey][cookieName.substring(cookieKey.length + 1)] = cookieValue;
+          sessionSettings[cookieKey] = sessionSettings[cookieKey] || {};
+          sessionSettings[cookieKey][cookieName.substring(cookieKey.length + 1)] = cookieValue;
+        } else if (cookieName.startsWith(validCookie) && !cookieName.includes('.')) {
+          cookies[cookieName] = request.cookies[cookieName];
         }
       }
     }
+    console.log(cookies, sessionSettings);
+    sessionManager.writeSession(cookies.sessionID, sessionSettings);
+    console.log(await sessionManager.readSession(cookies.sessionID));
 
     const metaDataResponse = {
       ...cookies,
