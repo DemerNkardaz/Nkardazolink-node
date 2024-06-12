@@ -437,37 +437,13 @@ app.get('/shared/images/:imageFileName', async (req, res) => {
           }
 
           if (toFormat) {
-            let convertedImageBuffer;
             if (mimeType === 'image/svg+xml' && (svgScales['width'] > 2048 || svgScales['height'] > 2048)) {
               imageBuffer = Buffer.from(await rescaleSVG(imageBuffer, 2048), 'utf8');
             }
-            switch (toFormat.toLowerCase()) {
-              case 'webp':
-                convertedImageBuffer = await sharp(imageBuffer)
-                  .webp({ quality: quality || 75 })
-                  .toBuffer();
-                mimeType = 'image/webp';
-                break;
 
-              case 'avif':
-                convertedImageBuffer = await sharp(imageBuffer)
-                  .avif({ quality: quality || 75, chromaSubsampling: '4:2:0' })
-                  .toBuffer();
-                mimeType = 'image/avif';
-                break;
-
-              case 'gif':
-                convertedImageBuffer = await sharp(imageBuffer)
-                  .gif()
-                  .toBuffer();
-                mimeType = 'image/gif';
-                break;
-
-              default:
-                return res.status(400).send('Unsupported format');
-            }
-
-            imageBuffer = convertedImageBuffer;
+            const getConverted = await convertImage(imageBuffer, { toFormat, quality });
+            imageBuffer = getConverted.convertedImageBuffer;
+            mimeType = getConverted.mimeType;
           }
 
           if (paddingPercent > 0) {
@@ -543,42 +519,13 @@ app.get('/local/images/*', async (req, res) => {
         }
 
         if (toFormat) {
-          let convertedImageBuffer;
           if (mimeType === 'image/svg+xml' && (svgScales['width'] > 2048 || svgScales['height'] > 2048)) {
             imageBuffer = Buffer.from(await rescaleSVG(imageBuffer, 2048), 'utf8');
           }
-          switch (toFormat.toLowerCase()) {
-            case 'webp':
-              convertedImageBuffer = await sharp(imageBuffer)
-                .webp({ quality: quality || 75 })
-                .toBuffer();
-              mimeType = 'image/webp';
-              break;
 
-            case 'avif':
-              convertedImageBuffer = await sharp(imageBuffer)
-                .avif({ quality: quality || 75, chromaSubsampling: '4:2:0' })
-                .toBuffer();
-              mimeType = 'image/avif';
-              break;
-
-            case 'gif':
-              convertedImageBuffer = await sharp(imageBuffer)
-                .gif()
-                .toBuffer();
-              mimeType = 'image/gif';
-              break;
-            case 'png':
-              convertedImageBuffer = await sharp(imageBuffer)
-                .png()
-                .toBuffer();
-              mimeType = 'image/png';
-              break;
-            default:
-              return res.status(400).send('Unsupported format');
-          }
-
-          imageBuffer = convertedImageBuffer;
+          const getConverted = await convertImage(imageBuffer, { toFormat, quality });
+          imageBuffer = getConverted.convertedImageBuffer;
+          mimeType = getConverted.mimeType;
         }
 
         if (paddingPercent > 0) {
@@ -606,6 +553,33 @@ app.get('/local/images/*', async (req, res) => {
   });
 });
 
+
+async function convertImage(imageBuffer, options) {
+  let convertedImageBuffer, mimeType;
+  switch (options.toFormat.toLowerCase()) {
+    case 'webp':
+      convertedImageBuffer = await sharp(imageBuffer).webp({ quality: options.quality || 75 }).toBuffer();
+      mimeType = 'image/webp';
+      break;
+
+    case 'avif':
+      convertedImageBuffer = await sharp(imageBuffer).avif({ quality: options.quality || 75, chromaSubsampling: '4:2:0' }).toBuffer();
+      mimeType = 'image/avif';
+      break;
+
+    case 'gif':
+      convertedImageBuffer = await sharp(imageBuffer).gif().toBuffer();
+      mimeType = 'image/gif';
+      break;
+    case 'png':
+      convertedImageBuffer = await sharp(imageBuffer).png().toBuffer();
+      mimeType = 'image/png';
+      break;
+    default:
+      return res.status(400).send('Unsupported format');
+  }
+  return { convertedImageBuffer, mimeType };
+}
 
 async function checkSVGScale(imageBuffer) {
   const svgString = await imageBuffer.toString('utf-8');
