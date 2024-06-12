@@ -2,21 +2,30 @@ const sharp = require('sharp');
 const path = require('path');
 const fs = require('fs').promises; // Изменено для использования промисов с файловой системой
 const mime = require('mime-types');
+const crypto = require('crypto');
 const { DOMParser, XMLSerializer } = require('xmldom');
 
 class ImageHandler {
   constructor(sourcePath, request) {
     this.sourcePath = sourcePath;
-    [this.filePath, this.imageFileName, this.size, this.toFormat, this.quality, this.paddingPercent, this.resolution] = [
+    this.cacheDir = path.join(__PROJECT_DIR__, 'cache');
+    [this.filePath, this.imageFileName, this.size, this.toFormat, this.quality, this.paddingPercent, this.resolution, this.staticUrl] = [
       request.params[0],
       request.params.imageFileName || null,
       request.query.s ? parseInt(request.query.s) : null,
       request.query.to || null,
       request.query.q ? parseInt(request.query.q) : null,
       request.query.p ? parseFloat(request.query.p) : 0,
-      request.query.r ? parseInt(request.query.r) : 0
+      request.query.r ? parseInt(request.query.r) : 0,
+      request.url
     ];
+    this.cacheKey = this.#generateCacheKey(this.staticUrl);
+    (async () => await this.#manageCacheSize())();
   }
+  #generateCacheKey(keyString) {
+    return crypto.createHash('md5').update(keyString).digest('hex');
+  }
+
 
   async getImage(dataBase) {
     let imagePath;
@@ -51,11 +60,20 @@ class ImageHandler {
     try {
       imageBuffer = await fs.readFile(imagePath); 
     } catch (err) {
-      console.error(err.message);
       if (err.code === 'ENOENT') {
-        return `Image Not Found`;
+        return `File Not Found: ${imagePath}`;
       }
       throw err;
+    }
+
+    const isCacheExists = await this.#checkCache();
+    if (isCacheExists && isCacheExists.mimeType && isCacheExists.imageBuffer) {
+      try {
+        console.log(isCacheExists.mimeType);
+        return { mimeType: isCacheExists.mimeType, imageBuffer: isCacheExists.imageBuffer };
+      } catch (error) {
+        return `Error: ${error.message}`;
+      }
     }
 
     try {
@@ -96,6 +114,10 @@ class ImageHandler {
             imageBuffer = await sharp(imageBuffer).resize(this.resolution, this.resolution, { fit: 'inside' }).toBuffer();
           }
         }
+        if (this.staticUrl.includes('?') && imageBuffer.length <= 1 * 1024 * 1024) {
+          const cachedName = `${this.cacheKey}-${this.#generateCacheKey(mimeType.slice(6))}`;
+          await this.#saveToCache(imageBuffer, cachedName);
+        }
 
         return { imageBuffer, mimeType };
       } else {
@@ -105,6 +127,64 @@ class ImageHandler {
       return `Error: ${error.message}`;
     }
   }
+
+
+  async #checkCache() {
+    const fileMimes = ['png', 'svg+xml', 'webp', 'jpg', 'jpeg', 'gif', 'avif', 'tiff', 'bmp', 'ico'];
+    const files = await fs.readdir(this.cacheDir);
+
+    for (let file of files) {
+      if (file.split('-')[0] === this.cacheKey) {
+        let mimeType = file.split('-')[1];
+        for (let type of fileMimes) {
+          let hashedType = this.#generateCacheKey(type);
+          if (mimeType === hashedType) {
+            mimeType = `image/${type}`;
+            const filePath = path.join(this.cacheDir, file);
+            const cachedBuffer = await fs.readFile(filePath);
+            return { imageBuffer: cachedBuffer, mimeType };
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  async #saveToCache(imageBuffer, cachadName) {
+    const cachePath = path.join(this.cacheDir, cachadName);
+    try {
+      await fs.writeFile(cachePath, imageBuffer);
+      await this.#manageCacheSize();
+    } catch (err) {
+      console.error('Error saving to cache:', err);
+    }
+  }
+
+  async #manageCacheSize() {
+    const maxCacheSize = 1 * 1024 * 1024 * 1024;
+    const files = await fs.readdir(this.cacheDir);
+    let totalSize = 0;
+    const fileSizes = await Promise.all(
+      files.map(async (file) => {
+        const filePath = path.join(this.cacheDir, file);
+        const stat = await fs.stat(filePath);
+        totalSize += stat.size;
+        return { filePath, size: stat.size, mtime: stat.mtime };
+      })
+    );
+
+    if (totalSize > maxCacheSize) {
+      const sortedFiles = fileSizes.sort((a, b) => a.mtime - b.mtime);
+      for (const file of sortedFiles) {
+        await fs.unlink(file.filePath);
+        totalSize -= file.size;
+        if (totalSize <= maxCacheSize) {
+          break;
+        }
+      }
+    }
+  }
+
 
   async #convertImage(imageBuffer) {
     let convertedImageBuffer, mimeType;

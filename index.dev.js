@@ -401,8 +401,10 @@ app.get('/shared/images/:imageFileName', async (request, response) => {
     const handler = new ImageHandler(__PROJECT_DIR__, request);
     const handledResult = await handler.getImage(wikiDataBase);
 
-    response.contentType(handledResult.mimeType);
-    response.send(handledResult.imageBuffer);
+    if (typeof handledResult === 'string') response.status(404).send(handledResult);
+    else
+      response.contentType(handledResult.mimeType);
+      response.send(handledResult.imageBuffer);
   } catch (error) {
     console.error('Error processing image:', error);
     response.status(500).send('Error processing image');
@@ -415,8 +417,10 @@ app.get('/local/images/*', async (request, response) => {
     const handler = new ImageHandler(path.join(__PROJECT_DIR__, 'static/public/resource/images'), request);
     const handledResult = await handler.getImage();
 
-    response.contentType(handledResult.mimeType);
-    response.send(handledResult.imageBuffer);
+    if (typeof handledResult === 'string') response.status(404).send(handledResult);
+    else
+      response.contentType(handledResult.mimeType);
+      response.send(handledResult.imageBuffer);
   } catch (error) {
     console.error('Error processing image:', error);
     response.status(500).send('Error processing image');

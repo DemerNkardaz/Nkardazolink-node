@@ -1,5 +1,6 @@
 node_modules/
 app/
 source/
+cache/
 .vercel
 index.js
