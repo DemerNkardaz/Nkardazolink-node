@@ -54,7 +54,7 @@
   <meta name="apple-mobile-web-app-title" content="<%= pageTitle %>">
   <meta name="application-name" content="<%= pageTitle %>">
   <meta name="msapplication-config" content="/manifest/browserconfig.xml">
-  <meta name="msapplication-TileImage" content="/manifest/desktop/desktop-256x256.png">
+  <meta name="msapplication-TileImage" content="/local/images/svg/favicon.svg?to=png&r=256">
   <meta name="msapplication-TileColor" content="#333333">
   <meta name="msapplication-task" content="name=<%= webManifest.shortcuts[0].name %>;action-uri=<%= webManifest.shortcuts[0].url %>;icon-uri=<%= webManifest.shortcuts[0].icons[1].src %>"/>
   <meta name="msapplication-task" content="name=<%= webManifest.shortcuts[1].name %>;action-uri=<%= webManifest.shortcuts[1].url %>;icon-uri=<%= webManifest.shortcuts[1].icons[1].src %>"/>
@@ -65,12 +65,12 @@
   %>
 
   <% desktopSizes.forEach(size => { %>
-    <link rel="icon" href="/manifest/desktop/desktop-<%= size %>x<%= size %>.png" sizes="<%= size %>x<%= size %>" type="image/png">
-    <link rel="shortcut icon" href="/manifest/desktop/desktop-<%= size %>x<%= size %>.png" sizes="<%= size %>x<%= size %>" type="image/png">
+    <link rel="icon" href="/local/images/svg/favicon.svg?to=png&r=<%= size %>" sizes="<%= size %>x<%= size %>" type="image/png">
+    <link rel="shortcut icon" href="/local/images/svg/favicon.svg?to=png&r=<%= size %>" sizes="<%= size %>x<%= size %>" type="image/png">
   <% }); %>
 
   <% iOSSizes.forEach(size => { %>
-    <link rel="apple-touch-icon" href="/manifest/iOS/iOS-<%= size %>.png" sizes="<%= size %>x<%= size %>">
+    <link rel="apple-touch-icon" href="/local/images/svg/favicon.svg?to=png&p=12&r=<%= size %>" sizes="<%= size %>x<%= size %>">
   <% }); %>
 
   <title data-key="Meta_Pereferences.titles.<%= pageUrlMode %>"><%= pageTitle %></title>

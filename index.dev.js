@@ -394,182 +394,15 @@ app.get('/wiki/:page', async (request, response, next) => {
     next(error);
   }
 });
-/*
-app.get('/shared/images/:imageFileName', async (req, res) => {
-  const imageFileName = req.params.imageFileName;
-  const size = req.query.s ? parseInt(req.query.s) : null;
-  const toFormat = req.query.to;
-  const quality = req.query.q ? parseInt(req.query.q) : null;
-
-  wikiDataBase.get('SELECT mimeType, imageFile FROM sharedImages WHERE imageFileName = ?', [imageFileName], async (err, row) => {
-    if (err) {
-      console.error(err.message);
-      return res.status(500).send('Internal Server Error');
-    }
-    if (!row) {
-      return res.status(404).send('Image Not Found');
-    }
-
-    try {
-      let imageBuffer = row.imageFile;
-      let mimeType = row.mimeType;
-      let metadata;
-
-      if (mimeType !== 'image/svg+xml') {
-        metadata = await sharp(imageBuffer).metadata();
-        const maxDimension = Math.max(metadata.width, metadata.height);
-        const finalSize = size ? Math.min(size, maxDimension) : null;
-
-        if (finalSize) {
-          const resizedImageBuffer = await sharp(imageBuffer).resize(finalSize).toBuffer();
-          imageBuffer = resizedImageBuffer;
-        }
-      }
-
-      if (toFormat) {
-        let convertedImageBuffer;
-
-        switch (toFormat.toLowerCase()) {
-          case 'webp':
-            convertedImageBuffer = await sharp(imageBuffer)
-              .webp({ quality: quality || 75 })
-              .toBuffer();
-            mimeType = 'image/webp';
-            break;
-
-          case 'avif':
-            convertedImageBuffer = await sharp(imageBuffer)
-              .avif({ quality: quality || 75, chromaSubsampling: '4:2:0' })
-              .toBuffer();
-            mimeType = 'image/avif';
-            break;
-
-          case 'gif':
-            convertedImageBuffer = await sharp(imageBuffer)
-              .gif()
-              .toBuffer();
-            mimeType = 'image/gif';
-            break;
-
-          default:
-            return res.status(400).send('Unsupported format');
-        }
-
-        imageBuffer = convertedImageBuffer;
-      }
-      if (req.query.r) {
-        const postResize = parseInt(req.query.r);
-        if (!isNaN(postResize) && postResize > 0) {
-          const resizedImageBuffer = await sharp(imageBuffer).resize(postResize, postResize, { fit: 'inside' }).toBuffer();
-          imageBuffer = resizedImageBuffer;
-        }
-      }
-      res.contentType(mimeType);
-      res.send(imageBuffer);
-    } catch (error) {
-      console.error('Error processing image:', error);
-      res.status(500).send('Error processing image');
-    }
-  });
-});
-
 
 app.get('/shared/images/:imageFileName', async (req, res) => {
   const imageFileName = req.params.imageFileName;
   const size = req.query.s ? parseInt(req.query.s) : null;
   const toFormat = req.query.to;
   const quality = req.query.q ? parseInt(req.query.q) : null;
+  const paddingPercent = req.query.p ? parseFloat(req.query.p) : 0; 
 
-  wikiDataBase.get('SELECT mimeType, imageFile FROM sharedImages WHERE imageFileName = ?', [imageFileName], async (err, row) => {
-    if (err) {
-      console.error(err.message);
-      return res.status(500).send('Internal Server Error');
-    }
-    if (!row) {
-      return res.status(404).send('Image Not Found');
-    }
-
-    try {
-      const imagePath = row.imageFile;
-      let mimeType = mime.lookup(imagePath) || 'application/octet-stream';
-
-      fs.readFile(path.join(__PROJECT_DIR__, imagePath), async (err, imageBuffer) => {
-        if (err) {
-          console.error('Error reading image file:', err);
-          return res.status(500).send('Error reading image file');
-        }
-
-        let metadata;
-
-        if (mimeType !== 'image/svg+xml') {
-          metadata = await sharp(imageBuffer).metadata();
-          const maxDimension = Math.max(metadata.width, metadata.height);
-          const finalSize = size ? Math.min(size, maxDimension) : null;
-
-          if (finalSize) {
-            const resizedImageBuffer = await sharp(imageBuffer).resize(finalSize).toBuffer();
-            imageBuffer = resizedImageBuffer;
-          }
-        }
-
-        if (toFormat) {
-          let convertedImageBuffer;
-
-          switch (toFormat.toLowerCase()) {
-            case 'webp':
-              convertedImageBuffer = await sharp(imageBuffer)
-                .webp({ quality: quality || 75 })
-                .toBuffer();
-              mimeType = 'image/webp';
-              break;
-
-            case 'avif':
-              convertedImageBuffer = await sharp(imageBuffer)
-                .avif({ quality: quality || 75, chromaSubsampling: '4:2:0' })
-                .toBuffer();
-              mimeType = 'image/avif';
-              break;
-
-            case 'gif':
-              convertedImageBuffer = await sharp(imageBuffer)
-                .gif()
-                .toBuffer();
-              mimeType = 'image/gif';
-              break;
-
-            default:
-              return res.status(400).send('Unsupported format');
-          }
-
-          imageBuffer = convertedImageBuffer;
-        }
-
-        if (req.query.r) {
-          const postResize = parseInt(req.query.r);
-          if (!isNaN(postResize) && postResize > 0) {
-            const resizedImageBuffer = await sharp(imageBuffer).resize(postResize, postResize, { fit: 'inside' }).toBuffer();
-            imageBuffer = resizedImageBuffer;
-          }
-        }
-
-        res.contentType(mimeType);
-        res.send(imageBuffer);
-      });
-    } catch (error) {
-      console.error('Error processing image:', error);
-      res.status(500).send('Error processing image');
-    }
-  });
-});
-*/
-
-app.get('/shared/images/:imageFileName', async (req, res) => {
-  const imageFileName = req.params.imageFileName;
-  const size = req.query.s ? parseInt(req.query.s) : null;
-  const toFormat = req.query.to;
-  const quality = req.query.q ? parseInt(req.query.q) : null;
-
-  await wikiDataBase.get('SELECT mimeType, imageFile FROM sharedImages WHERE imageFileName = ?', [imageFileName], async (err, row) => {
+  await wikiDataBase.get('SELECT imageFile FROM sharedImages WHERE imageFileName = ?', [imageFileName], async (err, row) => {
     if (err) { console.error(err.message); return res.status(500).send('Internal Server Error') }
     if (!row) { return res.status(404).send('Image Not Found') }
     const imagePath = path.join(__PROJECT_DIR__, row.imageFile);
@@ -630,6 +463,12 @@ app.get('/shared/images/:imageFileName', async (req, res) => {
 
             imageBuffer = convertedImageBuffer;
           }
+
+          if (paddingPercent > 0) {
+            const paddedImageBuffer = await applyPadding(imageBuffer, paddingPercent);
+            imageBuffer = paddedImageBuffer;
+          }
+
           if (req.query.r) {
             const postResize = parseInt(req.query.r);
             if (!isNaN(postResize) && postResize > 0) {
@@ -637,6 +476,7 @@ app.get('/shared/images/:imageFileName', async (req, res) => {
               imageBuffer = resizedImageBuffer;
             }
           }
+
           res.contentType(mimeType);
           res.send(imageBuffer);
         } else {
@@ -658,6 +498,7 @@ app.get('/local/images/*', async (req, res) => {
   const size = req.query.s ? parseInt(req.query.s) : null;
   const toFormat = req.query.to;
   const quality = req.query.q ? parseInt(req.query.q) : null;
+  const paddingPercent = req.query.p ? parseFloat(req.query.p) : 0;
 
   const baseDirectory = path.join(__PROJECT_DIR__, 'static/public/resource/images');
   const imagePath = path.join(baseDirectory, filePath);
@@ -715,13 +556,24 @@ app.get('/local/images/*', async (req, res) => {
                 .toBuffer();
               mimeType = 'image/gif';
               break;
-
+            case 'png':
+              convertedImageBuffer = await sharp(imageBuffer)
+                .png()
+                .toBuffer();
+              mimeType = 'image/png';
+              break;
             default:
               return res.status(400).send('Unsupported format');
           }
 
           imageBuffer = convertedImageBuffer;
         }
+
+        if (paddingPercent > 0) {
+          const paddedImageBuffer = await applyPadding(imageBuffer, paddingPercent);
+          imageBuffer = paddedImageBuffer;
+        }
+
         if (req.query.r) {
           const postResize = parseInt(req.query.r);
           if (!isNaN(postResize) && postResize > 0) {
@@ -729,6 +581,9 @@ app.get('/local/images/*', async (req, res) => {
             imageBuffer = resizedImageBuffer;
           }
         }
+
+
+
         res.contentType(mimeType);
         res.send(imageBuffer);
       } else {
@@ -740,6 +595,46 @@ app.get('/local/images/*', async (req, res) => {
     }
   });
 });
+
+
+async function applyPadding(imageBuffer, paddingPercent) {
+  const image = sharp(imageBuffer);
+  const metadata = await image.metadata();
+  
+  const originalWidth = metadata.width;
+  const originalHeight = metadata.height;
+  
+  const paddingSize = Math.floor(Math.max(originalWidth, originalHeight) * paddingPercent / 100);
+  
+  const minWidth = 10;
+  const minHeight = 10;
+
+  let newWidth = originalWidth - 2 * paddingSize;
+  let newHeight = originalHeight - 2 * paddingSize;
+
+  if (newWidth < minWidth) {
+    newWidth = minWidth;
+  }
+
+  if (newHeight < minHeight) {
+    newHeight = minHeight;
+  }
+
+  const resizedImageBuffer = await sharp(imageBuffer)
+    .resize(newWidth, newHeight)
+    .extend({
+      top: paddingSize,
+      bottom: paddingSize,
+      left: paddingSize,
+      right: paddingSize,
+      background: { r: 255, g: 255, b: 255, alpha: 0 }
+    })
+    .toBuffer();
+
+  return resizedImageBuffer;
+}
+
+
 
 
 app.post('/process-dom', (reqest, response) => {
@@ -779,13 +674,6 @@ app.use(async (err, req, res, next) => {
     });
   }
 });
-/*
-app.use(async (req, res, next) => {
-  const page = await loadComponent('404.pug', { navigatorLanguage: req.headers['accept-language'], currentURL: `${req.protocol}://${req.get('host')}${req.url}` });
-  res.status(404).send(page);
-});*/
-
-
 
 const options = {
   key: fs.readFileSync('nkardaz.io.key'),
@@ -796,7 +684,3 @@ const server = https.createServer(options, app).listen(process.env.PORT, () => {
     console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: HTTPS enabled\x1b[39m`);
 });
 
-/*
-const server = app.listen(process.env.PORT, () => { 
-  console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Runned server at [http://${process.env.HOST}:${process.env.PORT}]\x1b[39m`);
-});*/
