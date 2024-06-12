@@ -32,7 +32,7 @@ const wikiDataBase = new sqlite3.Database(path.join(__PROJECT_DIR__, 'static/dat
 wikiDataBase.run(`CREATE TABLE IF NOT EXISTS articles (rowID INTEGER PRIMARY KEY, articleTitle TEXT, articleContent TEXT)`);
 wikiDataBase.run(`CREATE TABLE IF NOT EXISTS sharedImages (rowID INTEGER PRIMARY KEY, imageTitle TEXT, imageFileName TEXT, mimeType TEXT, imageFile BLOB)`);
 
-(async () => {
+/*(async () => {
     try {
         // Чтение содержимого изображения из файла
         const testImage = await fs.readFileSync(path.join(__PROJECT_DIR__, 'static/public/resource/images/seo/kamon_glyph.png'));
@@ -51,7 +51,7 @@ wikiDataBase.run(`CREATE TABLE IF NOT EXISTS sharedImages (rowID INTEGER PRIMARY
     } catch (error) {
         console.error('Error inserting test image:', error);
     }
-})();
+})();*/
 
 markdown.core.ruler.enable(['abbr']);
 markdown.inline.ruler.enable(['ins', 'mark','footnote_inline', 'sub', 'sup']);
@@ -374,25 +374,86 @@ app.get('/wiki/:page', async (request, response, next) => {
   }
 });
 
-app.get('/shared/images/:imageFileName', (req, res) => {
-    const imageFileName = req.params.imageFileName;
+app.get('/shared/images/:imageFileName', async (req, res) => {
+  const imageFileName = req.params.imageFileName;
+  const size = req.query.s ? parseInt(req.query.s) : null;
+  const toFormat = req.query.to;
+  const quality = req.query.q ? parseInt(req.query.q) : null;
 
-    wikiDataBase.get('SELECT mimeType, imageFile FROM sharedImages WHERE imageFileName = ?', [imageFileName], (err, row) => {
-        if (err) {
-            console.error(err.message);
-            return res.status(500).send('Internal Server Error');
-        }
-        if (!row) {
-            return res.status(404).send('Image Not Found');
+  wikiDataBase.get('SELECT mimeType, imageFile FROM sharedImages WHERE imageFileName = ?', [imageFileName], async (err, row) => {
+    if (err) {
+      console.error(err.message);
+      return res.status(500).send('Internal Server Error');
+    }
+    if (!row) {
+      return res.status(404).send('Image Not Found');
+    }
+
+    try {
+      let imageBuffer = row.imageFile;
+      let mimeType = row.mimeType;
+      let metadata;
+
+      if (mimeType !== 'image/svg+xml') {
+        metadata = await sharp(imageBuffer).metadata();
+        const maxDimension = Math.max(metadata.width, metadata.height);
+
+        if (size && size > maxDimension) {
+          console.log(`Requested size (${size}px) exceeds original dimension (${maxDimension}px). Limiting size to ${maxDimension}px.`);
         }
 
-        // Отправка изображения в ответ на запрос с указанием MIME-типа
-        res.contentType(row.mimeType);
-        res.send(row.imageFile);
-    });
+        const finalSize = size ? Math.min(size, maxDimension) : null;
+
+        if (finalSize) {
+          const resizedImageBuffer = await sharp(imageBuffer).resize(finalSize).toBuffer();
+          imageBuffer = resizedImageBuffer;
+        }
+      } else {
+        if (size) {
+          console.log('SVG image detected, no need to resize.');
+        }
+      }
+
+      if (toFormat) {
+        let convertedImageBuffer;
+
+        switch (toFormat.toLowerCase()) {
+          case 'webp':
+            convertedImageBuffer = await sharp(imageBuffer)
+              .webp({ quality: quality || 75 })
+              .toBuffer();
+            mimeType = 'image/webp';
+            break;
+
+          case 'avif':
+            convertedImageBuffer = await sharp(imageBuffer)
+              .avif({ quality: quality || 75, chromaSubsampling: '4:2:0' })
+              .toBuffer();
+            mimeType = 'image/avif';
+            break;
+
+          case 'gif':
+            convertedImageBuffer = await sharp(imageBuffer)
+              .gif()
+              .toBuffer();
+            mimeType = 'image/gif';
+            break;
+
+          default:
+            return res.status(400).send('Unsupported format');
+        }
+
+        imageBuffer = convertedImageBuffer;
+      }
+
+      res.contentType(mimeType);
+      res.send(imageBuffer);
+    } catch (error) {
+      console.error('Error processing image:', error);
+      res.status(500).send('Error processing image');
+    }
+  });
 });
-
-
 
 
 

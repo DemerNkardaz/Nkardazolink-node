@@ -18,6 +18,7 @@ IndexDependencies:
   - util: '{ promisify }'
   - path: 'path'
   - express: 'express'
+  - sharp: 'sharp'
   - express-session: 'sessions'
   - express-useragent: 'useragent'
   - socket.io: 'socketIO'
