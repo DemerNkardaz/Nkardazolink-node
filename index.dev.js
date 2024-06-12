@@ -30,12 +30,33 @@ const sessionManager = new SessionManager(usersDataBase);
 
 const wikiDataBase = new sqlite3.Database(path.join(__PROJECT_DIR__, 'static/data_base/wikipages.db'));
 wikiDataBase.run(`CREATE TABLE IF NOT EXISTS articles (rowID INTEGER PRIMARY KEY, articleTitle TEXT, articleContent TEXT)`);
-wikiDataBase.run(`CREATE TABLE IF NOT EXISTS sharedImages (rowID INTEGER PRIMARY KEY, imageTitle TEXT, imageFileName TEXT, mimeType TEXT, imageFile BLOB)`);
+//wikiDataBase.run(`CREATE TABLE IF NOT EXISTS sharedImages (rowID INTEGER PRIMARY KEY, imageTitle TEXT, imageFileName TEXT, mimeType TEXT, imageFile BLOB)`);
+wikiDataBase.run(`CREATE TABLE IF NOT EXISTS sharedImages (rowID INTEGER PRIMARY KEY, imageTitle TEXT, imageFileName TEXT, imageFile TEXT)`);
 
 /*(async () => {
     try {
         // Чтение содержимого изображения из файла
         const testImage = await fs.readFileSync(path.join(__PROJECT_DIR__, 'static/public/resource/images/seo/kamon_glyph.png'));
+        // Выполнение запроса INSERT с использованием промиса
+        await new Promise((resolve, reject) => {
+            wikiDataBase.run(`INSERT INTO sharedImages (imageTitle, imageFileName, mimeType, imageFile) VALUES (?, ?, ?, ?)`, ['Nkardaz kamon glyph', 'kamon_glyph.png', 'image/png', testImage], function(err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
+        });
+
+        console.log('Test image inserted successfully');
+    } catch (error) {
+        console.error('Error inserting test image:', error);
+    }
+})();
+(async () => {
+    try {
+        // Чтение содержимого изображения из файла
+        const testImage = 'static/public/resource/images/seo/kamon_glyph.png';
         // Выполнение запроса INSERT с использованием промиса
         await new Promise((resolve, reject) => {
             wikiDataBase.run(`INSERT INTO sharedImages (imageTitle, imageFileName, mimeType, imageFile) VALUES (?, ?, ?, ?)`, ['Nkardaz kamon glyph', 'kamon_glyph.png', 'image/png', testImage], function(err) {
@@ -373,7 +394,7 @@ app.get('/wiki/:page', async (request, response, next) => {
     next(error);
   }
 });
-
+/*
 app.get('/shared/images/:imageFileName', async (req, res) => {
   const imageFileName = req.params.imageFileName;
   const size = req.query.s ? parseInt(req.query.s) : null;
@@ -402,10 +423,6 @@ app.get('/shared/images/:imageFileName', async (req, res) => {
         if (finalSize) {
           const resizedImageBuffer = await sharp(imageBuffer).resize(finalSize).toBuffer();
           imageBuffer = resizedImageBuffer;
-        }
-      } else {
-        if (size) {
-          console.log('SVG image detected, no need to resize.');
         }
       }
 
@@ -457,6 +474,184 @@ app.get('/shared/images/:imageFileName', async (req, res) => {
 });
 
 
+app.get('/shared/images/:imageFileName', async (req, res) => {
+  const imageFileName = req.params.imageFileName;
+  const size = req.query.s ? parseInt(req.query.s) : null;
+  const toFormat = req.query.to;
+  const quality = req.query.q ? parseInt(req.query.q) : null;
+
+  wikiDataBase.get('SELECT mimeType, imageFile FROM sharedImages WHERE imageFileName = ?', [imageFileName], async (err, row) => {
+    if (err) {
+      console.error(err.message);
+      return res.status(500).send('Internal Server Error');
+    }
+    if (!row) {
+      return res.status(404).send('Image Not Found');
+    }
+
+    try {
+      const imagePath = row.imageFile;
+      let mimeType = mime.lookup(imagePath) || 'application/octet-stream';
+
+      fs.readFile(path.join(__PROJECT_DIR__, imagePath), async (err, imageBuffer) => {
+        if (err) {
+          console.error('Error reading image file:', err);
+          return res.status(500).send('Error reading image file');
+        }
+
+        let metadata;
+
+        if (mimeType !== 'image/svg+xml') {
+          metadata = await sharp(imageBuffer).metadata();
+          const maxDimension = Math.max(metadata.width, metadata.height);
+          const finalSize = size ? Math.min(size, maxDimension) : null;
+
+          if (finalSize) {
+            const resizedImageBuffer = await sharp(imageBuffer).resize(finalSize).toBuffer();
+            imageBuffer = resizedImageBuffer;
+          }
+        }
+
+        if (toFormat) {
+          let convertedImageBuffer;
+
+          switch (toFormat.toLowerCase()) {
+            case 'webp':
+              convertedImageBuffer = await sharp(imageBuffer)
+                .webp({ quality: quality || 75 })
+                .toBuffer();
+              mimeType = 'image/webp';
+              break;
+
+            case 'avif':
+              convertedImageBuffer = await sharp(imageBuffer)
+                .avif({ quality: quality || 75, chromaSubsampling: '4:2:0' })
+                .toBuffer();
+              mimeType = 'image/avif';
+              break;
+
+            case 'gif':
+              convertedImageBuffer = await sharp(imageBuffer)
+                .gif()
+                .toBuffer();
+              mimeType = 'image/gif';
+              break;
+
+            default:
+              return res.status(400).send('Unsupported format');
+          }
+
+          imageBuffer = convertedImageBuffer;
+        }
+
+        if (req.query.r) {
+          const postResize = parseInt(req.query.r);
+          if (!isNaN(postResize) && postResize > 0) {
+            const resizedImageBuffer = await sharp(imageBuffer).resize(postResize, postResize, { fit: 'inside' }).toBuffer();
+            imageBuffer = resizedImageBuffer;
+          }
+        }
+
+        res.contentType(mimeType);
+        res.send(imageBuffer);
+      });
+    } catch (error) {
+      console.error('Error processing image:', error);
+      res.status(500).send('Error processing image');
+    }
+  });
+});
+*/
+
+app.get('/shared/images/:imageFileName', async (req, res) => {
+  const imageFileName = req.params.imageFileName;
+  const size = req.query.s ? parseInt(req.query.s) : null;
+  const toFormat = req.query.to;
+  const quality = req.query.q ? parseInt(req.query.q) : null;
+
+  await wikiDataBase.get('SELECT mimeType, imageFile FROM sharedImages WHERE imageFileName = ?', [imageFileName], async (err, row) => {
+    if (err) { console.error(err.message); return res.status(500).send('Internal Server Error') }
+    if (!row) { return res.status(404).send('Image Not Found') }
+    const imagePath = path.join(__PROJECT_DIR__, row.imageFile);
+
+    fs.readFile(imagePath, async (err, imageBuffer) => {
+      if (err) {
+        console.error(err.message);
+        if (err.code === 'ENOENT') {
+          return res.status(404).send('Image Not Found');
+        }
+        return res.status(500).send('Internal Server Error');
+      }
+
+      try {
+        let mimeType = mime.lookup(imagePath) || 'application/octet-stream';
+
+        if (mimeType.startsWith('image/')) {
+          let metadata;
+          if (mimeType !== 'image/svg+xml') {
+            metadata = await sharp(imageBuffer).metadata();
+            const maxDimension = Math.max(metadata.width, metadata.height);
+            const finalSize = size ? Math.min(size, maxDimension) : null;
+
+            if (finalSize && finalSize < maxDimension) {
+              const resizedImageBuffer = await sharp(imageBuffer).resize(finalSize, finalSize, { fit: 'inside' }).toBuffer();
+              imageBuffer = resizedImageBuffer;
+            }
+          }
+
+          if (toFormat) {
+            let convertedImageBuffer;
+
+            switch (toFormat.toLowerCase()) {
+              case 'webp':
+                convertedImageBuffer = await sharp(imageBuffer)
+                  .webp({ quality: quality || 75 })
+                  .toBuffer();
+                mimeType = 'image/webp';
+                break;
+
+              case 'avif':
+                convertedImageBuffer = await sharp(imageBuffer)
+                  .avif({ quality: quality || 75, chromaSubsampling: '4:2:0' })
+                  .toBuffer();
+                mimeType = 'image/avif';
+                break;
+
+              case 'gif':
+                convertedImageBuffer = await sharp(imageBuffer)
+                  .gif()
+                  .toBuffer();
+                mimeType = 'image/gif';
+                break;
+
+              default:
+                return res.status(400).send('Unsupported format');
+            }
+
+            imageBuffer = convertedImageBuffer;
+          }
+          if (req.query.r) {
+            const postResize = parseInt(req.query.r);
+            if (!isNaN(postResize) && postResize > 0) {
+              const resizedImageBuffer = await sharp(imageBuffer).resize(postResize, postResize, { fit: 'inside' }).toBuffer();
+              imageBuffer = resizedImageBuffer;
+            }
+          }
+          res.contentType(mimeType);
+          res.send(imageBuffer);
+        } else {
+          res.status(400).send('File is not an image');
+        }
+      } catch (error) {
+        console.error('Error processing image:', error);
+        res.status(500).send('Error processing image');
+      }
+    });
+  });
+});
+
+
+
 
 app.get('/local/images/*', async (req, res) => {
   const filePath = req.params[0];
@@ -464,7 +659,7 @@ app.get('/local/images/*', async (req, res) => {
   const toFormat = req.query.to;
   const quality = req.query.q ? parseInt(req.query.q) : null;
 
-  const baseDirectory = path.join(__dirname, 'static/public/resource/images');
+  const baseDirectory = path.join(__PROJECT_DIR__, 'static/public/resource/images');
   const imagePath = path.join(baseDirectory, filePath);
 
   if (!imagePath.startsWith(baseDirectory)) {
@@ -481,7 +676,6 @@ app.get('/local/images/*', async (req, res) => {
     }
 
     try {
-      // Определение MIME-типа на основе расширения файла
       let mimeType = mime.lookup(imagePath) || 'application/octet-stream';
 
       if (mimeType.startsWith('image/')) {
