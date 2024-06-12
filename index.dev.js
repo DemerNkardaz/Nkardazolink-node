@@ -395,291 +395,33 @@ app.get('/wiki/:page', async (request, response, next) => {
   }
 });
 
-app.get('/shared/images/:imageFileName', async (req, res) => {
-  const imageFileName = req.params.imageFileName;
-  const size = req.query.s ? parseInt(req.query.s) : null;
-  const toFormat = req.query.to;
-  const quality = req.query.q ? parseInt(req.query.q) : null;
-  const paddingPercent = req.query.p ? parseFloat(req.query.p) : 0; 
 
-  await wikiDataBase.get('SELECT imageFile FROM sharedImages WHERE imageFileName = ?', [imageFileName], async (err, row) => {
-    if (err) { console.error(err.message); return res.status(500).send('Internal Server Error') }
-    if (!row) { return res.status(404).send('Image Not Found') }
-    const imagePath = path.join(__PROJECT_DIR__, row.imageFile);
+app.get('/shared/images/:imageFileName', async (request, response) => {
+  try {
+    const handler = new ImageHandler(__PROJECT_DIR__, request);
+    const handledResult = await handler.getImage(wikiDataBase);
 
-    fs.readFile(imagePath, async (err, imageBuffer) => {
-      if (err) {
-        console.error(err.message);
-        if (err.code === 'ENOENT') {
-          return res.status(404).send('Image Not Found');
-        }
-        return res.status(500).send('Internal Server Error');
-      }
-
-      try {
-        let mimeType = mime.lookup(imagePath) || 'application/octet-stream';
-        let svgScales;
-
-        if (mimeType.startsWith('image/')) {
-          let metadata;
-          if (mimeType !== 'image/svg+xml') {
-            metadata = await sharp(imageBuffer).metadata();
-            const maxDimension = Math.max(metadata.width, metadata.height);
-            const finalSize = size ? Math.min(size, maxDimension) : null;
-
-            if (finalSize && finalSize < maxDimension) {
-              const resizedImageBuffer = await sharp(imageBuffer).resize(finalSize, finalSize, { fit: 'inside' }).toBuffer();
-              imageBuffer = resizedImageBuffer;
-            }
-          } else {
-            imageBuffer = Buffer.from(await rescaleSVG(imageBuffer, size), 'utf8');
-            svgScales = await checkSVGScale(imageBuffer);
-          }
-
-          if (toFormat) {
-            if (mimeType === 'image/svg+xml' && (svgScales['width'] > 2048 || svgScales['height'] > 2048)) {
-              imageBuffer = Buffer.from(await rescaleSVG(imageBuffer, 2048), 'utf8');
-            }
-
-            const getConverted = await convertImage(imageBuffer, { toFormat, quality });
-            imageBuffer = getConverted.convertedImageBuffer;
-            mimeType = getConverted.mimeType;
-          }
-
-          if (paddingPercent > 0) {
-            const paddedImageBuffer = await applyPadding(imageBuffer, paddingPercent);
-            imageBuffer = paddedImageBuffer;
-          }
-
-          if (req.query.r) {
-            const postResize = parseInt(req.query.r);
-            if (!isNaN(postResize) && postResize > 0) {
-              const resizedImageBuffer = await sharp(imageBuffer).resize(postResize, postResize, { fit: 'inside' }).toBuffer();
-              imageBuffer = resizedImageBuffer;
-            }
-          }
-
-          res.contentType(mimeType);
-          res.send(imageBuffer);
-        } else {
-          res.status(400).send('File is not an image');
-        }
-      } catch (error) {
-        console.error('Error processing image:', error);
-        res.status(500).send('Error processing image');
-      }
-    });
-  });
+    response.contentType(handledResult.mimeType);
+    response.send(handledResult.imageBuffer);
+  } catch (error) {
+    console.error('Error processing image:', error);
+    response.status(500).send('Error processing image');
+  }
 });
 
 
+app.get('/local/images/*', async (request, response) => {
+  try {
+    const handler = new ImageHandler(path.join(__PROJECT_DIR__, 'static/public/resource/images'), request);
+    const handledResult = await handler.getImage();
 
-
-app.get('/local/images/*', async (req, res) => {
-  const filePath = req.params[0];
-  const size = req.query.s ? parseInt(req.query.s) : null;
-  const toFormat = req.query.to;
-  const quality = req.query.q ? parseInt(req.query.q) : null;
-  const paddingPercent = req.query.p ? parseFloat(req.query.p) : 0;
-
-  const baseDirectory = path.join(__PROJECT_DIR__, 'static/public/resource/images');
-  const imagePath = path.join(baseDirectory, filePath);
-
-  if (!imagePath.startsWith(baseDirectory)) {
-    return res.status(400).send('Invalid file path');
+    response.contentType(handledResult.mimeType);
+    response.send(handledResult.imageBuffer);
+  } catch (error) {
+    console.error('Error processing image:', error);
+    response.status(500).send('Error processing image');
   }
-
-  fs.readFile(imagePath, async (err, imageBuffer) => {
-    if (err) {
-      console.error(err.message);
-      if (err.code === 'ENOENT') {
-        return res.status(404).send('Image Not Found');
-      }
-      return res.status(500).send('Internal Server Error');
-    }
-
-    try {
-      let mimeType = mime.lookup(imagePath) || 'application/octet-stream';
-      let svgScales;
-
-      if (mimeType.startsWith('image/')) {
-        let metadata;
-        if (mimeType !== 'image/svg+xml') {
-          metadata = await sharp(imageBuffer).metadata();
-          const maxDimension = Math.max(metadata.width, metadata.height);
-          const finalSize = size ? Math.min(size, maxDimension) : null;
-
-          if (finalSize && finalSize < maxDimension) {
-            const resizedImageBuffer = await sharp(imageBuffer).resize(finalSize, finalSize, { fit: 'inside' }).toBuffer();
-            imageBuffer = resizedImageBuffer;
-          }
-        } else {
-          imageBuffer = Buffer.from(await rescaleSVG(imageBuffer, size), 'utf8');
-          svgScales = await checkSVGScale(imageBuffer);
-        }
-
-        if (toFormat) {
-          if (mimeType === 'image/svg+xml' && (svgScales['width'] > 2048 || svgScales['height'] > 2048)) {
-            imageBuffer = Buffer.from(await rescaleSVG(imageBuffer, 2048), 'utf8');
-          }
-
-          const getConverted = await convertImage(imageBuffer, { toFormat, quality });
-          imageBuffer = getConverted.convertedImageBuffer;
-          mimeType = getConverted.mimeType;
-        }
-
-        if (paddingPercent > 0) {
-          const paddedImageBuffer = await applyPadding(imageBuffer, paddingPercent);
-          imageBuffer = paddedImageBuffer;
-        }
-
-        if (req.query.r) {
-          const postResize = parseInt(req.query.r);
-          if (!isNaN(postResize) && postResize > 0) {
-            const resizedImageBuffer = await sharp(imageBuffer).resize(postResize, postResize, { fit: 'inside' }).toBuffer();
-            imageBuffer = resizedImageBuffer;
-          }
-        }
-
-        res.contentType(mimeType);
-        res.send(imageBuffer);
-      } else {
-        res.status(400).send('File is not an image');
-      }
-    } catch (error) {
-      console.error('Error processing image:', error);
-      res.status(500).send('Error processing image');
-    }
-  });
 });
-
-
-async function convertImage(imageBuffer, options) {
-  let convertedImageBuffer, mimeType;
-  switch (options.toFormat.toLowerCase()) {
-    case 'webp':
-      convertedImageBuffer = await sharp(imageBuffer).webp({ quality: options.quality || 75 }).toBuffer();
-      mimeType = 'image/webp';
-      break;
-
-    case 'avif':
-      convertedImageBuffer = await sharp(imageBuffer).avif({ quality: options.quality || 75, chromaSubsampling: '4:2:0' }).toBuffer();
-      mimeType = 'image/avif';
-      break;
-
-    case 'gif':
-      convertedImageBuffer = await sharp(imageBuffer).gif().toBuffer();
-      mimeType = 'image/gif';
-      break;
-    case 'png':
-      convertedImageBuffer = await sharp(imageBuffer).png().toBuffer();
-      mimeType = 'image/png';
-      break;
-    default:
-      return res.status(400).send('Unsupported format');
-  }
-  return { convertedImageBuffer, mimeType };
-}
-
-async function checkSVGScale(imageBuffer) {
-  const svgString = await imageBuffer.toString('utf-8');
-  const domParser = new DOMParser();
-  const doc = domParser.parseFromString(svgString, 'image/svg+xml');
-  const svgElement = doc.documentElement;
-
-  const viewBox = svgElement.getAttribute('viewBox');
-  const width = svgElement.getAttribute('width');
-  const height = svgElement.getAttribute('height');
-  if (width && height) {
-    return { width: parseFloat(width), height: parseFloat(height) }
-  }
-  if (viewBox) {
-    const [minX, minY, viewBoxWidth, viewBoxHeight] = viewBox.split(' ').map(Number);
-    return { width: viewBoxWidth, height: viewBoxHeight }
-  }
-}
-
-async function rescaleSVG(imageBuffer, size) {
-  const svgString = await imageBuffer.toString('utf-8');
-  const domParser = new DOMParser();
-  const doc = domParser.parseFromString(svgString, 'image/svg+xml');
-  const svgElement = doc.documentElement;
-
-  if (size) {
-    const width = svgElement.getAttribute('width');
-    const height = svgElement.getAttribute('height');
-
-    if (width && height) {
-      const aspectRatio = parseFloat(width) / parseFloat(height);
-      if (parseFloat(width) >= parseFloat(height)) {
-        svgElement.setAttribute('width', size);
-        svgElement.setAttribute('height', Math.round(size / aspectRatio));
-      } else {
-        svgElement.setAttribute('height', size);
-        svgElement.setAttribute('width', Math.round(size * aspectRatio));
-      }
-    } else {
-      const viewBox = svgElement.getAttribute('viewBox');
-      if (viewBox) {
-        const [minX, minY, viewBoxWidth, viewBoxHeight] = viewBox.split(' ').map(Number);
-        const aspectRatio = viewBoxWidth / viewBoxHeight;
-
-        if (viewBoxWidth >= viewBoxHeight) {
-          svgElement.setAttribute('width', size);
-          svgElement.setAttribute('height', Math.round(size / aspectRatio));
-        } else {
-          svgElement.setAttribute('height', size);
-          svgElement.setAttribute('width', Math.round(size * aspectRatio));
-        }
-      } else {
-        console.warn('SVG does not have width/height or viewBox attributes.');
-      }
-    }
-    const xmlSerializer = new XMLSerializer();
-    return xmlSerializer.serializeToString(svgElement);
-  } else {
-    return imageBuffer;
-  }
-}
-
-
-async function applyPadding(imageBuffer, paddingPercent) {
-  const image = sharp(imageBuffer);
-  const metadata = await image.metadata();
-  
-  const originalWidth = metadata.width;
-  const originalHeight = metadata.height;
-  
-  const paddingSize = Math.floor(Math.max(originalWidth, originalHeight) * paddingPercent / 100);
-  
-  const minWidth = 10;
-  const minHeight = 10;
-
-  let newWidth = originalWidth - 2 * paddingSize;
-  let newHeight = originalHeight - 2 * paddingSize;
-
-  if (newWidth < minWidth) {
-    newWidth = minWidth;
-  }
-
-  if (newHeight < minHeight) {
-    newHeight = minHeight;
-  }
-
-  const resizedImageBuffer = await sharp(imageBuffer)
-    .resize(newWidth, newHeight)
-    .extend({
-      top: paddingSize,
-      bottom: paddingSize,
-      left: paddingSize,
-      right: paddingSize,
-      background: { r: 255, g: 255, b: 255, alpha: 0 }
-    })
-    .toBuffer();
-
-  return resizedImageBuffer;
-}
-
 
 
 

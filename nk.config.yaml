@@ -47,6 +47,7 @@ ProjectDependencies:
   - ./app/scripts/ComponentHandling.js: '{ PagePrerender, loadComponent }'
   - ./app/scripts/DataBaseHandling.js: '{ dbHandle }'
   - ./app/scripts/SessionManagement.js: '{ SessionManager }'
+  - ./app/scripts/ImageHandler.js: '{ ImageHandler }'
 AppFuncs:
   - Vars
   - app: 'express()'
