@@ -20,6 +20,7 @@ IndexDependencies:
   - express: 'express'
   - sharp: 'sharp'
   - mime-types: 'mime'
+  - xmldom: '{ DOMParser, XMLSerializer }'
   - express-session: 'sessions'
   - express-useragent: 'useragent'
   - socket.io: 'socketIO'

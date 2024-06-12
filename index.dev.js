@@ -430,6 +430,8 @@ app.get('/shared/images/:imageFileName', async (req, res) => {
               const resizedImageBuffer = await sharp(imageBuffer).resize(finalSize, finalSize, { fit: 'inside' }).toBuffer();
               imageBuffer = resizedImageBuffer;
             }
+          } else {
+            imageBuffer = Buffer.from(await rescaleSVG(imageBuffer, size), 'utf8');
           }
 
           if (toFormat) {
@@ -530,6 +532,8 @@ app.get('/local/images/*', async (req, res) => {
             const resizedImageBuffer = await sharp(imageBuffer).resize(finalSize, finalSize, { fit: 'inside' }).toBuffer();
             imageBuffer = resizedImageBuffer;
           }
+        } else {
+          imageBuffer = Buffer.from(await rescaleSVG(imageBuffer, size), 'utf8');
         }
 
         if (toFormat) {
@@ -582,8 +586,6 @@ app.get('/local/images/*', async (req, res) => {
           }
         }
 
-
-
         res.contentType(mimeType);
         res.send(imageBuffer);
       } else {
@@ -595,6 +597,50 @@ app.get('/local/images/*', async (req, res) => {
     }
   });
 });
+
+
+async function rescaleSVG(imageBuffer, size) {
+  const svgString = await imageBuffer.toString('utf-8');
+  const domParser = new DOMParser();
+  const doc = domParser.parseFromString(svgString, 'image/svg+xml');
+  const svgElement = doc.documentElement;
+
+  if (size) {
+    const width = svgElement.getAttribute('width');
+    const height = svgElement.getAttribute('height');
+
+    if (width && height) {
+      const aspectRatio = parseFloat(width) / parseFloat(height);
+      if (parseFloat(width) >= parseFloat(height)) {
+        svgElement.setAttribute('width', size);
+        svgElement.setAttribute('height', Math.round(size / aspectRatio));
+      } else {
+        svgElement.setAttribute('height', size);
+        svgElement.setAttribute('width', Math.round(size * aspectRatio));
+      }
+    } else {
+      const viewBox = svgElement.getAttribute('viewBox');
+      if (viewBox) {
+        const [minX, minY, viewBoxWidth, viewBoxHeight] = viewBox.split(' ').map(Number);
+        const aspectRatio = viewBoxWidth / viewBoxHeight;
+
+        if (viewBoxWidth >= viewBoxHeight) {
+          svgElement.setAttribute('width', size);
+          svgElement.setAttribute('height', Math.round(size / aspectRatio));
+        } else {
+          svgElement.setAttribute('height', size);
+          svgElement.setAttribute('width', Math.round(size * aspectRatio));
+        }
+      } else {
+        console.warn('SVG does not have width/height or viewBox attributes.');
+      }
+    }
+    const xmlSerializer = new XMLSerializer();
+    return xmlSerializer.serializeToString(svgElement);
+  } else {
+    return imageBuffer;
+  }
+}
 
 
 async function applyPadding(imageBuffer, paddingPercent) {
