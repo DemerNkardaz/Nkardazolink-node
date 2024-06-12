@@ -1,4 +1,5 @@
 const { loadComponent } = require('./src/serverside/scripts/ComponentHandling.js');
+const crypto = require('crypto');
 require('dotenv').config();
 require('./nk.config.js').config().init();
 console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Server started\x1b[39m`);
@@ -27,8 +28,30 @@ usersDataBase.run(`CREATE TABLE IF NOT EXISTS anonymousSessions (sessionID TEXT,
 const sessionManager = new SessionManager(usersDataBase);
 
 
+const wikiDataBase = new sqlite3.Database(path.join(__PROJECT_DIR__, 'static/data_base/wikipages.db'));
+wikiDataBase.run(`CREATE TABLE IF NOT EXISTS articles (rowID INTEGER PRIMARY KEY, articleTitle TEXT, articleContent TEXT)`);
+wikiDataBase.run(`CREATE TABLE IF NOT EXISTS sharedImages (rowID INTEGER PRIMARY KEY, imageTitle TEXT, imageFileName TEXT, mimeType TEXT, imageFile BLOB)`);
 
+(async () => {
+    try {
+        // Чтение содержимого изображения из файла
+        const testImage = await fs.readFileSync(path.join(__PROJECT_DIR__, 'static/public/resource/images/seo/kamon_glyph.png'));
+        // Выполнение запроса INSERT с использованием промиса
+        await new Promise((resolve, reject) => {
+            wikiDataBase.run(`INSERT INTO sharedImages (imageTitle, imageFileName, mimeType, imageFile) VALUES (?, ?, ?, ?)`, ['Nkardaz kamon glyph', 'kamon_glyph.png', 'image/png', testImage], function(err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
+        });
 
+        console.log('Test image inserted successfully');
+    } catch (error) {
+        console.error('Error inserting test image:', error);
+    }
+})();
 
 markdown.core.ruler.enable(['abbr']);
 markdown.inline.ruler.enable(['ins', 'mark','footnote_inline', 'sub', 'sup']);
@@ -350,6 +373,28 @@ app.get('/wiki/:page', async (request, response, next) => {
     next(error);
   }
 });
+
+app.get('/shared/images/:imageFileName', (req, res) => {
+    const imageFileName = req.params.imageFileName;
+
+    wikiDataBase.get('SELECT mimeType, imageFile FROM sharedImages WHERE imageFileName = ?', [imageFileName], (err, row) => {
+        if (err) {
+            console.error(err.message);
+            return res.status(500).send('Internal Server Error');
+        }
+        if (!row) {
+            return res.status(404).send('Image Not Found');
+        }
+
+        // Отправка изображения в ответ на запрос с указанием MIME-типа
+        res.contentType(row.mimeType);
+        res.send(row.imageFile);
+    });
+});
+
+
+
+
 
 app.post('/process-dom', (reqest, response) => {
   const { window } = new JSDOM();
