@@ -15,7 +15,7 @@ html(lang=navigatorLanguage)
       main.error__main
         p.error__current-link
           |#{navigatorLanguage.startsWith('ru') ? 'Адрес: ' : 'URL: '}
-          a(href=currentURL)=currentURL
+          a(href=decodeURIComponent(currentURL))=decodeURIComponent(currentURL)
         != errorText 
       footer.error__footer
         | #{navigatorLanguage.startsWith('ru') ? 'Сообшить об ошибке: ' : 'Report bug: '}

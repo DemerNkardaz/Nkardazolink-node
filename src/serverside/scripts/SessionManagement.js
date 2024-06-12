@@ -294,16 +294,28 @@ class SessionManager {
     console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SESSIONS] :: Session manager now installed\x1b[39m`);
   }
 
-  async startAnonymousSessions(sessionID, settings) {
+  async initializeSession(sessionID, settings) {
+    try {
+      const isSessionExists = await this.readSessionFromSQL(sessionID);
+      const isSessionRegistered = isSessionExists !== null && isSessionExists.login !== null && isSessionExists.password !== null;
+
+      if (!isSessionExists) {
+        this.startAnonymousSession(sessionID, settings);
+      } else if (isSessionExists && isSessionRegistered) {
+        //! REQUIRE PASSWORD AND LOGIN TO ENTER SESSION IF NOT BE LOGGED IN BEFORE
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async startAnonymousSession(sessionID, settings) {
     try {
       let writeMessage = true;
       const sessionIDCrypted = this.#encryptString(sessionID, ['API_SESSIONS', 'SESSION_IV']);
-      const isSessionExists = await this.readSessionFromSQL(sessionID);
-      const isSessionRegistered = isSessionExists !== null && isSessionExists.login !== null && isSessionExists.password !== null;
-      if (!isSessionExists) {
-        this.dataBase.run('INSERT INTO users (sessionID, settings) VALUES (?, ?)', [sessionIDCrypted, JSON.stringify(settings)]);
-        writeMessage && console.log(`\x1b[34m[${new Date().toLocaleString().replace(',', '')}] :: 🔷 > [SESSIONS] :: Anonymous session ${sessionID} has been written\x1b[39m`);
-      }
+
+      this.dataBase.run('INSERT INTO users (sessionID, settings) VALUES (?, ?)', [sessionIDCrypted, JSON.stringify(settings)]);
+      writeMessage && console.log(`\x1b[34m[${new Date().toLocaleString().replace(',', '')}] :: 🔷 > [SESSIONS] :: Anonymous session ${sessionID} has been written\x1b[39m`);
     } catch (err) {
       console.log(err);
     }
@@ -314,10 +326,15 @@ class SessionManager {
       let writeMessage = true;
       const sessionIDCrypted = this.#encryptString(sessionID, ['API_SESSIONS', 'SESSION_IV']);
       const isSessionExists = await this.readSessionFromSQL(sessionID);
-      isSessionExists && (writeMessage = false);
+      console.log('isSessionExists');
+      console.log(isSessionExists.login, isSessionExists.password);
       const isSessionRegistered = isSessionExists !== null && isSessionExists.login !== null && isSessionExists.password !== null;
+
+      isSessionExists && (writeMessage = false);
       console.log(isSessionRegistered ? 'Сессия зарегистрирована' : 'Сессия не зарегистрирована');
-      this.dataBase.run('INSERT INTO users (sessionID, settings, authorize) VALUES (?, ?, ?)', [sessionIDCrypted, JSON.stringify(settings), JSON.stringify(authorize)]);
+
+      //this.dataBase.run('INSERT INTO users (sessionID, settings, authorize) VALUES (?, ?, ?)', [sessionIDCrypted, JSON.stringify(settings), JSON.stringify(authorize)]);
+
       writeMessage && console.log(`\x1b[34m[${new Date().toLocaleString().replace(',', '')}] :: 🔷 > [SESSIONS] :: Session ${sessionID} has been written\x1b[39m`);
     } catch (err) {
       console.log(err);
@@ -331,7 +348,7 @@ class SessionManager {
         sessionID = this.#encryptString(sessionID, ['API_SESSIONS', 'SESSION_IV']);
         this.dataBase.get('SELECT * FROM users WHERE sessionID = ?', [sessionID], (err, row) => {
           if (err) {
-            reject(err);
+            reject();
           } else {
             if (row) {
               const rowID = row.rowID;

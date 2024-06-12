@@ -196,11 +196,11 @@ async function jsonDBStessTest() {
 }
 
 (async () => {
-  await jsonDBStessTest();
+  //await jsonDBStessTest();
   //await sessionManager.explainFile();
 })();
 
-app.get('/', async (request, response) => {
+app.get('/', async (request, response, next) => {
   try {
     console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 💠 > [SERVER] :: Latest modify date is [${new Date(await getLastModifiedInFolders()).toLocaleString()}]\x1b[39m`);
 
@@ -221,7 +221,6 @@ app.get('/', async (request, response) => {
         }
       }
     }
-
     await sessionManager.writeSessionToSQL(session.sessionID, session.settings);
     console.log( await sessionManager.readSessionFromSQL(session.sessionID))
     console.log( await sessionManager.getSettingsFromSQL(session.sessionID, 'savedSettings.lang'))
@@ -282,19 +281,28 @@ app.get('/', async (request, response) => {
     response.send(Builded);
   } catch (error) {
     console.error(error);
-    const errorText = error.stack.replace(/\n/g, '<br>');
-    response.status(500).send(await loadComponent('500.pug', { errorText: errorText, navigatorLanguage: request.headers['accept-language'], currentURL: `${request.protocol}://${request.get('host')}${request.url}` }));
+    next(error);
   }
 });
 
 
-app.get('/wiki', async (request, response) => {
+app.get('/wiki', async (request, response, next) => {
   try {
 
     response.send('Future WIKI Section')
   } catch (error) {
     console.error(error);
-    response.status(500).send(await loadComponent('500.pug', { errorText: errorText, navigatorLanguage: request.headers['accept-language'], currentURL: `${request.protocol}://${request.get('host')}${request.url}` }));
+    next(error);
+  }
+});
+
+app.get('/wiki/:page', async (request, response, next) => {
+  try {
+  
+    response.send(`Вики-страница “${request.params.page}”`)
+  } catch (error) {
+    console.error(error);
+    next(error);
   }
 });
 
@@ -309,12 +317,37 @@ app.post('/process-dom', (reqest, response) => {
   response.json({ dom: processedDom });
 });
 
+app.use((req, res, next) => {
+  const err = new Error('Not Found');
+  err.status = 404;
+  next(err);
+});
 
+
+app.use(async (err, req, res, next) => {
+  try {
+    let errorText = err.stack.replace(/\n/g, '<br>');
+    if (err.status === 404) {
+      const page = await loadComponent('404.pug', { navigatorLanguage: req.headers['accept-language'], currentURL: `${req.protocol}://${req.get('host')}${req.url}` });
+      res.status(404).send(page);
+    } else {
+      const page = await loadComponent('500.pug', { errorText: errorText, navigatorLanguage: req.headers['accept-language'], currentURL: `${req.protocol}://${req.get('host')}${req.url}` });
+      res.status(500).send(page);
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: {
+        message: 'Internal Server Error'
+      }
+    });
+  }
+});
+/*
 app.use(async (req, res, next) => {
   const page = await loadComponent('404.pug', { navigatorLanguage: req.headers['accept-language'], currentURL: `${req.protocol}://${req.get('host')}${req.url}` });
-  await res.status(404).send(page);
-  next();
-});
+  res.status(404).send(page);
+});*/
 
 
 const server = app.listen(process.env.PORT, () => { 

@@ -15,7 +15,7 @@ html(lang=navigatorLanguage)
       main.error__main
         p.error__current-link
           |#{navigatorLanguage.startsWith('ru') ? 'Страница по адресу ' : 'Page at URL '}
-          =currentURL
+          =decodeURIComponent(currentURL)
           |#{navigatorLanguage.startsWith('ru') ? ' не существует' : ' does not exist'}
       footer.error__footer
         | #{navigatorLanguage.startsWith('ru') ? 'Этого быть не должно? Сообщите нам: ' : 'This shouldn’t be happening? Notify us: '}
