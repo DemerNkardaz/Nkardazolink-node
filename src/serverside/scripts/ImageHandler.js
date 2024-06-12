@@ -8,7 +8,7 @@ const { DOMParser, XMLSerializer } = require('xmldom');
 class ImageHandler {
   constructor(sourcePath, request) {
     this.sourcePath = sourcePath;
-    this.cacheDir = path.join(__PROJECT_DIR__, 'cache');
+    this.cacheDir = path.join(__PROJECT_DIR__, 'cache/images');
     [this.filePath, this.imageFileName, this.size, this.toFormat, this.quality, this.paddingPercent, this.resolution, this.staticUrl] = [
       request.params[0],
       request.params.imageFileName || null,
@@ -69,7 +69,6 @@ class ImageHandler {
     const isCacheExists = await this.#checkCache();
     if (isCacheExists && isCacheExists.mimeType && isCacheExists.imageBuffer) {
       try {
-        console.log(isCacheExists.mimeType);
         return { mimeType: isCacheExists.mimeType, imageBuffer: isCacheExists.imageBuffer };
       } catch (error) {
         return `Error: ${error.message}`;
@@ -130,23 +129,23 @@ class ImageHandler {
 
 
   async #checkCache() {
-    const fileMimes = ['png', 'svg+xml', 'webp', 'jpg', 'jpeg', 'gif', 'avif', 'tiff', 'bmp', 'ico'];
+    const fileMimes = ['apng', 'png', 'svg+xml', 'webp', 'jpeg', 'gif', 'avif', 'tiff', 'bmp', 'ico'];
     const files = await fs.readdir(this.cacheDir);
 
-    for (let file of files) {
+    files.filter(file => {
       if (file.split('-')[0] === this.cacheKey) {
         let mimeType = file.split('-')[1];
-        for (let type of fileMimes) {
-          let hashedType = this.#generateCacheKey(type);
-          if (mimeType === hashedType) {
+        fileMimes.filter(type => {
+          if (mimeType === this.#generateCacheKey(type)) {
             mimeType = `image/${type}`;
             const filePath = path.join(this.cacheDir, file);
-            const cachedBuffer = await fs.readFile(filePath);
+            const cachedBuffer = fs.readFile(filePath);
             return { imageBuffer: cachedBuffer, mimeType };
           }
-        }
+        })
       }
-    }
+    });
+
     return null;
   }
 
@@ -193,12 +192,10 @@ class ImageHandler {
         convertedImageBuffer = await sharp(imageBuffer).webp({ quality: this.quality || 75 }).toBuffer();
         mimeType = 'image/webp';
         break;
-
       case 'avif':
         convertedImageBuffer = await sharp(imageBuffer).avif({ quality: this.quality || 75, chromaSubsampling: '4:2:0' }).toBuffer();
         mimeType = 'image/avif';
         break;
-
       case 'gif':
         convertedImageBuffer = await sharp(imageBuffer).gif().toBuffer();
         mimeType = 'image/gif';
@@ -207,7 +204,15 @@ class ImageHandler {
         convertedImageBuffer = await sharp(imageBuffer).png().toBuffer();
         mimeType = 'image/png';
         break;
-
+      case 'jpg':
+        convertedImageBuffer = await sharp(imageBuffer).jpeg({ quality: this.quality || 75 }).toBuffer();
+        mimeType = 'image/jpeg';
+        break;
+      case 'tiff':
+        convertedImageBuffer = await sharp(imageBuffer).tiff({ quality: this.quality || 75 }).toBuffer();
+        mimeType = 'image/tiff';
+        break;
+        
       default:
         return `Unsupported format: ${this.toFormat}`;
     }
