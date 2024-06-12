@@ -31,7 +31,7 @@ const sessionManager = new SessionManager(usersDataBase);
 const wikiDataBase = new sqlite3.Database(path.join(__PROJECT_DIR__, 'static/data_base/wikipages.db'));
 wikiDataBase.run(`CREATE TABLE IF NOT EXISTS articles (rowID INTEGER PRIMARY KEY, articleTitle TEXT, articleContent TEXT)`);
 //wikiDataBase.run(`CREATE TABLE IF NOT EXISTS sharedImages (rowID INTEGER PRIMARY KEY, imageTitle TEXT, imageFileName TEXT, mimeType TEXT, imageFile BLOB)`);
-wikiDataBase.run(`CREATE TABLE IF NOT EXISTS sharedImages (rowID INTEGER PRIMARY KEY, imageTitle TEXT, imageFileName TEXT, imageFile TEXT)`);
+wikiDataBase.run(`CREATE TABLE IF NOT EXISTS sharedImages (rowID INTEGER PRIMARY KEY, imageTitle TEXT, imageTitleLocales JSON, imageDescriptionLocales JSON, imageFileName TEXT, imageFile TEXT)`);
 
 /*(async () => {
     try {
@@ -59,7 +59,7 @@ wikiDataBase.run(`CREATE TABLE IF NOT EXISTS sharedImages (rowID INTEGER PRIMARY
         const testImage = 'static/public/resource/images/seo/kamon_glyph.png';
         // Выполнение запроса INSERT с использованием промиса
         await new Promise((resolve, reject) => {
-            wikiDataBase.run(`INSERT INTO sharedImages (imageTitle, imageFileName, mimeType, imageFile) VALUES (?, ?, ?, ?)`, ['Nkardaz kamon glyph', 'kamon_glyph.png', 'image/png', testImage], function(err) {
+            wikiDataBase.run(`INSERT INTO sharedImages (imageTitle, imageFileName, imageFile) VALUES (?, ?, ?)`, ['Nkardaz kamon glyph', 'kamon_glyph.png', testImage], function(err) {
                 if (err) {
                     reject(err);
                 } else {
