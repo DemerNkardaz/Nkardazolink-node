@@ -230,29 +230,17 @@ const sha256 = str => crypto.createHash('sha256').update(str).digest('hex');
 const sha512 = str => crypto.createHash('sha3-512').update(str).digest('hex');
 const argon2 = require('argon2');
 const argonization = async (str) => {
-    try {
-        const hashedString = await argon2.hash(str, {
-            type: argon2.argon2id,
-            memoryCost: 2 ** 16,
-            timeCost: 4,
-            parallelism: 2
-        });
-        return hashedString;
-    } catch (err) {
-        console.error('Ошибка хеширования строки:', err);
-        return null;
-    }
+  try {
+    const hashedString = await argon2.hash(str, { type: argon2.argon2id, memoryCost: 2 ** 16, timeCost: 4, parallelism: 2 });
+    return hashedString;
+  } catch (err) { return null; }
 };
-
 
 const deargonization = async (str, hashedString) => {
   try {
     const isMatch = await argon2.verify(hashedString, str);
     return isMatch;
-  } catch (err) {
-    console.error('Ошибка при сравнении строки с хешем:', err);
-    return false;
-  }
+  } catch (err) { return false; }
 }
 
 
@@ -273,12 +261,10 @@ const verifyPassword = async (username, inputPassword) => {
 
 class SessionManager {
 
-  constructor(sourcePath) {
+  constructor(dataBase) {
     if (!process.env.API_SESSIONS) throw new Error('API_SESSIONS environment variable is not set!');
     else if (process.env.API_SESSIONS.length !== 32) throw new Error('API_SESSIONS environment variable is not valid!');
-    const dataBasePath = path.join(sourcePath, 'static/data_base/users.db');
-    this.dataBase = new sqlite3.Database(dataBasePath);
-    this.dataBase.run(`CREATE TABLE IF NOT EXISTS users (rowID INTEGER PRIMARY KEY, userID TEXT, login TEXT, password TEXT, email TEXT, sessionID TEXT, settings JSON, authorize JSON)`);
+    this.dataBase = dataBase;
 
     (async () => {
       const username = 'example';
@@ -289,8 +275,6 @@ class SessionManager {
       console.log(`Пароль правильный: ${isPasswordCorrect}`);
     })();
 
-
-    this.sourcePath = sourcePath;
     console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SESSIONS] :: Session manager now installed\x1b[39m`);
   }
 
@@ -303,6 +287,8 @@ class SessionManager {
         this.startAnonymousSession(sessionID, settings);
       } else if (isSessionExists && isSessionRegistered) {
         //! REQUIRE PASSWORD AND LOGIN TO ENTER SESSION IF NOT BE LOGGED IN BEFORE
+        //? CHECK IF USER IN LOGGED DEVICE AND AUTOLOGIN ELSE AUTOLOGOUT
+        //* LOGGED DEVICES STORED IN authorize JSON IN DB as devices: [{device: device_encrypted, logged: false/true}]
       }
     } catch (err) {
       console.log(err);
@@ -333,7 +319,7 @@ class SessionManager {
       isSessionExists && (writeMessage = false);
       console.log(isSessionRegistered ? 'Сессия зарегистрирована' : 'Сессия не зарегистрирована');
 
-      //this.dataBase.run('INSERT INTO users (sessionID, settings, authorize) VALUES (?, ?, ?)', [sessionIDCrypted, JSON.stringify(settings), JSON.stringify(authorize)]);
+      this.dataBase.run('INSERT INTO users (sessionID, settings, authorize) VALUES (?, ?, ?)', [sessionIDCrypted, JSON.stringify(settings), JSON.stringify(authorize)]);
 
       writeMessage && console.log(`\x1b[34m[${new Date().toLocaleString().replace(',', '')}] :: 🔷 > [SESSIONS] :: Session ${sessionID} has been written\x1b[39m`);
     } catch (err) {
@@ -395,103 +381,6 @@ class SessionManager {
   }
 
 
-
-  async writeSession(sessionID, settings, authorize = {}) {
-    const release = await sessionMutex.acquire();
-    try {
-      if (sessionID !== undefined && settings !== null) {
-        const sessionsPath = path.join(this.sourcePath, 'static/sessions.bdb');
-        let sessionsJSON = JSON.parse(this.#decryptSessions(await readFile(sessionsPath, 'hex')));
-        let writeMessage = true;
-
-        const existingSessionIndex = sessionsJSON.sessions.findIndex(session => session.sessionID === sha1(sessionID));
-
-        if (existingSessionIndex !== -1) {
-          sessionsJSON.sessions[existingSessionIndex] = { sessionID: sha1(sessionID), settings: settings, ...authorize };
-          writeMessage = false;
-        } else {
-          sessionsJSON.sessions.push({ sessionID: sha1(sessionID), settings: settings, ...authorize });
-        }
-
-        function checkKeyValueMaxLength(object) {
-          return Object.keys(object).every(key => {
-            const value = object[key];
-            if (typeof value === 'object') {
-              return Object.keys(value).every(nestedKey => value[nestedKey].length <= 4096);
-            } else if (typeof value === 'string') {
-              return value.length <= 128;
-            }
-            return false;
-          });
-        }
-
-        const isValidLength = checkKeyValueMaxLength(settings) && sessionID.length == 40;
-
-        if (isValidLength) {
-          const contentBuffer = Buffer.from(this.#encryptSessions(sessionsJSON), 'hex');
-          await writeFile(sessionsPath, contentBuffer, { flag: 'w' });
-          writeMessage && console.log(`\x1b[34m[${new Date().toLocaleString().replace(',', '')}] :: 🔷 > [SESSIONS] :: Session ${sessionID} has been written\x1b[39m`);
-          return true;
-        }
-      }
-      return false;
-    } finally {
-      release();
-    }
-  }
-
-  async readSession(sessionID = null, login = null) {
-    const sessionsPath = path.join(this.sourcePath, 'static/sessions.bdb');
-    let sessionsJSON = await JSON.parse(this.#decryptSessions(await readFile(sessionsPath, 'hex')));
-    return await sessionsJSON.sessions.find(session => (session.login && session.login === login) || (session.sessionID === sha1(sessionID)));
-  }
-
-  async registration(sessionID = null, login, pass, email, userPlatform) {
-    const session = await this.readSession(sessionID, login);
-    if (session && session.login && session.pass) {
-      await this.authorization(login, pass, email);
-    } else {
-      const userID = await this.#generateUserID();
-      const encryptedLogin = this.#encryptString(login, ['API_LOGINS', 'LOGINS_IV']);
-      const encryptedPass = this.#encryptString(pass, ['API_PASSWORDS', 'PASSWORDS_IV']);
-      const encryptedEmail = email ? this.#encryptString(email, ['API_EMAILS', 'EMAILS_IV']) : null;
-      const encryptedPlatform = userPlatform ? this.#encryptString(userPlatform, ['API_USERMETA', 'USERMETA_IV']) : null;
-      console.log(userPlatform, encryptedPlatform);
-      const registeredSession = {
-        login: encryptedLogin,
-        pass: encryptedPass,
-        email: encryptedEmail,
-        userID: userID,
-        userPlatform: encryptedPlatform
-      };
-
-      await this.writeSession(sessionID, session.settings, registeredSession);
-      console.log(await this.readSession(sessionID));
-      }
-  }
-
-  async authorization(login, pass, email) {
-    const sessionsPath = path.join(this.sourcePath, 'static/sessions.bdb');
-    let sessionsJSON = JSON.parse(this.#decryptSessions(await readFile(sessionsPath, 'hex')));
-    
-    for (const session of sessionsJSON.sessions) {
-      if (session && session.login && session.pass) {
-        console.log(await sessionsJSON);
-        const decryptedLogin = this.#decryptString(session.login, ['API_LOGINS', 'LOGINS_IV']);
-        const decryptedPass = this.#decryptString(session.pass, ['API_PASSWORDS', 'PASSWORDS_IV']);
-        const decryptedEmail = session.email ? this.#decryptString(session.email, ['API_EMAILS', 'EMAILS_IV']) : null;
-        const decryptedPlatform = session.userPlatform ? this.#decryptString(session.userPlatform, ['API_USERMETA', 'USERMETA_IV']) : null;
-        console.log(decryptedLogin, decryptedEmail, decryptedPass, decryptedPlatform);
-
-        if ((decryptedLogin === login || decryptedEmail === email) && decryptedPass === pass) {
-          return { sessionID: session.sessionID, userID: session.userID };
-        }
-      }
-    }
-
-    return null;
-  }
-
   #encryptString(string, token = []) {
     const IV = Buffer.from(process.env[`${token[1]}`], 'hex');
     const KEY = Buffer.from(process.env[`${token[0]}`]);
@@ -511,45 +400,6 @@ class SessionManager {
   }
 
 
-  async #generateUserID() {
-    const sessionsPath = path.join(this.sourcePath, 'static/sessions.bdb');
-    let sessionsJSON = JSON.parse(this.#decryptSessions(await readFile(sessionsPath, 'hex')));
-
-    let maxUserID = -1;
-    for (const session of sessionsJSON.sessions) {
-      if (session.settings && session.settings.userID) {
-        const userID = parseInt(session.settings.userID.substring(1));
-        if (!isNaN(userID) && userID > maxUserID) {
-          maxUserID = userID;
-        }
-      }
-    }
-
-    return 'u' + (maxUserID + 1);
-  }
-
-
-  async getSettings(sessionID, settingName) {
-    const session = await this.readSession(sessionID);
-    if (session !== undefined && session !== null) {
-      if (settingName === undefined) {
-        return session.settings;
-      } else {
-        const keys = settingName.split('.');
-        let currentObject = session.settings;
-        for (const key of keys) {
-          if (!currentObject || typeof currentObject !== 'object' || !currentObject.hasOwnProperty(key)) {
-            return;
-          }
-          currentObject = currentObject[key];
-        }
-        if (currentObject !== undefined) {
-          return currentObject;
-        }
-      }
-    }
-    return;
-  }
 
   #encryptSessions(data) {
     const IV = Buffer.from(process.env.SESSION_IV, 'hex');

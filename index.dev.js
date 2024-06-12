@@ -3,6 +3,7 @@ require('dotenv').config();
 require('./nk.config.js').config().init();
 console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Server started\x1b[39m`);
 app.use(compression());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__PROJECT_DIR__, 'static/assets')));
 app.use(express.static(path.join(__PROJECT_DIR__, 'static/public')));
 app.use(express.static(path.join(__PROJECT_DIR__, 'static/site.maps')));
@@ -12,6 +13,23 @@ app.use(useragent.express());
 app.use(express.json());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__PROJECT_DIR__, 'app'));
+app.set('trust proxy', 1) // trust first proxy
+app.use(sessions({
+  secret: 'session-rscrt',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: true }
+}));
+
+const usersDataBase = new sqlite3.Database(path.join(__PROJECT_DIR__, 'static/data_base/users.db'));
+usersDataBase.run(`CREATE TABLE IF NOT EXISTS users (rowID INTEGER PRIMARY KEY, userID TEXT, login TEXT, password TEXT, email TEXT, sessionID TEXT, settings JSON, authorize JSON)`);
+usersDataBase.run(`CREATE TABLE IF NOT EXISTS anonymousSessions (sessionID TEXT, settings JSON)`);
+const sessionManager = new SessionManager(usersDataBase);
+
+
+
+
+
 markdown.core.ruler.enable(['abbr']);
 markdown.inline.ruler.enable(['ins', 'mark','footnote_inline', 'sub', 'sup']);
 markdown.block.ruler.enable(['footnote', 'deflist']);
@@ -56,10 +74,6 @@ app.use(
     changeOrigin: true,
   }),
 );
-
-
-
-
 
 
 app.use((req, res, next) => {
@@ -181,7 +195,6 @@ async function parseUrl(request) {
   }
 }
 
-global.sessionManager = new SessionManager(__PROJECT_DIR__);
 const booleanOptions = ['true', 'false'];
 async function jsonDBStessTest() {
   for (let i = 0; i < 10; i++) {
@@ -216,19 +229,31 @@ async function jsonDBStessTest() {
 })();
 
 
+
+const randomNames = ['Banshee', 'Ieyasu', 'Hachiman', 'Yorimasa', 'Tadahisa', 'Byakuya'];
+app.use(async (req, res, next) => {
+  try {
+    let getSessionID = req.cookies.sessionID || null;
+    if (!getSessionID) {
+      const prefixName = randomNames[Math.floor(Math.random() * randomNames.length)];
+      const newSessionID = `${prefixName}-${crypto.randomUUID()}`;
+      await res.cookie('sessionID', newSessionID, { httpOnly: true, secure: true });
+    }
+    next();
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
 app.get('/', async (request, response, next) => {
   try {
     console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 💠 > [SERVER] :: Latest modify date is [${new Date(await getLastModifiedInFolders()).toLocaleString()}]\x1b[39m`);
 
-    const session = { settings: {}, platform: request.useragent.source };
-    
+    const session = { sessionID: request.cookies.sessionID, settings: {}, platform: request.useragent.source };
+    console.log('Session ID is: ', session.sessionID);
 
     for (const cookieName in request.cookies) {
-      for (const validCookie of VALID_SESSION) {
-        if (cookieName.startsWith(validCookie)) {
-          session[cookieName] = request.cookies[cookieName];
-        }
-      }
       for (const validCookie of VALID_COOKIES) {
         if (cookieName.startsWith(validCookie) && cookieName.includes('.')) {
           const cookieKey = cookieName.split('.')[0];
@@ -239,17 +264,17 @@ app.get('/', async (request, response, next) => {
       }
     }
     if (session.sessionID) {
-      console.log(session);
+      //console.log(session);
       await sessionManager.writeSessionToSQL(session.sessionID, session.settings);
-      console.log(await sessionManager.readSessionFromSQL(session.sessionID))
-      console.log(await sessionManager.getSettingsFromSQL(session.sessionID, 'savedSettings.lang'))
+      //console.log(await sessionManager.readSessionFromSQL(session.sessionID))
+      //console.log(await sessionManager.getSettingsFromSQL(session.sessionID, 'savedSettings.lang'))
       //await sessionManager.writeSession(session.sessionID, session.settings);
       //await sessionManager.registration(session.sessionID, 'Nkardaz', '123', 'example@gmail.com', session.platform);
       //console.log(await sessionManager.readSession(session.sessionID));
       //await sessionManager.readSession(session.sessionID);
     }
     const metaDataResponse = {
-      userSession: session.sessionID ? await sessionManager.getSettings(session.sessionID) : null,
+      userSession: null,
       request: request,
       userURL: request.url,
       fullURL: `${request.protocol}://${request.get('host')}${request.url}`,
