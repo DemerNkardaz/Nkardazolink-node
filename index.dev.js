@@ -47,6 +47,21 @@ markdown.renderFile = async function (filePath, data) {
   return await markdown.render(parsedContent);
 };
 
+
+
+app.use(
+  '/api',
+  createProxyMiddleware({
+    target: 'http://www.example.org/secret',
+    changeOrigin: true,
+  }),
+);
+
+
+
+
+
+
 app.use((req, res, next) => {
     if (req.url.endsWith('.css')) {
         res.setHeader('Content-Type', 'text/css');
@@ -200,11 +215,13 @@ async function jsonDBStessTest() {
   //await sessionManager.explainFile();
 })();
 
+
 app.get('/', async (request, response, next) => {
   try {
     console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 💠 > [SERVER] :: Latest modify date is [${new Date(await getLastModifiedInFolders()).toLocaleString()}]\x1b[39m`);
 
     const session = { settings: {}, platform: request.useragent.source };
+    
 
     for (const cookieName in request.cookies) {
       for (const validCookie of VALID_SESSION) {
@@ -221,15 +238,18 @@ app.get('/', async (request, response, next) => {
         }
       }
     }
-    await sessionManager.writeSessionToSQL(session.sessionID, session.settings);
-    console.log( await sessionManager.readSessionFromSQL(session.sessionID))
-    console.log( await sessionManager.getSettingsFromSQL(session.sessionID, 'savedSettings.lang'))
-    await sessionManager.writeSession(session.sessionID, session.settings);
-    //await sessionManager.registration(session.sessionID, 'Nkardaz', '123', 'example@gmail.com', session.platform);
-    //console.log(await sessionManager.readSession(session.sessionID));
-    //await sessionManager.readSession(session.sessionID);
+    if (session.sessionID) {
+      console.log(session);
+      await sessionManager.writeSessionToSQL(session.sessionID, session.settings);
+      console.log(await sessionManager.readSessionFromSQL(session.sessionID))
+      console.log(await sessionManager.getSettingsFromSQL(session.sessionID, 'savedSettings.lang'))
+      //await sessionManager.writeSession(session.sessionID, session.settings);
+      //await sessionManager.registration(session.sessionID, 'Nkardaz', '123', 'example@gmail.com', session.platform);
+      //console.log(await sessionManager.readSession(session.sessionID));
+      //await sessionManager.readSession(session.sessionID);
+    }
     const metaDataResponse = {
-      userSession: await sessionManager.getSettings(session.sessionID),
+      userSession: session.sessionID ? await sessionManager.getSettings(session.sessionID) : null,
       request: request,
       userURL: request.url,
       fullURL: `${request.protocol}://${request.get('host')}${request.url}`,
@@ -247,7 +267,7 @@ app.get('/', async (request, response, next) => {
       }
     }
     //console.log(await sessionManager.readSession(session.sessionID));
-    const isUserLang = metaDataResponse.userSession.savedSettings && metaDataResponse.userSession.savedSettings.lang && metaDataResponse.userSession.savedSettings.lang;
+    const isUserLang = metaDataResponse.userSession && metaDataResponse.userSession.savedSettings && metaDataResponse.userSession.savedSettings.lang && metaDataResponse.userSession.savedSettings.lang;
     const isLangUrlMode = metaDataResponse.urlModes && __NK__.langs.supported.includes(metaDataResponse.urlModes.lang) && metaDataResponse.urlModes.lang;
     const isNavigatorLang = __NK__.langs.supported.includes(request.headers['accept-language'].substring(0, 2)) && request.headers['accept-language'].substring(0, 2);
     
@@ -350,6 +370,17 @@ app.use(async (req, res, next) => {
 });*/
 
 
+
+const options = {
+  key: fs.readFileSync('nkardaz.io.key'),
+  cert: fs.readFileSync('nkardaz.io.crt')
+};
+
+const server = https.createServer(options, app).listen(process.env.PORT, () => {
+    console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: HTTPS enabled\x1b[39m`);
+});
+
+/*
 const server = app.listen(process.env.PORT, () => { 
   console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Runned server at [http://${process.env.HOST}:${process.env.PORT}]\x1b[39m`);
-});
+});*/

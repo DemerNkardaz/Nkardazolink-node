@@ -10,6 +10,8 @@ Interpretators:
   - sass: 'sass'
 IndexDependencies:
   - crypto: 'crypto'
+  - https: 'https'
+  - http-proxy-middleware: '{ createProxyMiddleware }'
   - compression: 'compression'
   - zlib: 'zlib'
   - fs: 'fs'

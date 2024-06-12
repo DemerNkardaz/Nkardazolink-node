@@ -326,10 +326,10 @@ class SessionManager {
       let writeMessage = true;
       const sessionIDCrypted = this.#encryptString(sessionID, ['API_SESSIONS', 'SESSION_IV']);
       const isSessionExists = await this.readSessionFromSQL(sessionID);
-      console.log('isSessionExists');
-      console.log(isSessionExists.login, isSessionExists.password);
+      isSessionExists && console.log('isSessionExists');
       const isSessionRegistered = isSessionExists !== null && isSessionExists.login !== null && isSessionExists.password !== null;
-
+      
+      isSessionRegistered && console.log(isSessionExists.login, isSessionExists.password);
       isSessionExists && (writeMessage = false);
       console.log(isSessionRegistered ? 'Сессия зарегистрирована' : 'Сессия не зарегистрирована');
 
