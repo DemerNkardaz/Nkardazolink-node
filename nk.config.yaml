@@ -19,6 +19,7 @@ IndexDependencies:
   - path: 'path'
   - express: 'express'
   - sharp: 'sharp'
+  - mime-types: 'mime'
   - express-session: 'sessions'
   - express-useragent: 'useragent'
   - socket.io: 'socketIO'

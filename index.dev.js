@@ -397,11 +397,6 @@ app.get('/shared/images/:imageFileName', async (req, res) => {
       if (mimeType !== 'image/svg+xml') {
         metadata = await sharp(imageBuffer).metadata();
         const maxDimension = Math.max(metadata.width, metadata.height);
-
-        if (size && size > maxDimension) {
-          console.log(`Requested size (${size}px) exceeds original dimension (${maxDimension}px). Limiting size to ${maxDimension}px.`);
-        }
-
         const finalSize = size ? Math.min(size, maxDimension) : null;
 
         if (finalSize) {
@@ -445,7 +440,13 @@ app.get('/shared/images/:imageFileName', async (req, res) => {
 
         imageBuffer = convertedImageBuffer;
       }
-
+      if (req.query.r) {
+        const postResize = parseInt(req.query.r);
+        if (!isNaN(postResize) && postResize > 0) {
+          const resizedImageBuffer = await sharp(imageBuffer).resize(postResize, postResize, { fit: 'inside' }).toBuffer();
+          imageBuffer = resizedImageBuffer;
+        }
+      }
       res.contentType(mimeType);
       res.send(imageBuffer);
     } catch (error) {
@@ -455,6 +456,96 @@ app.get('/shared/images/:imageFileName', async (req, res) => {
   });
 });
 
+
+
+app.get('/local/images/*', async (req, res) => {
+  const filePath = req.params[0];
+  const size = req.query.s ? parseInt(req.query.s) : null;
+  const toFormat = req.query.to;
+  const quality = req.query.q ? parseInt(req.query.q) : null;
+
+  const baseDirectory = path.join(__dirname, 'static/public/resource/images');
+  const imagePath = path.join(baseDirectory, filePath);
+
+  if (!imagePath.startsWith(baseDirectory)) {
+    return res.status(400).send('Invalid file path');
+  }
+
+  fs.readFile(imagePath, async (err, imageBuffer) => {
+    if (err) {
+      console.error(err.message);
+      if (err.code === 'ENOENT') {
+        return res.status(404).send('Image Not Found');
+      }
+      return res.status(500).send('Internal Server Error');
+    }
+
+    try {
+      // Определение MIME-типа на основе расширения файла
+      let mimeType = mime.lookup(imagePath) || 'application/octet-stream';
+
+      if (mimeType.startsWith('image/')) {
+        let metadata;
+        if (mimeType !== 'image/svg+xml') {
+          metadata = await sharp(imageBuffer).metadata();
+          const maxDimension = Math.max(metadata.width, metadata.height);
+          const finalSize = size ? Math.min(size, maxDimension) : null;
+
+          if (finalSize && finalSize < maxDimension) {
+            const resizedImageBuffer = await sharp(imageBuffer).resize(finalSize, finalSize, { fit: 'inside' }).toBuffer();
+            imageBuffer = resizedImageBuffer;
+          }
+        }
+
+        if (toFormat) {
+          let convertedImageBuffer;
+
+          switch (toFormat.toLowerCase()) {
+            case 'webp':
+              convertedImageBuffer = await sharp(imageBuffer)
+                .webp({ quality: quality || 75 })
+                .toBuffer();
+              mimeType = 'image/webp';
+              break;
+
+            case 'avif':
+              convertedImageBuffer = await sharp(imageBuffer)
+                .avif({ quality: quality || 75, chromaSubsampling: '4:2:0' })
+                .toBuffer();
+              mimeType = 'image/avif';
+              break;
+
+            case 'gif':
+              convertedImageBuffer = await sharp(imageBuffer)
+                .gif()
+                .toBuffer();
+              mimeType = 'image/gif';
+              break;
+
+            default:
+              return res.status(400).send('Unsupported format');
+          }
+
+          imageBuffer = convertedImageBuffer;
+        }
+        if (req.query.r) {
+          const postResize = parseInt(req.query.r);
+          if (!isNaN(postResize) && postResize > 0) {
+            const resizedImageBuffer = await sharp(imageBuffer).resize(postResize, postResize, { fit: 'inside' }).toBuffer();
+            imageBuffer = resizedImageBuffer;
+          }
+        }
+        res.contentType(mimeType);
+        res.send(imageBuffer);
+      } else {
+        res.status(400).send('File is not an image');
+      }
+    } catch (error) {
+      console.error('Error processing image:', error);
+      res.status(500).send('Error processing image');
+    }
+  });
+});
 
 
 app.post('/process-dom', (reqest, response) => {
