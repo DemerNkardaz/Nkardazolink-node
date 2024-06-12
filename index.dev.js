@@ -418,6 +418,7 @@ app.get('/shared/images/:imageFileName', async (req, res) => {
 
       try {
         let mimeType = mime.lookup(imagePath) || 'application/octet-stream';
+        let svgScales;
 
         if (mimeType.startsWith('image/')) {
           let metadata;
@@ -432,11 +433,14 @@ app.get('/shared/images/:imageFileName', async (req, res) => {
             }
           } else {
             imageBuffer = Buffer.from(await rescaleSVG(imageBuffer, size), 'utf8');
+            svgScales = await checkSVGScale(imageBuffer);
           }
 
           if (toFormat) {
             let convertedImageBuffer;
-
+            if (mimeType === 'image/svg+xml' && (svgScales['width'] > 2048 || svgScales['height'] > 2048)) {
+              imageBuffer = Buffer.from(await rescaleSVG(imageBuffer, 2048), 'utf8');
+            }
             switch (toFormat.toLowerCase()) {
               case 'webp':
                 convertedImageBuffer = await sharp(imageBuffer)
@@ -520,6 +524,7 @@ app.get('/local/images/*', async (req, res) => {
 
     try {
       let mimeType = mime.lookup(imagePath) || 'application/octet-stream';
+      let svgScales;
 
       if (mimeType.startsWith('image/')) {
         let metadata;
@@ -534,11 +539,14 @@ app.get('/local/images/*', async (req, res) => {
           }
         } else {
           imageBuffer = Buffer.from(await rescaleSVG(imageBuffer, size), 'utf8');
+          svgScales = await checkSVGScale(imageBuffer);
         }
 
         if (toFormat) {
           let convertedImageBuffer;
-
+          if (mimeType === 'image/svg+xml' && (svgScales['width'] > 2048 || svgScales['height'] > 2048)) {
+            imageBuffer = Buffer.from(await rescaleSVG(imageBuffer, 2048), 'utf8');
+          }
           switch (toFormat.toLowerCase()) {
             case 'webp':
               convertedImageBuffer = await sharp(imageBuffer)
@@ -598,6 +606,24 @@ app.get('/local/images/*', async (req, res) => {
   });
 });
 
+
+async function checkSVGScale(imageBuffer) {
+  const svgString = await imageBuffer.toString('utf-8');
+  const domParser = new DOMParser();
+  const doc = domParser.parseFromString(svgString, 'image/svg+xml');
+  const svgElement = doc.documentElement;
+
+  const viewBox = svgElement.getAttribute('viewBox');
+  const width = svgElement.getAttribute('width');
+  const height = svgElement.getAttribute('height');
+  if (width && height) {
+    return { width: parseFloat(width), height: parseFloat(height) }
+  }
+  if (viewBox) {
+    const [minX, minY, viewBoxWidth, viewBoxHeight] = viewBox.split(' ').map(Number);
+    return { width: viewBoxWidth, height: viewBoxHeight }
+  }
+}
 
 async function rescaleSVG(imageBuffer, size) {
   const svgString = await imageBuffer.toString('utf-8');
