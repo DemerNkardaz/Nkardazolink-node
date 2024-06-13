@@ -61,7 +61,7 @@ class ImageCacheCleaner {
 }
 
 class ImageHandler {
-  constructor(sourcePath, request) {
+  constructor(sourcePath, request, disableCache = false) {
     this.sourcePath = sourcePath;
     this.cacheDir = path.join(__PROJECT_DIR__, 'cache/images');
     [this.filePath, this.imageFileName, this.size, this.wh, this.fit, this.toFormat, this.quality, this.paddingPercent, this.resolution, this.staticUrl, this.watermark, this.watermarkPos, this.watermarkScale] = [
@@ -80,6 +80,7 @@ class ImageHandler {
       request.query.ws || null
     ];
     this.cacheKey = this.#generateCacheKey(this.staticUrl);
+    this.disableCache = disableCache;
     (async () => await this.#manageCacheSize())();
   }
   #generateCacheKey(keyString) {
@@ -176,12 +177,12 @@ class ImageHandler {
             const finalSize = this.size ? Math.min(this.size, maxDimension) : null;
 
             if (finalSize && finalSize < maxDimension) {
-              imageBuffer = await sharp(imageBuffer).resize(finalSize, finalSize, { fit: this.fit || 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
+              imageBuffer = await sharp(imageBuffer).resize(finalSize, finalSize, { withoutEnlargement: true, fit: this.fit || 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
             }
           } else if (this.wh) {
             const maxWidth = Math.min(this.wh[0], metadata.width);
             const maxHeight = Math.min(this.wh[1], metadata.height);
-            imageBuffer = await sharp(imageBuffer).resize(maxWidth, maxHeight, { fit: this.fit || 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
+            imageBuffer = await sharp(imageBuffer).resize(maxWidth, maxHeight, { withoutEnlargement: true, fit: this.fit || 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
 
           }
         } else {
@@ -205,12 +206,12 @@ class ImageHandler {
 
         if (this.resolution) {
           if (!isNaN(this.resolution) && this.resolution > 0) {
-            imageBuffer = await sharp(imageBuffer).resize(this.resolution, this.resolution, { fit: this.fit || 'inside' }).toBuffer();
+            imageBuffer = await sharp(imageBuffer).resize(this.resolution, this.resolution, { withoutEnlargement: true,  fit: this.fit || 'inside' }).toBuffer();
           }
         }
         if (this.staticUrl.includes('?') && imageBuffer.length <= 1 * 1024 * 1024) {
           const cachedName = `${this.cacheKey}-${this.#generateCacheKey(mimeType.slice(6))}`;
-          await this.#saveToCache(imageBuffer, cachedName);
+          this.disableCache !== true && await this.#saveToCache(imageBuffer, cachedName);
         }
 
         return { imageBuffer, mimeType };
@@ -410,7 +411,7 @@ class ImageHandler {
     }
 
     const resizedImageBuffer = await sharp(imageBuffer)
-      .resize(newWidth, newHeight)
+      .resize(newWidth, newHeight, { withoutEnlargement: true })
       .extend({
         top: paddingSize,
         bottom: paddingSize,

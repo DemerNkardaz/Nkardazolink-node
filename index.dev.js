@@ -26,7 +26,7 @@ const imageCacheCleaner = new ImageCacheCleaner();
 
 
 const usersDataBase = new sqlite3.Database(path.join(__PROJECT_DIR__, 'static/data_base/users.db'));
-usersDataBase.run(`CREATE TABLE IF NOT EXISTS users (rowID INTEGER PRIMARY KEY, userID TEXT, login TEXT, password TEXT, email TEXT, sessionID TEXT, settings JSON, authorize JSON)`);
+usersDataBase.run(`CREATE TABLE IF NOT EXISTS users (rowID INTEGER PRIMARY KEY, userID TEXT, userName TEXT, userLink TEXT, login TEXT, password TEXT, email TEXT, sessionID TEXT, settings JSON, authorize JSON)`);
 usersDataBase.run(`CREATE TABLE IF NOT EXISTS anonymousSessions (sessionID TEXT, settings JSON)`);
 const sessionManager = new SessionManager(usersDataBase);
 
@@ -404,6 +404,21 @@ app.get('/wiki/:page', async (request, response, next) => {
   }
 });
 
+
+app.get('/shared/images/nocache/:imageFileName', async (request, response) => {
+  try {
+    const handler = new ImageHandler(__PROJECT_DIR__, request, true);
+    const handledResult = await handler.getImage(sharedAssetsDB);
+
+    if (typeof handledResult === 'string') response.status(404).send(handledResult);
+    else
+      response.contentType(handledResult.mimeType);
+      response.send(handledResult.imageBuffer);
+  } catch (error) {
+    console.error('Error processing image:', error);
+    response.status(500).send('Error processing image');
+  }
+});
 
 app.get('/shared/images/:imageFileName', async (request, response) => {
   try {
