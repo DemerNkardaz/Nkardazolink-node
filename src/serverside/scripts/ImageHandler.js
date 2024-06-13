@@ -87,10 +87,10 @@ class ImageHandler {
 
     if (dataBase) {
       return new Promise((resolve, reject) => {
-        dataBase.get('SELECT imageFile FROM sharedImages WHERE imageFileName = ?', [this.imageFileName], async (err, row) => {
+        dataBase.get('SELECT FileLink FROM sharedFiles WHERE FileName = ? AND FileType = ?', [this.imageFileName, 'Image'], async (err, row) => {
           if (err) return reject(err);
           if (!row) return resolve(`${this.filePath || this.imageFileName} Image Not Found`);
-          const imagePath = path.join(this.sourcePath, row.imageFile);
+          const imagePath = path.join(this.sourcePath, row.FileLink);
           try {
             const result = await this.#readAndHandleImage(imagePath);
             resolve(result);

@@ -36,6 +36,9 @@ wikiDataBase.run(`CREATE TABLE IF NOT EXISTS articles (rowID INTEGER PRIMARY KEY
 //wikiDataBase.run(`CREATE TABLE IF NOT EXISTS sharedImages (rowID INTEGER PRIMARY KEY, imageTitle TEXT, imageFileName TEXT, mimeType TEXT, imageFile BLOB)`);
 wikiDataBase.run(`CREATE TABLE IF NOT EXISTS sharedImages (rowID INTEGER PRIMARY KEY, imageTitle TEXT, imageTitleLocales JSON, imageDescriptionLocales JSON, imageFileName TEXT, imageFile TEXT)`);
 
+const sharedAssetsDB = new sqlite3.Database(path.join(__PROJECT_DIR__, 'static/data_base/sharedAssets.db'));
+sharedAssetsDB.run(`CREATE TABLE IF NOT EXISTS sharedFiles (rowID INTEGER PRIMARY KEY, FileType TEXT, Title TEXT, TitleLocales JSON, DescriptionLocales JSON, FileName TEXT, FileLink TEXT, FileEmbedded BLOB, FileStat JSON)`);
+
 /*(async () => {
     try {
         // Чтение содержимого изображения из файла
@@ -57,24 +60,27 @@ wikiDataBase.run(`CREATE TABLE IF NOT EXISTS sharedImages (rowID INTEGER PRIMARY
     }
 })();
 (async () => {
-    try {
-        // Чтение содержимого изображения из файла
-        const testImage = 'static/public/resource/images/seo/kamon_glyph.png';
-        // Выполнение запроса INSERT с использованием промиса
-        await new Promise((resolve, reject) => {
-            wikiDataBase.run(`INSERT INTO sharedImages (imageTitle, imageFileName, imageFile) VALUES (?, ?, ?)`, ['Nkardaz kamon glyph', 'kamon_glyph.png', testImage], function(err) {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve();
-                }
-            });
-        });
+  try {
+    // Чтение содержимого изображения из файла
+    const testImage = 'static/public/resource/images/seo/kamon_glyph.png';
+    const pathTo = path.join(__PROJECT_DIR__, testImage);
+    const getStat = await fileStat(pathTo);
+    const statStringify = JSON.stringify(getStat);
+    // Выполнение запроса INSERT с использованием промиса
+    await new Promise((resolve, reject) => {
+      sharedAssetsDB.run(`INSERT INTO sharedFiles (FileType, Title, FileName, FileLink, FileStat) VALUES (?, ?, ?, ?, ?)`, ['Image', 'Nkardaz kamon glyph', 'kamon_glyph.png', testImage, statStringify], function (err) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
 
-        console.log('Test image inserted successfully');
-    } catch (error) {
-        console.error('Error inserting test image:', error);
-    }
+    console.log('Test image inserted successfully');
+  } catch (error) {
+    console.error('Error inserting test image:', error);
+  }
 })();*/
 
 markdown.core.ruler.enable(['abbr']);
@@ -402,7 +408,7 @@ app.get('/wiki/:page', async (request, response, next) => {
 app.get('/shared/images/:imageFileName', async (request, response) => {
   try {
     const handler = new ImageHandler(__PROJECT_DIR__, request);
-    const handledResult = await handler.getImage(wikiDataBase);
+    const handledResult = await handler.getImage(sharedAssetsDB);
 
     if (typeof handledResult === 'string') response.status(404).send(handledResult);
     else

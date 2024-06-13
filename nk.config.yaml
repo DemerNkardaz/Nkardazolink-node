@@ -47,7 +47,7 @@ ProjectDependencies:
   - ./app/scripts/ComponentHandling.js: '{ PagePrerender, loadComponent }'
   - ./app/scripts/DataBaseHandling.js: '{ dbHandle }'
   - ./app/scripts/SessionManagement.js: '{ SessionManager }'
-  - ./app/scripts/ImageHandler.js: '{ ImageHandler, ImageCacheCleaner }'
+  - ./src/serverside/scripts/ImageHandler.js: '{ ImageHandler, ImageCacheCleaner }'
 AppFuncs:
   - Vars
   - app: 'express()'
@@ -55,6 +55,7 @@ AppFuncs:
   - dbPath: 'path.resolve(__dirname, "static/data_base/index.db")'
   - readFileAsync: 'promisify(fs.readFile)'
   - writeFileAsync: 'promisify(fs.writeFile)'
+  - fileStat: 'promisify(fs.stat)'
 AppVariables: 
   - Vars
   - __PROJECT_DIR__: 'path.resolve(__dirname)'
