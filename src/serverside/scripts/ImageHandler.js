@@ -64,7 +64,7 @@ class ImageHandler {
   constructor(sourcePath, request) {
     this.sourcePath = sourcePath;
     this.cacheDir = path.join(__PROJECT_DIR__, 'cache/images');
-    [this.filePath, this.imageFileName, this.size, this.wh, this.fit, this.toFormat, this.quality, this.paddingPercent, this.resolution, this.staticUrl] = [
+    [this.filePath, this.imageFileName, this.size, this.wh, this.fit, this.toFormat, this.quality, this.paddingPercent, this.resolution, this.staticUrl, this.watermark, this.watermarkPos, this.watermarkScale] = [
       request.params[0],
       request.params.imageFileName || null,
       request.query.s ? parseInt(request.query.s) : null,
@@ -74,7 +74,10 @@ class ImageHandler {
       request.query.q ? parseInt(request.query.q) : null,
       request.query.p ? parseFloat(request.query.p) : 0,
       request.query.r ? parseInt(request.query.r) : 0,
-      request.url
+      request.url,
+      request.query.water || null,
+      request.query.pos || null,
+      request.query.ws || null
     ];
     this.cacheKey = this.#generateCacheKey(this.staticUrl);
     (async () => await this.#manageCacheSize())();
@@ -135,6 +138,32 @@ class ImageHandler {
     console.log('Line of generated');
           
     try {
+      if (this.watermark && this.watermarkPos) {
+        console.log('Line of watermark');
+        let watermak = await fs.readFile(path.join(this.sourcePath, `static/public/resource/images/${this.watermark}.svg`));
+        let gravity;
+
+        switch (this.watermarkPos) {
+          case 'nw':
+            gravity = 'northwest';
+            break;
+          case 'ne':
+            gravity = 'northeast';
+            break;
+          case 'sw':
+            gravity = 'southwest';
+            break;
+          case 'se':
+            gravity = 'southeast';
+            break;
+          default:
+            gravity = 'northwest';
+        }
+        
+        watermak = await sharp(watermak).toFormat('png').resize((this.watermarkScale * 100) || null, (this.watermarkScale * 100) || null, { fit: 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
+        imageBuffer = await sharp(imageBuffer).composite([{ input: watermak, gravity: gravity, blend: 'overlay' }]).toBuffer();
+      }
+
       let mimeType = mime.lookup(imagePath) || 'application/octet-stream';
       let svgScales;
 
