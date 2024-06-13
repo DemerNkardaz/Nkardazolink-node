@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs').promises; // Изменено для использования промисов с файловой системой
 const mime = require('mime-types');
 const crypto = require('crypto');
+const axios = require('axios');
 const { DOMParser, XMLSerializer } = require('xmldom');
 
 
@@ -96,7 +97,7 @@ class ImageHandler {
         dataBase.get('SELECT FileLink FROM sharedFiles WHERE FileName = ? AND FileType = ?', [this.imageFileName, 'Image'], async (err, row) => {
           if (err) return reject(err);
           if (!row) return resolve(`${this.filePath || this.imageFileName} Image Not Found`);
-          const imagePath = path.join(this.sourcePath, row.FileLink);
+          const imagePath = row.FileLink.startsWith('https://') ? row.FileLink : path.join(this.sourcePath, row.FileLink);
           try {
             const result = await this.#readAndHandleImage(imagePath);
             resolve(result);
@@ -119,7 +120,11 @@ class ImageHandler {
   async #readAndHandleImage(imagePath) {
     let imageBuffer;
     try {
-      imageBuffer = await fs.readFile(imagePath); 
+      if (!imagePath.startsWith('https://')) imageBuffer = await fs.readFile(imagePath);
+      else {
+        const response = await axios.get(imagePath, { responseType: 'arraybuffer' });
+        imageBuffer = Buffer.from(response.data);
+      }
     } catch (err) {
       if (err.code === 'ENOENT') {
         return `File Not Found: ${imagePath}`;

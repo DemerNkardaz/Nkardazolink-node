@@ -24,14 +24,11 @@
   <img src="/shared/images/kamon_glyph.png?water=water-nk&pos=se&ws=15" alt="Nkardaz kamon glyph" width="256">
   <br>
   <picture>
-    <source
-      type="image/webp"
-      srcset="
-        /local/images/Ghost_of_Tsushima.jpg?to=webp&s=500 500w,
-        /local/images/Ghost_of_Tsushima.jpg?to=webp&s=900 900w,
-        /local/images/Ghost_of_Tsushima.jpg?to=webp 1200w
-        /local/images/Ghost_of_Tsushima.jpg 1700w
-      "/>
+    <source type="image/avif" srcset="/local/images/Ghost_of_Tsushima.jpg?to=avif&s=500&q=60" media="(max-width: 500px)"/>
+    <source type="image/avif" srcset="/local/images/Ghost_of_Tsushima.jpg?to=avif&s=900&q=70" media="(max-width: 900px)"/>
+    <source type="image/avif" srcset="/local/images/Ghost_of_Tsushima.jpg?to=avif&s=1200" media="(max-width: 1200px)"/>
+    <source type="image/webp" srcset="/local/images/Ghost_of_Tsushima.jpg?to=webp" media="(max-width: 1700px)"/>
+    <source type="image/jpeg" srcset="/local/images/Ghost_of_Tsushima.jpg" media="(max-width: 1900px)"/>
     <img src="/local/images/Ghost_of_Tsushima.jpg" alt="Tsushima" style="width: 100%" />
   </picture>
 </header>
