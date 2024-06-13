@@ -211,7 +211,7 @@ class ImageHandler {
 
         if (this.resolution) {
           if (!isNaN(this.resolution) && this.resolution > 0) {
-            imageBuffer = await sharp(imageBuffer).resize(this.resolution, this.resolution, { withoutEnlargement: true,  fit: this.fit || 'inside' }).toBuffer();
+            imageBuffer = await sharp(imageBuffer).resize(this.resolution, this.resolution, { withoutEnlargement: true,  fit: 'inside' }).toBuffer();
           }
         }
         if (this.staticUrl.includes('?') && imageBuffer.length <= 1 * 1024 * 1024) {

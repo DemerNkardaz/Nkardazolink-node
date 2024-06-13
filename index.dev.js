@@ -405,6 +405,16 @@ app.get('/wiki/:page', async (request, response, next) => {
 });
 
 
+app.get('/shared/models/:3dModelName', async (request, response) => {
+  try {
+
+  } catch (error) {
+    console.error('Error processing image:', error);
+    response.status(500).send('Error processing image');
+  }
+});
+
+
 app.get('/shared/images/nocache/:imageFileName', async (request, response) => {
   try {
     const handler = new ImageHandler(__PROJECT_DIR__, request, true);
