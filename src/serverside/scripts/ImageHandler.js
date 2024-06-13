@@ -64,10 +64,12 @@ class ImageHandler {
   constructor(sourcePath, request) {
     this.sourcePath = sourcePath;
     this.cacheDir = path.join(__PROJECT_DIR__, 'cache/images');
-    [this.filePath, this.imageFileName, this.size, this.toFormat, this.quality, this.paddingPercent, this.resolution, this.staticUrl] = [
+    [this.filePath, this.imageFileName, this.size, this.wh, this.fit, this.toFormat, this.quality, this.paddingPercent, this.resolution, this.staticUrl] = [
       request.params[0],
       request.params.imageFileName || null,
       request.query.s ? parseInt(request.query.s) : null,
+      request.query.wh ? request.query.wh.split('x').map(Number) : null,
+      request.query.fit || null,
       request.query.to || null,
       request.query.q ? parseInt(request.query.q) : null,
       request.query.p ? parseFloat(request.query.p) : 0,
@@ -124,12 +126,14 @@ class ImageHandler {
     const isCacheExists = await this.#checkCache();
     if (isCacheExists && isCacheExists.mimeType && isCacheExists.imageBuffer) {
       try {
+        console.log('Line of cached');
         return { mimeType: isCacheExists.mimeType, imageBuffer: isCacheExists.imageBuffer };
       } catch (error) {
         return `Error: ${error.message}`;
       }
     }
-
+    console.log('Line of generated');
+          
     try {
       let mimeType = mime.lookup(imagePath) || 'application/octet-stream';
       let svgScales;
@@ -138,11 +142,18 @@ class ImageHandler {
         let metadata;
         if (mimeType !== 'image/svg+xml') {
           metadata = await sharp(imageBuffer).metadata();
-          const maxDimension = Math.max(metadata.width, metadata.height);
-          const finalSize = this.size ? Math.min(this.size, maxDimension) : null;
+          if (this.size) {
+            const maxDimension = Math.max(metadata.width, metadata.height);
+            const finalSize = this.size ? Math.min(this.size, maxDimension) : null;
 
-          if (finalSize && finalSize < maxDimension) {
-            imageBuffer = await sharp(imageBuffer).resize(finalSize, finalSize, { fit: 'inside' }).toBuffer();
+            if (finalSize && finalSize < maxDimension) {
+              imageBuffer = await sharp(imageBuffer).resize(finalSize, finalSize, { fit: this.fit || 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
+            }
+          } else if (this.wh) {
+            const maxWidth = Math.min(this.wh[0], metadata.width);
+            const maxHeight = Math.min(this.wh[1], metadata.height);
+            imageBuffer = await sharp(imageBuffer).resize(maxWidth, maxHeight, { fit: this.fit || 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
+
           }
         } else {
           imageBuffer = Buffer.from(await this.#rescaleSVG(imageBuffer, this.size), 'utf8');
@@ -165,7 +176,7 @@ class ImageHandler {
 
         if (this.resolution) {
           if (!isNaN(this.resolution) && this.resolution > 0) {
-            imageBuffer = await sharp(imageBuffer).resize(this.resolution, this.resolution, { fit: 'inside' }).toBuffer();
+            imageBuffer = await sharp(imageBuffer).resize(this.resolution, this.resolution, { fit: this.fit || 'inside' }).toBuffer();
           }
         }
         if (this.staticUrl.includes('?') && imageBuffer.length <= 1 * 1024 * 1024) {
@@ -186,24 +197,30 @@ class ImageHandler {
   async #checkCache() {
     const fileMimes = ['apng', 'png', 'svg+xml', 'webp', 'jpeg', 'gif', 'avif', 'tiff', 'bmp', 'ico'];
     const files = await fs.readdir(this.cacheDir);
-
-    files.filter(file => {
-      if (file.split('-')[0] === this.cacheKey) {
-        let mimeType = file.split('-')[1];
-        fileMimes.filter(type => {
-          if (mimeType === this.#generateCacheKey(type)) {
-            mimeType = `image/${type}`;
+  
+    for (const file of files) {
+      if (file.startsWith(this.cacheKey)) {
+        const mimeTypePart = file.split('-')[1];
+        for (const type of fileMimes) {
+          if (mimeTypePart === this.#generateCacheKey(type)) {
+            const mimeType = `image/${type}`;
             const filePath = path.join(this.cacheDir, file);
-            const cachedBuffer = fs.readFile(filePath);
-            return { imageBuffer: cachedBuffer, mimeType };
+          
+            try {
+              const cachedBuffer = await fs.readFile(filePath);
+              return { imageBuffer: cachedBuffer, mimeType };
+            } catch (error) {
+              console.error(`Ошибка чтения кеш-файла: ${error.message}`);
+              return null;
+            }
           }
-        })
+        }
       }
-    });
-
-    return null;
+    }
+  
+    return null; // Если не найдено подходящего файла
   }
-
+  
   async #saveToCache(imageBuffer, cachadName) {
     const cachePath = path.join(this.cacheDir, cachadName);
     try {
