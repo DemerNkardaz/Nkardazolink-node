@@ -5,6 +5,61 @@ const mime = require('mime-types');
 const crypto = require('crypto');
 const { DOMParser, XMLSerializer } = require('xmldom');
 
+
+class ImageCacheCleaner {
+  constructor(intervalStr) {
+    this.cacheDir = path.join(__PROJECT_DIR__, 'cache/images');
+    this.interval = this.#parseInterval(intervalStr || '7d');
+    console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 💠 > [IMAGE HANDLER] :: Cache cleaner initialized and checking [cache/images] every ${intervalStr || '7d'}\x1b[39m`);
+    setInterval(() => this.#removeOutdatedCache(), this.interval);
+  }
+
+  #parseInterval(intervalStr) {
+    const match = intervalStr.match(/^(\d+)([shdwmy])$/);
+    if (!match) {
+      throw new Error('Invalid interval string. Valid examples: "1h", "7d", "2w", "9m", "10y"');
+    }
+    const value = parseInt(match[1], 10);
+    const unit = match[2];
+
+    switch (unit) {
+      case 's':
+        return value * 1000;
+      case 'h':
+        return value * 60 * 60 * 1000;
+      case 'd':
+        return value * 24 * 60 * 60 * 1000;
+      case 'w':
+        return value * 7 * 24 * 60 * 60 * 1000;
+      case 'm':
+        return value * 30 * 24 * 60 * 60 * 1000;
+      case 'y':
+        return value * 365 * 24 * 60 * 60 * 1000;
+      default:
+        throw new Error('Invalid interval unit. Valid units: "h", "d", "w", "m", "y"');
+    }
+  }
+
+  async #removeOutdatedCache() {
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+    try {
+      const files = await fs.readdir(this.cacheDir);
+
+      for (const file of files) {
+        const filePath = path.join(this.cacheDir, file);
+        const stats = await fs.stat(filePath);
+        if (stats.mtime < oneWeekAgo) {
+          await fs.unlink(filePath);
+        }
+      }
+    } catch (error) {
+      console.error(`Ошибка при очистке кэша: ${error.message}`);
+    }
+  }
+}
+
 class ImageHandler {
   constructor(sourcePath, request) {
     this.sourcePath = sourcePath;
@@ -159,30 +214,37 @@ class ImageHandler {
     }
   }
 
+
   async #manageCacheSize() {
     const maxCacheSize = 1 * 1024 * 1024 * 1024;
-    const files = await fs.readdir(this.cacheDir);
-    let totalSize = 0;
-    const fileSizes = await Promise.all(
-      files.map(async (file) => {
-        const filePath = path.join(this.cacheDir, file);
-        const stat = await fs.stat(filePath);
-        totalSize += stat.size;
-        return { filePath, size: stat.size, mtime: stat.mtime };
-      })
-    );
+    try {
+      const files = await fs.readdir(this.cacheDir);
+      let totalSize = 0;
+      const fileSizes = await Promise.all(
+        files.map(async (file) => {
+          const filePath = path.join(this.cacheDir, file);
+          const stat = await fs.stat(filePath);
+          totalSize += stat.size;
+          return { filePath, size: stat.size, mtime: stat.mtime };
+        })
+      );
 
-    if (totalSize > maxCacheSize) {
-      const sortedFiles = fileSizes.sort((a, b) => a.mtime - b.mtime);
-      for (const file of sortedFiles) {
-        await fs.unlink(file.filePath);
-        totalSize -= file.size;
-        if (totalSize <= maxCacheSize) {
-          break;
+      if (totalSize > maxCacheSize) {
+        const sortedFiles = fileSizes.sort((a, b) => a.mtime - b.mtime);
+        for (const file of sortedFiles) {
+          await fs.unlink(file.filePath);
+          totalSize -= file.size;
+          if (totalSize <= maxCacheSize) {
+            break;
+          }
         }
       }
+    } catch (error) {
+      return;
     }
   }
+
+
 
 
   async #convertImage(imageBuffer) {
@@ -317,4 +379,4 @@ class ImageHandler {
 }
 
 
-module.exports = { ImageHandler };
+module.exports = { ImageHandler, ImageCacheCleaner };
