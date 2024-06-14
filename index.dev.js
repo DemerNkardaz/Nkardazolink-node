@@ -466,6 +466,7 @@ const imageExtensions = ['jpg', 'jpeg', 'png', 'apng', 'gif', 'webp', 'ico', 'sv
 const videoExtensions = ['mp4', 'mkv', 'webm', 'ogv', 'avi', 'mov', 'wmv', 'mpg', 'mpeg', 'm4v', '3gp', '3g2', 'mng', 'asf', 'asx', 'mxf', 'ts', 'flv', 'f4v', 'f4p', 'f4a', 'f4b'];
 const fontExtensions = ['ttf', 'otf', 'woff', 'woff2'];
 const docExtensions = ['pdf', 'doc', 'docx', 'odt', 'rtf', 'txt', 'csv', 'xls', 'xlsx', 'ppt', 'pptx'];
+const dataExtensions = ['xml', 'html', 'xhtml', 'yaml', 'yml', 'json', 'ejs', 'pug', 'jade', 'csv'];
 
 
 app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
@@ -474,16 +475,16 @@ app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
   try {
 
     if (/^\/(File|Файл):/.test(decodedUrl)) {
-        const FileName = decodedUrl.replace(/^\/(File|Файл):/, '').replace(/\?.*$/, '');
-        const Arguments = request.url.includes('?') ? request.url.replace(/^[^?]*\?/, '?') : '';
-        console.log(Arguments);
-        const getExtension = () => FileName.split('.').pop();
+      const FileName = decodedUrl.replace(/^\/(File|Файл):/, '').replace(/\?.*$/, '');
+      const Arguments = request.url.includes('?') ? request.url.replace(/^[^?]*\?/, '?') : '';
+      console.log(FileName, Arguments);
+      const getExtension = FileName.split('.').pop();
     
-      if (imageExtensions.includes(getExtension())) {
+      if (imageExtensions.includes(getExtension)) {
         const language = await request.headers['accept-language'].substring(0, 2);
         request.params.imageFileName = FileName;
         console.log(request.params.imageFileName);
-        const imageHandler = new ImageHandler(__PROJECT_DIR__, request);
+        const imageHandler = new ImageHandler(__PROJECT_DIR__, request, false, true);
         const handledResult = await imageHandler.getImage(sharedAssetsDB);
       
         if (typeof handledResult === 'string') {
@@ -512,13 +513,13 @@ app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
                 <th colspan="2">Аргументы запроса</th>
             </tr>
             ${Object.keys(queriesType).map(key => {
-              const tableRow = queriesType[key];
-              if (Object.keys(request.query).includes(key)) {
-                return tableRow.replace('<tr>', '<tr class="query-used">');
-              } else {
-                return tableRow;
-              }
-            }).join('')}
+          const tableRow = queriesType[key];
+          if (Object.keys(request.query).includes(key)) {
+            return tableRow.replace('<tr>', '<tr class="query-used">');
+          } else {
+            return tableRow;
+          }
+        }).join('')}
           </table>
         `;
 
@@ -542,10 +543,29 @@ app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
         
       }
       
-    } else {
-      response.status(400).send('Invalid URL format');
-      return;
+      else if (dataExtensions.includes(getExtension)) {
+        if (getExtension === 'xml') {
+          try {
+            const row = await new Promise((resolve, reject) => {
+              sharedAssetsDB.get('SELECT * FROM sharedFiles WHERE FileName = ? AND FileType = ?', [FileName, 'XML'], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+              });
+            });
+
+            if (!row) throw new Error(`${FileName} XML Not Found`);
+            result = `<pre>${row.FileEmbedded.toString()
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')}</pre>`;
+            console.log(result);
+          } catch (error) {
+            console.error(error);
+            throw error;
+          }
+        }
+      }
     }
+    else { response.status(400).send('Invalid URL format'); return; }
 
     response.send(result);
   } catch (error) {

@@ -62,7 +62,8 @@ class ImageCacheCleaner {
 }
 
 class ImageHandler {
-  constructor(sourcePath, request, disableCache = false) {
+  constructor(sourcePath, request, disableCache = false, infoOnly = false) {
+    this.infoOnly = infoOnly;
     this.sourcePath = sourcePath;
     this.cacheDir = path.join(__PROJECT_DIR__, 'cache/images');
     this.filePath = /^(File:|Файл:)/i.test(request.params[0]) ? request.params[0].replace(/^(File:|Файл:)/i, '') : request.params[0];
@@ -118,7 +119,7 @@ class ImageHandler {
   }
 
 
-  async #readAndHandleImage(imagePath, dataBaseInfo = null) {
+  async #readAndHandleImage(imagePath, dataBaseInfo = null, infoOnly = false) {
     let imageBuffer;
     try {
       if (!imagePath.startsWith('https://')) imageBuffer = await fs.readFile(imagePath);
@@ -136,6 +137,7 @@ class ImageHandler {
     const isCacheExists = await this.#checkCache();
     if (isCacheExists && isCacheExists.mimeType && isCacheExists.imageBuffer) {
       try {
+        if (this.infoOnly === true) return {dataBaseInfo: dataBaseInfo || null, cached: true };
         //console.info(`Line of cached, loaded from cache: ${imagePath}`);
         return { mimeType: isCacheExists.mimeType, imageBuffer: isCacheExists.imageBuffer, dataBaseInfo: dataBaseInfo || null, cached: true };
       } catch (error) {
@@ -252,6 +254,7 @@ class ImageHandler {
         const mimeTypePart = file.split('-')[1];
         for (const type of fileMimes) {
           if (mimeTypePart === this.#generateCacheKey(type)) {
+            if (this.infoOnly === true) return;
             const mimeType = `image/${type}`;
             const filePath = path.join(this.cacheDir, file);
 
