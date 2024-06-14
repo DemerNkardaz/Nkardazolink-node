@@ -479,6 +479,36 @@ app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
         }
 
 
+        const queriesType = {
+          s: `<tr><td><p>s</p>размер</td><td>Изменяет размер изображения на основе одного значения</td><tr>`,
+          wh: `<tr><td><p>wh</p>ширина/высота</td><td>Изменяет размер изображения на основе двух значений</td><tr>`,
+          r: `<tr><td><p>r</p>пост-размер</td><td>Изменяет размер изображения на основе одного значения после всех преобразований</td><tr>`,
+          fit: `<tr><td><p>fit</p>подгонка</td><td>Указание способна подгонки изображения (cover, contain, fill, inside)</td><tr>`,
+          to: `<tr><td><p>to</p>формат</td><td>Указание формата изображения (jpg, png, apng, gif, webp, ico, svg, avif, bmp, tga, dds, tiff, jfif)</td><tr>`,
+          q: `<tr><td><p>q</p>качество</td><td>Указание качества изображения (0-100) при конвертации в jpg, avif, webp, tiff</td><tr>`,
+          p: `<tr><td><p>p</p>отступы</td><td>Указание отступов содержимого изображения от его границ</td><tr>`,
+          water: `<tr><td><p>water</p>водяной знак</td><td>Название файла водяного знака</td><tr>`,
+          pos: `<tr><td><p>pos</p>положение</td><td>Положение водяного знака (n — по центру свреху, nw — по левому верхнему углу, ne — по правому верхнему углу, s — по центру снизу, sw — по левому нижнему углу, se — по правому нижнему углу)</td><tr>`,
+          ws: `<tr><td><p>ws</p>размер</td><td>Указание размера водяного знака на основе одного значения</td><tr>`,
+          wpost: `<tr><td><p>wpost</p>пост-знак</td><td>Указание должен ли знак устанавливаться на изображение после всех преобразований, если да — wpost=true</td><tr>`,
+        };
+        const queriesTable = `
+          <table>
+            <tr>
+                <th colspan="2">Аргументы запроса</th>
+            </tr>
+            ${Object.keys(queriesType).map(key => {
+              const tableRow = queriesType[key];
+              if (Object.keys(request.query).includes(key)) {
+                return tableRow.replace('<tr>', '<tr class="query-used">');
+              } else {
+                return tableRow;
+              }
+            }).join('')}
+          </table>
+        `;
+
+        const isCached = handledResult.cached ? 'Кэш' : 'Не кэшируется';
         const dbTitle = handledResult.dataBaseInfo.Title || '';
         const dbFileName = handledResult.dataBaseInfo.FileName;
         const dbFileType = locale[language].FileTypes[handledResult.dataBaseInfo.FileType];
@@ -487,10 +517,13 @@ app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
         dbFileLink = !dbFileLink.startsWith('https://') ? `/${dbFileLink}` : dbFileLink;
         result = `
           <h1 style="display: flex; justify-content: space-between;"><span>${dbTitle}</span><span>${Arguments ? 'Сгенерировано запросом' : ''}</span></h1>
-          <h2 style="display: flex; justify-content: space-between;"><span>${dbFileName}</span><span>${Arguments ? 'Аргументы: ${Arguments}' : ''}</span></h2>
+          <h2 style="display: flex; justify-content: space-between;"><span>${dbFileName}</span></h2>
           <h3>${dbFileType}</h3>
+          ${Arguments ? isCached : ''}<br>
+          ${Arguments ? queriesTable : ''}
+          <br>
           <a href="${dbFileLink}">${dbFileLink}</a>
-          <img src="/shared/images/${dbFileSource}${Arguments}" alt="${dbTitle}">
+          <a href="/shared/images/${dbFileSource}${Arguments}" target="_blank"><img src="/shared/images/${dbFileSource}${Arguments}" alt="${dbTitle}"></a>
         `;
         
       }
