@@ -65,9 +65,9 @@ class ImageHandler {
   constructor(sourcePath, request, disableCache = false) {
     this.sourcePath = sourcePath;
     this.cacheDir = path.join(__PROJECT_DIR__, 'cache/images');
-    [this.filePath, this.imageFileName, this.size, this.wh, this.fit, this.toFormat, this.quality, this.paddingPercent, this.resolution, this.staticUrl, this.watermark, this.watermarkPos, this.watermarkScale, this.postMark] = [
-      request.params[0],
-      request.params.imageFileName || null,
+    this.filePath = /^(File:|Файл:)/i.test(request.params[0]) ? request.params[0].replace(/^(File:|Файл:)/i, '') : request.params[0];
+    this.imageFileName = /^(File:|Файл:)/i.test(request.params.imageFileName) ? request.params.imageFileName.replace(/^(File:|Файл:)/i, '') : request.params.imageFileName || null;
+    [this.size, this.wh, this.fit, this.toFormat, this.quality, this.paddingPercent, this.resolution, this.staticUrl, this.watermark, this.watermarkPos, this.watermarkScale, this.postMark] = [
       request.query.s ? parseInt(request.query.s) : null,
       request.query.wh ? request.query.wh.split('x').map(Number) : null,
       request.query.fit || null,
@@ -91,16 +91,16 @@ class ImageHandler {
 
 
   async getImage(dataBase) {
+    console.log(this.imageFileName)
     let imagePath;
-
     if (dataBase) {
       return new Promise((resolve, reject) => {
-        dataBase.get('SELECT FileLink FROM sharedFiles WHERE FileName = ? AND FileType = ?', [this.imageFileName, 'Image'], async (err, row) => {
+        dataBase.get('SELECT * FROM sharedFiles WHERE FileName = ? AND FileType = ?', [this.imageFileName, 'Image'], async (err, row) => {
           if (err) return reject(err);
           if (!row) return resolve(`${this.filePath || this.imageFileName} Image Not Found`);
           const imagePath = row.FileLink.startsWith('https://') ? row.FileLink : path.join(this.sourcePath, row.FileLink);
           try {
-            const result = await this.#readAndHandleImage(imagePath);
+            const result = await this.#readAndHandleImage(imagePath, row);
             resolve(result);
           } catch (error) {
             reject(error);
@@ -119,7 +119,7 @@ class ImageHandler {
   }
 
 
-  async #readAndHandleImage(imagePath) {
+  async #readAndHandleImage(imagePath, dataBaseInfo = null) {
     let imageBuffer;
     try {
       if (!imagePath.startsWith('https://')) imageBuffer = await fs.readFile(imagePath);
@@ -137,13 +137,13 @@ class ImageHandler {
     const isCacheExists = await this.#checkCache();
     if (isCacheExists && isCacheExists.mimeType && isCacheExists.imageBuffer) {
       try {
-        console.log('Line of cached');
+        console.info(`Line of cached, loaded from cache: ${imagePath}`);
         return { mimeType: isCacheExists.mimeType, imageBuffer: isCacheExists.imageBuffer };
       } catch (error) {
         return `Error: ${error.message}`;
       }
     }
-    console.log('Line of generated');
+    if (!/\.\w+$/.test(this.staticUrl)) console.info(`Line of generated, new genearion of cache: ${imagePath}`);
           
     try {
       if (this.watermark && this.postMark !== true && this.watermarkPos) imageBuffer = await this.#watermark(imageBuffer);
@@ -200,7 +200,7 @@ class ImageHandler {
           this.disableCache !== true && await this.#saveToCache(imageBuffer, cachedName);
         }
 
-        return { imageBuffer, mimeType };
+        return { imageBuffer, mimeType, dataBaseInfo };
       } else {
         return `File is not an image: ${imagePath}`;
       }
@@ -247,7 +247,7 @@ class ImageHandler {
   async #checkCache() {
     const fileMimes = ['apng', 'png', 'svg+xml', 'webp', 'jpeg', 'gif', 'avif', 'tiff', 'bmp', 'ico'];
     const files = await fs.readdir(this.cacheDir);
-  
+
     for (const file of files) {
       if (file.startsWith(this.cacheKey)) {
         const mimeTypePart = file.split('-')[1];
@@ -255,9 +255,13 @@ class ImageHandler {
           if (mimeTypePart === this.#generateCacheKey(type)) {
             const mimeType = `image/${type}`;
             const filePath = path.join(this.cacheDir, file);
-          
+
             try {
               const cachedBuffer = await fs.readFile(filePath);
+            
+              const now = new Date();
+              await fs.utimes(filePath, now, now);
+
               return { imageBuffer: cachedBuffer, mimeType };
             } catch (error) {
               console.error(`Ошибка чтения кеш-файла: ${error.message}`);
@@ -267,8 +271,8 @@ class ImageHandler {
         }
       }
     }
-  
-    return null; // Если не найдено подходящего файла
+
+    return null;
   }
   
   async #saveToCache(imageBuffer, cachadName) {

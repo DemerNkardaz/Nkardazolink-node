@@ -1,4 +1,13 @@
 ru:
+  FileTypes:
+    Image: Изображение
+    Media: Медиа
+    Document: Документ
+    Archive: Архив
+    Article: Статья
+    Font: Шрифт
+    Application: Приложение
+    Script: Скрипт
   GB: ГБ
   MB: МБ
   just_now: только что
@@ -21,6 +30,15 @@ ru:
   seconds_ago: секунды назад
   seconds_ago_2: секунд назад
 en:
+  FileTypes:
+    Image: Image
+    Media: Media
+    Document: Document
+    Archive: Archive
+    Article: Article
+    Font: Font
+    Application: Application
+    Script: Script
   GB: GB
   MB: MB
   just_now: just now
@@ -43,6 +61,15 @@ en:
   seconds_ago: seconds ago
   seconds_ago_2: seconds ago
 ja:
+  FileTypes:
+    Image: 画像
+    Media: メディア
+    Document: ドキュメント
+    Archive: アーカイブ
+    Article: 記事
+    Font: フォント
+    Application: アプリケーション
+    Script: スクリプト
   GB: GB
   MB: MB
   just_now: たった今
@@ -65,6 +92,15 @@ ja:
   seconds_ago: 秒前
   seconds_ago_2: 秒前
 zh:
+  FileTypes:
+    Image: 图片
+    Media: 媒体
+    Document: 文档
+    Archive: 归档
+    Article: 文章
+    Font: 字体
+    Application: 应用
+    Script: 脚本
   GB: GB
   MB: MB
   just_now: 刚刚
@@ -87,6 +123,15 @@ zh:
   seconds_ago: 秒前
   seconds_ago_2: 秒前
 ko:
+  FileTypes:
+    Image: 이미지
+    Media: 브라
+    Document: 교육
+    Archive: 압축
+    Article: 사람
+    Font: 전히
+    Application: 앱
+    Script: 스크립트
   GB: GB
   MB: MB
   just_now: 방금
@@ -109,6 +154,15 @@ ko:
   seconds_ago: 초 전
   seconds_ago_2: 초 전
 vi:
+  FileTypes:
+    Image: Hiệu
+    Media: Phan mem
+    Document: Tác vu
+    Archive: Tìm kiếm
+    Article: Bình bao
+    Font: Các hình
+    Application: Chức năng
+    Script: Phương thức
   GB: GB
   MB: MB
   just_now: vừa rồi
@@ -131,6 +185,15 @@ vi:
   seconds_ago: giây trước
   seconds_ago_2: giây trước
 ro:
+  FileTypes:
+    Image: Imagă
+    Media: Media
+    Document: Document
+    Archive: Archiv
+    Article: Articol
+    Font: Font
+    Application: Aplicatie
+    Script: Script
   GB: GB
   MB: MB
   just_now: chiar acum
@@ -153,6 +216,15 @@ ro:
   seconds_ago: secunde în urmă
   seconds_ago_2: secunde în urmă
 mo:
+  FileTypes:
+    Image: Immagine
+    Media: Media
+    Document: Documento
+    Archive: Archiv
+    Article: Articolo
+    Font: Carattere
+    Application: Applicazione
+    Script: Scripto
   GB: GB
   MB: MB
   just_now: токмол вапте

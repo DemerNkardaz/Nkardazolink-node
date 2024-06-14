@@ -22,6 +22,19 @@ app.use(sessions({
   cookie: { secure: true }
 }));
 
+async function saveVariableToYAMLFile(variableName, variable) {
+  const yamlString = yaml.dump(variable);
+  const filePath = `test/${variableName}.yaml`;
+
+  try {
+    fs.writeFileSync(filePath, yamlString, 'utf8');
+    console.log(`Variable saved as YAML in ${filePath}`);
+  } catch (error) {
+    console.error('Error saving variable as YAML:', error);
+  }
+}
+
+
 const imageCacheCleaner = new ImageCacheCleaner();
 
 
@@ -180,11 +193,12 @@ const dataArray = [];
 __NK__.langs.supported.forEach(lang => { dataArray.push({ source: `./static/assets/locale/common/main.${lang}.yaml`, as: `locale.${lang}` }) });
 dataArray.push({ source: `./static/assets/locale/common/asset.common.yaml`, as: `locale.common` });
 dataArray.push({ source: `./static/assets/locale/common/asset.templates.yaml`, as: `locale.templates` });
+dataArray.push({ source: `./static/assets/locale/misc.yaml`, as: `locale` });
+
 
 DataExtend(dataArray, __PROJECT_DIR__)
     .then(() => console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [DATA-EXTEND] :: Extension of data completed\x1b[39m`))
     .catch(err => console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > [DATA-EXTEND] :: Error extending data: ${err.message}`));
-
 
 app.use((request, response, next) => {
   response.setHeader("X-Content-Type-Options", "nosniff");
@@ -434,7 +448,63 @@ app.get('/shared/images/nocache/:imageFileName', async (request, response, next)
   }
 });
 
+const imageExtensions = ['jpg', 'jpeg', 'png', 'apng', 'gif', 'webp', 'ico', 'svg', 'avif', 'bmp', 'tga', 'dds', 'tiff', 'jfif'];
+const videoExtensions = ['mp4', 'mkv', 'webm', 'ogv', 'avi', 'mov', 'wmv', 'mpg', 'mpeg', 'm4v', '3gp', '3g2', 'mng', 'asf', 'asx', 'mxf', 'ts', 'flv', 'f4v', 'f4p', 'f4a', 'f4b'];
+const fontExtensions = ['ttf', 'otf', 'woff', 'woff2'];
+const docExtensions = ['pdf', 'doc', 'docx', 'odt', 'rtf', 'txt', 'csv', 'xls', 'xlsx', 'ppt', 'pptx'];
+
+
+app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
+  const decodedUrl = decodeURIComponent(request.url);
+  let result;
+  try {
+
+    if (/^\/(File|Файл):/.test(decodedUrl)) {
+      const FileName = decodedUrl.replace(/^\/(File|Файл):/, '')
+      const getExtension = () => FileName.split('.').pop().replace(/\?.*$/, '');
+    
+      if (imageExtensions.includes(getExtension())) {
+        const language = request.headers['accept-language'].substring(0, 2);
+        request.params.imageFileName = FileName;
+        const imageHandler = new ImageHandler(__PROJECT_DIR__, request);
+        const handledResult = await imageHandler.getImage(sharedAssetsDB);
+      
+        if (typeof handledResult === 'string') {
+          const error = new Error(handledResult.message);
+          error.status = 404;
+          throw error;
+        }
+
+        const dbTitle = handledResult.dataBaseInfo.Title;
+        const dbFileName = handledResult.dataBaseInfo.FileName;
+        const dbFileType = locale[language].FileTypes[handledResult.dataBaseInfo.FileType];
+        const dbFileSource = request.params.imageFileName;
+        let dbFileLink = handledResult.dataBaseInfo.FileLink;
+        dbFileLink = !dbFileLink.startsWith('https://') ? `/${dbFileLink}` : dbFileLink;
+        result = `
+          <h1>${dbTitle}</h1>
+          <h2>${dbFileName}</h2>
+          <h3>${dbFileType}</h3>
+          <a href="${dbFileLink}">${dbFileLink}</a>
+          <img src="/shared/images/${dbFileSource}" alt="${dbFileSource}">
+        `;
+      }
+    } else {
+      response.status(400).send('Invalid URL format');
+      return;
+    }
+
+    response.send(result);
+  } catch (error) {
+    console.error('Error processing file:', error);
+    next(error);
+  }
+});
+
+
 app.get('/shared/images/:imageFileName', async (request, response, next) => {
+  const imageFileRequest = request.params.imageFileName;
+  const imageFileName = request.params.imageFileName.replace(/^(File:|Файл:)/i, ''); 
   try {
     const handler = new ImageHandler(__PROJECT_DIR__, request);
     const handledResult = await handler.getImage(sharedAssetsDB);
@@ -443,10 +513,11 @@ app.get('/shared/images/:imageFileName', async (request, response, next) => {
       const error = new Error(handledResult.message);
       error.status = 404;
       throw error;
-    }
-    else
+    } else {
       response.contentType(handledResult.mimeType);
       response.send(handledResult.imageBuffer);
+
+    }
   } catch (error) {
     console.error('Error processing image:', error);
     next(error);
@@ -516,7 +587,33 @@ const options = {
   cert: fs.readFileSync('nkardaz.io.crt')
 };
 
-const server = https.createServer(options, app).listen(process.env.PORT, () => {
-    console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: HTTPS enabled\x1b[39m`);
-});
+(async () => {
+  try {
+    const server = https.createServer(options, app);
+    const expressServer = app.listen(3001);
+    
+    await Promise.all([
+      new Promise((resolve, reject) => {
+        server.listen(process.env.PORT, () => {
+          console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: HTTPS enabled\x1b[39m`);
+          resolve();
+        });
+      }),
+      new Promise((resolve, reject) => {
+        expressServer.on('listening', () => {
+          console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: HTTP enabled\x1b[39m`);
+          resolve();
+        });
+      })
+    ]);
+
+    console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [SERVER] :: Server started successfully\x1b[39m`);
+    
+  } catch (error) {
+    console.error(`\x1b[31m[${new Date().toLocaleString().replace(',', '')}] :: ⭕ > [SERVER] :: Server failed to start\x1b[39m`, error);
+  }
+})();
+
+
+
 

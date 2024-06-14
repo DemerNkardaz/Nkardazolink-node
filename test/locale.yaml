@@ -1,0 +1,840 @@
+ru:
+  Nkardaz:
+    name: Демер Нкардаз
+    fursona: Хертахирон — Оригинальный Персонаж (Персона)
+    copyright:
+      - '&copy;&nbsp;'
+      - Демер Нкардаз
+      - ',&nbsp;{{ ?copy }}&ensp;|&ensp;'
+  Languages:
+    template: Язык «$(place_0)»<br>$(place_1)
+    Russia: Россия
+    UK/USA: Англия/США
+    Japan: Япония
+    China: Китай
+    Korea: Корея
+    Vietnam: Вьетнам
+    Moldova: Молдова
+    Romania: Румыния
+  TestMultiString: |
+    Россия
+    Англия/США
+    Япония
+    Китай
+    Корея
+    Вьетнам
+    Молдова
+    Румыния
+  prevtest:
+    preview:
+      image:
+        src: >-
+          https://www.3dscanstore.com/image//data/00_Samurai/Samurai_Helmet_3d_Model.jpg
+        shift: center
+        blur: full
+        opacity: 0.75
+      content: >
+        {{ ?tooltip-h1: Клан Мацудайра ^
+        resources/svg/japan/Mon_of_clan_Matsudaira@32px.png }}
+
+        <p>Древний клан на Нихонсёто(⁛macron⁛){{ ?tooltip-quest:
+        NihonshotoDesc^top-start^meta-nihon_0 }}, ведущий свою родословную к
+        роду Минамото и к древним тэнно(⁛macron⁛).</p>
+      title: Мацудайра
+      subscript:
+        - Мацудайра
+        - ・Клановые летописи Киото
+  NihonshotoDesc: Восточный архипелаг Восходящего Солнца, родина Ямато
+  Tess: |
+    Тесс
+    <img src="resources/svg/NkardazKamon.svg" width="48" alt="">
+    {{ Nkardaz.name }}
+    {{ test }}
+  C:
+    test: |
+      Тест
+      {{ links.Ficbook.title }}
+  links:
+    ContentLinks: Контент
+    SocialLinks: Социалус
+    Ficbook:
+      title: Книга Фанфиков
+      alt: Аватар на Книге Фанфиков
+      tooltip: <span>Аниме&nbsp;Wikipedia:«Черный Клевер»/Black Clover-?</span>
+    AuthorToday:
+      title: Author.Today
+      alt: Аватар на Author.Today
+      tooltip: >-
+        <span>Автор&nbsp;Google:@PeroPicnic/(PeroPicnic | Pero) (site:pixiv.net
+        |
+        site:x.com)-?&nbsp;@twitter@pixiv&nbsp;Аниме&nbsp;Wikipedia.en:«Повесть
+        о доме Тайра»/The_Heike_Story_(anime)-?</span>
+    ArtStation:
+      title: ArtStation
+      alt: Аватар на ArtStation
+      tooltip: <span>Wikipedia:Хатиман-?, синтоистский бог войны</span>
+    ShagorRealms:
+      title: «Царства Шагора»
+      alt: Аватар сообщества «Царства Шагора»
+      tooltip: '{{ links.ArtStation.tooltip }}'
+    DTF_Blog:
+      title: Блог на DTF
+      alt: Аватар Блога на DTF
+      tooltip: <span>Аниме&nbsp;Wikipedia:«Наруто»/Наруто-?</span>
+    Naeda_Kitetsugi:
+      title: Наэда Китэцуги
+      alt: Аватар сообщества Наэда Китэцуги
+      tooltip: '{{ Nkardaz.fursona }}'
+    Shikimori:
+      title: Шикимори
+      alt: Аватар на Шикимори
+      subscription: Манганимешный список
+      tooltip: '{{ links.DTF_Blog.tooltip }}'
+    Steam:
+      title: STEAM
+      alt: Аватар в STEAM
+      subscription: Игрульки
+      tooltip: Привет
+  Skins:
+    Current: 'Текущий вид: {{ ?skin }}'
+    Byakujou: «Бякудзё»{{ ja:Skins.Byakujou }}
+    Aoguro-no Getsu: «Аогуро-но Гэцу»{{ ja:Skins.Aoguro-no Getsu }}
+    Akatsuki-no Kurai: «Акацўки-но Курай»{{ ja:Skins.Akatsuki-no Kurai }}
+    Sekiban: «Сэкибан»{{ ja:Skins.Sekiban }}
+    Azumatsuyu: «Адзумацую»{{ ja:Skins.Azumatsuyu }}
+  console: 'КОНСОЛЬ : Системный программный интерфейс'
+  test: |
+    Тест
+    < /{(日本:にほん)(皇室:こうしつ)(の?)(紋章:もんしょう)}[Герб императорской семьи Японии]/? />
+  testqu: < /{(悟墳:Го Фун)(乱:Ран)}[Смута Гофун]/? />
+  Meta_Pereferences:
+    titles:
+      default: Демер Нкардаз・2D・3D・Писательство・Вёрстка
+      kamon: Мон-дзōсё | Галерея Монсё・Царства Шагора・Демер Нкардаз
+      banners: Сасимоно Тэнранкай | Выставка Штандартов
+      pattern: Моньё-тэнтō | Галерея Узора
+      cv2d: Демер Нкардаз・2D-Художник
+      cv3d: Демер Нкардаз・3D-Художник
+      webs: Веб-проекты | Галерея Ресурсов
+      mods: Моды | Галерея
+      license: Контентная лицензия [DN—License]
+    meta:
+      desc:
+        default: >-
+          🧊 Портфолио и ссылки на контент-ресурсы: я писатель в жанре фэнтези,
+          автор вселенной «Царства Шагора», Hard-Surface моделер, художник и
+          верстальщик.
+        kamon: Коллекция восточных гербов фэнтезийной вселенной «Царства Шагора»
+        banners: Коллекция штандартов японских кланов вселенной «Царства Шагора»
+        pattern: Коллекция восточных орнаментов
+        cv2d: CV Демера Нкардаза, художника в области 2D
+        cv3d: CV Демера Нкардаза, художника в области 3D
+      image:
+        default: >-
+          https://demernkardaz.github.io/Nkardazolink/resource/images/seo/img.png
+      manifest: ./app/data/manifest/manifest.ru.webmanifest
+    UserPreferences: null
+    save_search_result: Сохранять ввод строки поиска
+    save_selected_item: Сохранять последний выбранный знак
+    turn_off_preloader: Отключить анимацию предзагрузки
+    change_skin_by_time: Смена вида по времени суток
+    current_banner: Текущий орнамент
+    skins: '{{ ?skin-title }}'
+    ambience_off: Отключить фоновую музыку
+  buttonLabels:
+    close: Закрыть
+    pause: Пауза
+    shuffle: Перемешать
+    attribution: Атрибуция
+    fullres: Открыть в полном размере
+    fullres_off: Скрыть полноразмерное изображение
+    lang_select:
+      ru: Выбрать русский язык
+      en: Select english language
+      ja: 選択 日本語
+      zh: 选择 中文
+      ko: 選擇 韓文
+      vi: Chọn ngôn ngã văn bản
+      mo: Селектаць лимба молдовеняскэ
+      ro: Selectați limba română
+  inputs:
+    kamon_search: Поиск знака…
+  kamon:
+    rarities:
+      inferior: Низшие
+      common: Обычные
+      normal: Влиятельные
+      venerable: Почтенные
+      elite: Элита
+      grand: Благородные
+      regal: Регальные
+      great: Великие
+      legendary: Легендарные
+      divine: Божественные
+      mythical: Мифические
+      museiryoku: Мусэйрёку
+      koshizoku: Косидзоку
+      hirazoku: Хирадзоку
+      igenshi: Игэн-си
+      seimon: Сэймон
+      monbatsu: Момбацу
+      daimon: Даймон
+      daitenshi: Дайтэнси
+      jinshi: Дзинси
+      shinwashi: Синва-си
+    rarity_descriptions:
+      museiryoku: Кланы с низким статусом.
+      koshizoku: Небогатые и небольшие кланы.
+      hirazoku: Кланы среднего или высокого статуса.
+      igenshi: Кланы почтенного статуса.
+      seimon: Влиятельные рода.
+      monbatsu: Знатные рода высокого статуса, нередко правители регионов
+      daimon: Великие рода, правящие большими территориями.
+      daitenshi: Легендарнейшие из родов, когда-либо бывших в мире.
+      jinshi: Божественные рода.
+      shinwashi: null
+  dropdown:
+    music_attribution: |
+      {{ ?drop-head: Атрибуция : Фоновая музыка ^ attribution }}
+      <div>
+        Автор используемых фоновых композиций <a href="https://pixabay.com/users/valentineseasons-38534292/" target="_blank">ValentineSeasons | Pixabay</a>
+      </div>
+      Композиции:
+      <ul>
+        <li>
+          <a href="https://pixabay.com/music/world-missing-in-wind-japanese-ancient-flute-simulate-wind-sound-166932/" target="_blank">«ValentineSeasons — Missing in wind»</a>
+        </li>
+        <li>
+          <a href="https://pixabay.com/music/world-sakura-dance-background-music-traditional-japanese-165338/" target="_blank">«ValentineSeasons — Sakura dance»</a>
+        </li>
+      </ul>
+  tags:
+    ability: Способность
+    addon: Апгрейд
+    entity: Сущность
+    formations: Формации
+    modifiers: Модификаторы
+    race: Раса
+    requirements: Требования
+    research: Исследование
+    squad: Отряд
+    tables: Таблицы
+    tuning: Тюнинг
+    types: Типы
+    weapon: Оружие
+    lua: Lua
+    scar: Scar
+    map: Карты
+    guide: Руководство
+    ui: Интерфейс
+    3d: 3D
+    textures: Текстуры
+    fx: Эффекты
+    sfx: Звуки
+    error: Ошибка
+    ability_ext: Расширения способностей
+    addon_ext: Расширения апгрейдов
+    ebpextensions: Расширения блюпринта сущности
+    raceextensions: Расширения рас
+    requiredextensions: Расширения требований
+    researchextensions: Расширения исследований
+    sbpextensions: Расширения блюпринта отрядов
+    weapextensions: Расширения оружия
+  FileTypes:
+    Image: Изображение
+    Media: Медиа
+    Document: Документ
+    Archive: Архив
+    Article: Статья
+    Font: Шрифт
+    Application: Приложение
+    Script: Скрипт
+  GB: ГБ
+  MB: МБ
+  just_now: только что
+  year_ago: год назад
+  years_ago: года назад
+  years_ago_2: лет назад
+  month_ago: месяц назад
+  months_ago: месяца назад
+  months_ago_2: месяцев назад
+  day_ago: день назад
+  days_ago: дня назад
+  days_ago_2: дней назад
+  hour_ago: час назад
+  hours_ago: часа назад
+  hours_ago_2: часов назад
+  minute_ago: минуту назад
+  minutes_ago: минуты назад
+  minutes_ago_2: минут назад
+  second_ago: секунду назад
+  seconds_ago: секунды назад
+  seconds_ago_2: секунд назад
+en:
+  Nkardaz:
+    name: Demer Nkardaz
+    fursona: Khertahiron — Original Character (Person)
+    copyright: >-
+      Copyright&nbsp;&copy;&nbsp;{{ ?copy }}&nbsp;{{ Nkardaz.name }}. All rights
+      reserved&ensp;|&ensp;
+  prevtest:
+    preview:
+      image:
+        src: >-
+          https://www.kcpinternational.com/wp-content/uploads/2023/02/Shogun-Tokugawa-Ieyasu.png
+        shift: center -100px
+        blur: ''
+        opacity: 1
+      content: >
+        {{ ?tooltip-h1: The Matsudaira Clan ^
+        resources/svg/japan/Mon_of_clan_Matsudaira@32px.png }}
+
+        <p>An ancient clan of Nihonshoto(⁛macron⁛){{ ?tooltip-quest:
+        NihonshotoDesc^top-start^meta-nihon_0 }}, descending one's lineage from
+        Minamoto, and to the elden tenno(⁛macron⁛).</p>
+
+        <p>Sed ut perspiciatis, unde omnis iste natus error sit voluptatem
+        accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae ab
+        illo inventore veritatis et quasi architecto beatae vitae dicta sunt,
+        explicabo. Nemo enim ipsam voluptatem, quia voluptas sit, aspernatur aut
+        odit aut fugit, sed quia consequuntur magni dolores eos, qui ratione
+        voluptatem sequi nesciunt, neque porro quisquam est, qui dolorem ipsum,
+        quia dolor sit, amet, consectetur, adipisci velit, sed quia non numquam
+        eius modi tempora incidunt, ut labore et dolore magnam aliquam quaerat
+        voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam
+        corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?
+        Quis autem vel eum iure reprehenderit, qui in ea voluptate velit esse,
+        quam nihil molestiae consequatur, vel illum, qui dolorem eum fugiat, quo
+        voluptas nulla pariatur? At vero eos et accusamus et iusto odio
+        dignissimos ducimus, qui blanditiis praesentium voluptatum deleniti
+        atque corrupti, quos dolores et quas molestias excepturi sint, obcaecati
+        cupiditate non provident, similique sunt in culpa, qui officia deserunt
+        mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum
+        facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis
+        est eligendi optio, cumque nihil impedit, quo minus id, quod maxime
+        placeat, facere possimus, omnis voluptas assumenda est, omnis dolor
+        repellendus. Temporibus autem quibusdam et aut officiis debitis aut
+        rerum necessitatibus saepe eveniet, ut et voluptates repudiandae sint et
+        molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente
+        delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut
+        perferendis doloribus asperiores repellat. </p>
+      subscript: Kyo(⁛macron⁛)to “Clans' chronicles”
+  NihonshotoDesc: The eastern archipelago of Rising Sun, home of Yamato
+  Languages:
+    template: Language “$(place_0)”<br>$(place_1)
+    Russia: Russia
+    UK/USA: UK/USA
+    Japan: Japan
+    China: China
+    Korea: Korea
+    Vietnam: Vietnam
+    Moldova: Moldova
+    Romania: Romania
+  links:
+    ContentLinks: The Co(⁛macron_z,0.175⁛)ntentum
+    SocialLinks: The Socialus
+    Ficbook:
+      title: Ficbook
+      alt: Avatar on Ficbook
+      tooltip: <span>The&nbsp;Wikipedia:“Black Clover”/Black Clover-?&nbsp;anime</span>
+    AuthorToday:
+      title: Author.Today
+      alt: Avatar on Author.Today
+      tooltip: >-
+        <span>Art by&nbsp;Google:@PeroPicnic/(PeroPicnic | Pero) (site:pixiv.net
+        |
+        site:x.com)-?&nbsp;@twitter@pixiv&nbsp;The&nbsp;Wikipedia:«Heike-monogatari»/The_Heike_Story_(anime)-?&nbsp;anime</span>
+    ArtStation:
+      title: ArtStation
+      alt: Avatar on ArtStation
+      tooltip: >-
+        <span>The&nbsp;Wikipedia:Hachiman-?, The Shinto(⁛macron⁛) god of
+        war</span>
+    ShagorRealms:
+      title: “Shagor Realms”
+      alt: “Shagor Realms” community's avatar
+      tooltip: '{{ links.ArtStation.tooltip }}'
+    DTF_Blog:
+      title: Blog on DTF
+      alt: Avatar of DTF Blog
+      tooltip: <span>The&nbsp;Wikipedia:“Naruto”/Naruto-?&nbsp;anime</span>
+    Naeda_Kitetsugi:
+      title: Naeda Kitetsugi
+      alt: Naeda Kitetsugi public's avatar
+      tooltip: '{{ Nkardaz.fursona }}'
+    Shikimori:
+      title: Shikimori
+      alt: Avatar on Shikimori
+      subscription: Manganime list
+      tooltip: '{{ links.DTF_Blog.tooltip }}'
+    Steam:
+      title: STEAM
+      alt: Avatar on STEAM
+      subscription: Games
+      tooltip: Hi
+  Skins:
+    Current: 'Сurrent view: {{ ?skin }}'
+    Byakujou: “Byakujo(⁛macron_0.255⁛)”{{ ja:Skins.Byakujou }}
+    Aoguro-no Getsu: “Aoguro-no Getsu”{{ ja:Skins.Aoguro-no Getsu }}
+    Akatsuki-no Kurai: “Akatsuki-no Kurai”{{ ja:Skins.Akatsuki-no Kurai }}
+    Sekiban: “Sekiban”{{ ja:Skins.Sekiban }}
+    Azumatsuyu: “Azumatsuyu”{{ ja:Skins.Azumatsuyu }}
+  ContentLinks: Content
+  SocialLinks: Socialus
+  Ficbook: Fickbook
+  AuthorToday: Author.Today
+  ArtStation: ArtStation
+  ShagorRealms: “Shagor Realms”
+  DTF_Blog: Blog on DTF
+  Naeda_Kitetsugi: Naeda Kitetsugi
+  Shikimori: Shikimori
+  Shikimori_description: Manganime list
+  Steam: STEAM
+  Steam_description: Games
+  Steam_Hi: Hi
+  Anime_Naruto_Tooltip: “Naruto” Anime
+  Anime_BlackClover_Tooltip: “Black Clover” Anime
+  Anime_Heike-monogatari: Peropicnic artist, “Heike-monogatari” Anime
+  Hachiman-jin_Tooltip: Hachiman, The God of War
+  console: 'CONSOLE : System user interface'
+  Site_Title_Nkardaz: Demer Nkardaz・2D・3D・Writer・Layout
+  save_search_result: Save search input
+  save_selected_item: Save last selected item
+  turn_off_preloader: Turn off preloader animation
+  OCKhertahiron: Hertahiron - Original Character (Persona)
+  buttonLabels:
+    fullres: Open fullresolution image
+    fullres_off: Close fullresolution image
+  inputs:
+    kamon_search: Search of symbols…
+  Meta_Pereferences:
+    titles:
+      default: Демер Нкардаз・2D・3D・Писательство・Вёрстка
+      kamon: Мон-дзōсё | Галерея Монсё・Царства Шагора・Демер Нкардаз
+      banners: Сасимоно Тэнранкай | Выставка Штандартов
+      pattern: Моньё-тэнтō | Галерея Узора
+      cv2d: Демер Нкардаз・2D-Художник
+      cv3d: Демер Нкардаз・3D-Художник
+      webs: Веб-проекты | Галерея Ресурсов
+      mods: Моды | Галерея
+      license: Контентная лицензия [DN—License]
+    meta:
+      desc:
+        default: >-
+          🧊 Портфолио и ссылки на контент-ресурсы: я писатель в жанре фэнтези,
+          автор вселенной «Царства Шагора», Hard-Surface моделер, художник и
+          верстальщик.
+        kamon: Коллекция восточных гербов фэнтезийной вселенной «Царства Шагора»
+        banners: Коллекция штандартов японских кланов вселенной «Царства Шагора»
+        pattern: Коллекция восточных орнаментов
+        cv2d: CV Демера Нкардаза, художника в области 2D
+        cv3d: CV Демера Нкардаза, художника в области 3D
+      image:
+        default: >-
+          https://demernkardaz.github.io/Nkardazolink/resource/images/seo/img.png
+      manifest: ./app/data/manifest/manifest.en.webmanifest
+  kamon:
+    rarities:
+      inferior: Низшие
+      common: Обычные
+      normal: Влиятельные
+      venerable: Почтенные
+      elite: Элита
+      grand: Благородные
+      regal: Регальные
+      great: Великие
+      legendary: Легендарные
+      divine: Божественные
+      mythical: Мифические
+      museiryoku: Мусэйрёку
+      koshizoku: Косидзоку
+      hirazoku: Хирадзоку
+      igenshi: Игэн-си
+      seimon: Сэймон
+      monbatsu: Момбацу
+      daimon: Даймон
+      daitenshi: Дайтэнси
+      jinshi: Дзинси
+      shinwashi: Синва-си
+    rarity_descriptions:
+      museiryoku: Кланы с низким статусом.
+      koshizoku: Небогатые и небольшие кланы.
+      hirazoku: Кланы среднего или высокого статуса.
+      igenshi: Кланы почтенного статуса.
+      seimon: Влиятельные рода.
+      monbatsu: Знатные рода высокого статуса, нередко правители регионов
+      daimon: Великие рода, правящие большими территориями.
+      daitenshi: Легендарнейшие из родов, когда-либо бывших в мире.
+      jinshi: Божественные рода.
+      shinwashi: ''
+  dropdown:
+    music_attribution: |
+      {{ ?drop-head: Attribution : Ambient ^ attribution }}
+      <div>
+        This music was created by <a href="https://pixabay.com/users/valentineseasons-38534292/" target="_blank">ValentineSeasons | Pixabay</a>
+      </div>
+      Композиции:
+      <ul>
+        <li>
+          <a href="https://pixabay.com/music/world-missing-in-wind-japanese-ancient-flute-simulate-wind-sound-166932/" target="_blank">«ValentineSeasons — Missing in wind»</a>
+        </li>
+        <li>
+          <a href="https://pixabay.com/music/world-sakura-dance-background-music-traditional-japanese-165338/" target="_blank">«ValentineSeasons — Sakura dance»</a>
+        </li>
+      </ul>
+  FileTypes:
+    Image: Image
+    Media: Media
+    Document: Document
+    Archive: Archive
+    Article: Article
+    Font: Font
+    Application: Application
+    Script: Script
+  GB: GB
+  MB: MB
+  just_now: just now
+  year_ago: year ago
+  years_ago: years ago
+  years_ago_2: years ago
+  month_ago: month ago
+  months_ago: months ago
+  months_ago_2: months ago
+  day_ago: day ago
+  days_ago: days ago
+  days_ago_2: days ago
+  hour_ago: hour ago
+  hours_ago: hours ago
+  hours_ago_2: hours ago
+  minute_ago: minute ago
+  minutes_ago: minutes ago
+  minutes_ago_2: minutes ago
+  second_ago: second ago
+  seconds_ago: seconds ago
+  seconds_ago_2: seconds ago
+ja:
+  kamon:
+    rarities:
+      inferior: Низшие
+      common: Обычные
+      normal: Влиятельные
+      venerable: Почтенные
+      elite: Элита
+      grand: Благородные
+      regal: Регальные
+      great: Великие
+      legendary: Легендарные
+      divine: Божественные
+      mythical: Мифические
+      museiryoku: 無勢力
+      koshizoku: 小氏族
+      hirazoku: 平族
+      igenshi: 威厳氏
+      seimon: 勢門
+      monbatsu: 門閥
+      daimon: 大門
+      daitenshi: 大天氏
+      jinshi: 神氏
+      shinwashi: 神話氏
+  DemerNkardaz: デメル・ナカルダズ
+  Nkardaz:
+    name: デマル・ナカルダス
+    fursona: ケルタヒロヌ、原キャラ（化身
+    copyright: >-
+      &copy;&nbsp;${returnCopyright('CJK')}&#x3000;${nk.locale.get('Nkardaz.name')}・全著作権所有｜
+  Skins:
+    Current: 現在の眺め：{{ ?skin-key }}
+    Byakujou: 「白城」
+    Aoguro-no Getsu: 「青黒月」
+    Akatsuki-no Kurai: 「暁の暗い」
+    Sekiban: 「石盤」
+    Azumatsuyu: 「東露」
+  Meta_Pereferences:
+    titles:
+      default: デメル・ナカルダズ・2D・3D・Писательство・Вёрстка
+      kamon: 家紋のじょうしょう-дзōсё | Галерея Монсё・Царства Шагора・Демер Нкардаз
+      banners: 挿物の展覧会
+      pattern: Моньё-тэнтō | Галерея Узора
+      cv2d: Демер Нкардаз・2D-Художник
+      cv3d: Демер Нкардаз・3D-Художник
+      webs: Веб-проекты | Галерея Ресурсов
+      mods: Моды | Галерея
+      license: Контентная лицензия [DN—License]
+    meta:
+      desc:
+        default: >-
+          🧊 Портфолио и ссылки на контент-ресурсы: я писатель в жанре фэнтези,
+          автор вселенной «Царства Шагора», Hard-Surface моделер, художник и
+          верстальщик.
+        kamon: Коллекция восточных гербов фэнтезийной вселенной «Царства Шагора»
+        banners: Коллекция штандартов японских кланов вселенной «Царства Шагора»
+        pattern: Коллекция восточных орнаментов
+        cv2d: CV Демера Нкардаза, художника в области 2D
+        cv3d: CV Демера Нкардаза, художника в области 3D
+      image:
+        default: >-
+          https://demernkardaz.github.io/Nkardazolink/resource/images/seo/img.png
+  inputs:
+    kamon_search: 紋章を探す。。。
+  console: コンソール：システムユーザーインターフェイス
+  Naeda_Kitetsugi: 菜枝 鬼鉄義
+  Site_Title_Nkardaz: デメル・ナカルダズ・２Ｄ・３Ｄ・ピサツレスト・ヴォーストカ
+  save_search_result: 検索入力を保存
+  save_selected_item: 最後に選択したアイテムを保存
+  turn_off_preloader: プレロードアニメーションをオフ
+  FileTypes:
+    Image: 画像
+    Media: メディア
+    Document: ドキュメント
+    Archive: アーカイブ
+    Article: 記事
+    Font: フォント
+    Application: アプリケーション
+    Script: スクリプト
+  GB: GB
+  MB: MB
+  just_now: たった今
+  year_ago: 去年
+  years_ago: 年前
+  years_ago_2: 年前
+  month_ago: 前月
+  months_ago: ヶ月前
+  months_ago_2: ヶ月前
+  day_ago: 日前
+  days_ago: 日前
+  days_ago_2: 日前
+  hour_ago: 時間前
+  hours_ago: 時間前
+  hours_ago_2: 時間前
+  minute_ago: 分前
+  minutes_ago: 分前
+  minutes_ago_2: 分前
+  second_ago: 秒前
+  seconds_ago: 秒前
+  seconds_ago_2: 秒前
+zh:
+  DemerNkardaz: 德镁尔・尼卡尔达兹
+  ContentLinks: 内容
+  console: 控制台：系统用户界面
+  Site_Title_Nkardaz: 德镁尔・尼卡尔达兹・2D・3D・写作・排版
+  save_search_result: 保存搜索输入
+  save_selected_item: 保存最后选择的项目
+  turn_off_preloader: 关闭预载入动画
+  FileTypes:
+    Image: 图片
+    Media: 媒体
+    Document: 文档
+    Archive: 归档
+    Article: 文章
+    Font: 字体
+    Application: 应用
+    Script: 脚本
+  GB: GB
+  MB: MB
+  just_now: 刚刚
+  year_ago: 年前
+  years_ago: 年前
+  years_ago_2: 年前
+  month_ago: 月前
+  months_ago: 个月前
+  months_ago_2: 个月前
+  day_ago: 天前
+  days_ago: 天前
+  days_ago_2: 天前
+  hour_ago: 小时前
+  hours_ago: 小时前
+  hours_ago_2: 小时前
+  minute_ago: 分钟前
+  minutes_ago: 分钟前
+  minutes_ago_2: 分钟前
+  second_ago: 秒前
+  seconds_ago: 秒前
+  seconds_ago_2: 秒前
+ko:
+  DemerNkardaz: 데메르 니카르다즈
+  ContentLinks: 커백
+  console: '커백: 잠어진 문제 INTERFACE'
+  Site_Title_Nkardaz: 데메르 니카르다즈・2D・3D・작가・레이아웃
+  save_search_result: 검색 입력 저장
+  save_selected_item: 최종 선택된 아이템 저장
+  turn_off_preloader: 플로드 애니메이션 OFF
+  FileTypes:
+    Image: 이미지
+    Media: 브라
+    Document: 교육
+    Archive: 압축
+    Article: 사람
+    Font: 전히
+    Application: 앱
+    Script: 스크립트
+  GB: GB
+  MB: MB
+  just_now: 방금
+  year_ago: 년 전
+  years_ago: 년 전
+  years_ago_2: 년 전
+  month_ago: 달 전
+  months_ago: 달 전
+  months_ago_2: 달 전
+  day_ago: 일 전
+  days_ago: 일 전
+  days_ago_2: 일 전
+  hour_ago: 시간 전
+  hours_ago: 시간 전
+  hours_ago_2: 시간 전
+  minute_ago: 분 전
+  minutes_ago: 분 전
+  minutes_ago_2: 분 전
+  second_ago: 초 전
+  seconds_ago: 초 전
+  seconds_ago_2: 초 전
+vi:
+  DemerNkardaz: Đêmer Nkarđaz
+  ContentLinks: Noi dung
+  console: 'Lệnh bộ: giao diện người dùng'
+  Site_Title_Nkardaz: Đêmer Nkarđaz・2D・3D・Viết văn・Tạo bố cục
+  save_search_result: Lưu kết quả tìm kiếm
+  save_selected_item: Lưu mục đã chọn cuối cùng
+  turn_off_preloader: Tắt hiệu ứng tải trước
+  FileTypes:
+    Image: Hiệu
+    Media: Phan mem
+    Document: Tác vu
+    Archive: Tìm kiếm
+    Article: Bình bao
+    Font: Các hình
+    Application: Chức năng
+    Script: Phương thức
+  GB: GB
+  MB: MB
+  just_now: vừa rồi
+  year_ago: năm trước
+  years_ago: năm trước
+  years_ago_2: năm trước
+  month_ago: tháng trước
+  months_ago: tháng trước
+  months_ago_2: tháng trước
+  day_ago: ngày trước
+  days_ago: ngày trước
+  days_ago_2: ngày trước
+  hour_ago: giờ trước
+  hours_ago: giờ trước
+  hours_ago_2: giờ trước
+  minute_ago: phút trước
+  minutes_ago: phút trước
+  minutes_ago_2: phút trước
+  second_ago: giây trước
+  seconds_ago: giây trước
+  seconds_ago_2: giây trước
+mo:
+  FileTypes:
+    Image: Immagine
+    Media: Media
+    Document: Documento
+    Archive: Archiv
+    Article: Articolo
+    Font: Carattere
+    Application: Applicazione
+    Script: Scripto
+  GB: GB
+  MB: MB
+  just_now: токмол вапте
+  year_ago: ан дея вазут
+  years_ago: ани дея вазути
+  years_ago_2: ани дея вазути
+  month_ago: лунэ дея вазутэ
+  months_ago: лунь дея вазутэ
+  months_ago_2: лунь дея вазутэ
+  day_ago: зи дея вазутэ
+  days_ago: зиле дея вазутэ
+  days_ago_2: зиле дея вазутэ
+  hour_ago: орэ дея вазутэ
+  hours_ago: ориле дея вазутэ
+  hours_ago_2: ориле дея вазутэ
+  minute_ago: минут дея вазутэ
+  minutes_ago: минутеле дея вазутэ
+  minutes_ago_2: минутеле дея вазутэ
+  second_ago: секунде дея вазутэ
+  seconds_ago: секунделе дея вазутэ
+  seconds_ago_2: секунделе дея вазутэ
+ro:
+  FileTypes:
+    Image: Imagă
+    Media: Media
+    Document: Document
+    Archive: Archiv
+    Article: Articol
+    Font: Font
+    Application: Aplicatie
+    Script: Script
+  GB: GB
+  MB: MB
+  just_now: chiar acum
+  year_ago: an în urmă
+  years_ago: ani în urmă
+  years_ago_2: ani în urmă
+  month_ago: lună în urmă
+  months_ago: luni în urmă
+  months_ago_2: luni în urmă
+  day_ago: zi în urmă
+  days_ago: zile în urmă
+  days_ago_2: zile în urmă
+  hour_ago: oră în urmă
+  hours_ago: ore în urmă
+  hours_ago_2: ore în urmă
+  minute_ago: minut în urmă
+  minutes_ago: minute în urmă
+  minutes_ago_2: minute în urmă
+  second_ago: secundă în urmă
+  seconds_ago: secunde în urmă
+  seconds_ago_2: secunde în urmă
+common:
+  RU: >-
+    <span class="lang-tooltip">${ nk.locale.get( { key: 'Languages.template',
+    placements: [{ '0': 'Русский'}, { '1': nk.locale.get('Languages.Russia') }]}
+    ) }</span>
+  EN: >-
+    <span class="lang-tooltip">${ nk.locale.get( { key: 'Languages.template',
+    placements: [{ '0': 'English'}, { '1': nk.locale.get('Languages.UK/USA') }]}
+    ) }</span>
+  JA: >-
+    <span class="lang-tooltip">${ nk.locale.get( { key: 'Languages.template',
+    placements: [{ '0': '日本語'}, { '1': nk.locale.get('Languages.Japan') }]} )
+    }</span>
+  ZH: >-
+    <span class="lang-tooltip">${ nk.locale.get( { key: 'Languages.template',
+    placements: [{ '0': '简体中文'}, { '1': nk.locale.get('Languages.China') }]} )
+    }</span>
+  KO: >-
+    <span class="lang-tooltip">${ nk.locale.get( { key: 'Languages.template',
+    placements: [{ '0': '한국어'}, { '1': nk.locale.get('Languages.Korea') }]} )
+    }</span>
+  VI: >-
+    <span class="lang-tooltip">${ nk.locale.get( { key: 'Languages.template',
+    placements: [{ '0': 'Tiếng Việt'}, { '1':
+    nk.locale.get('Languages.Vietnam') }]} ) }</span>
+  MO: >-
+    <span class="lang-tooltip">${ nk.locale.get( { key: 'Languages.template',
+    placements: [{ '0': 'Молдовеняскэ'}, { '1':
+    nk.locale.get('Languages.Moldova') }]} ) }</span>
+  RO: >-
+    <span class="lang-tooltip">${ nk.locale.get( { key: 'Languages.template',
+    placements: [{ '0': 'Română'}, { '1': nk.locale.get('Languages.Romania') }]}
+    ) }</span>
+  Meta_Pereferences:
+    meta:
+      url:
+        default: https://demernkardaz.github.io/Nkardazolink/
+        kamon: https://demernkardaz.github.io/Nkardazolink?mode=kamon
+        banners: https://demernkardaz.github.io/Nkardazolink?mode=banners
+        pattern: https://demernkardaz.github.io/Nkardazolink?mode=pattern
+        cv2d: https://demernkardaz.github.io/Nkardazolink?mode=cv&select=2d
+        cv3d: https://demernkardaz.github.io/Nkardazolink?mode=cv&select=3d
+        webs: https://demernkardaz.github.io/Nkardazolink?mode=webs
+        mods: https://demernkardaz.github.io/Nkardazolink?mode=mods
+        license: https://demernkardaz.github.io/Nkardazolink?mode=license
+  Factorio: Factorio
+templates:
+  linkIcon: >-
+    <a class="inline-link-icon" href="$(place_link)" target="_blank"><img
+    class="me-2" width="20px" alt="" src="$(place_img)">$(place_text)</a>
