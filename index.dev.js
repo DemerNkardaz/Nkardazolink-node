@@ -295,6 +295,18 @@ async function jsonDBStessTest() {
   //await sessionManager.explainFile();
 })();
 
+app.use(async (req, res, next) => {
+  try {
+    if (req.hostname.split('.').length > 2) {
+      const getTLD = req.hostname.split('.')[0].split('https://').join('').split('http://').join('');
+      req.ThirdLevelDomain = getTLD;
+    }
+    next();
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
 
 
 const randomNames = ['Banshee', 'Ieyasu', 'Hachiman', 'Yorimasa', 'Tadahisa', 'Byakuya'];
@@ -315,6 +327,7 @@ app.use(async (req, res, next) => {
 
 app.get('/', async (request, response, next) => {
   try {
+    console.log(`Request ${request.ThirdLevelDomain}`)
     console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 💠 > [SERVER] :: Latest modify date is [${new Date(await getLastModifiedInFolders()).toLocaleString()}]\x1b[39m`);
 
     const session = { sessionID: request.cookies.sessionID, settings: {}, platform: request.useragent.source };
@@ -361,9 +374,10 @@ app.get('/', async (request, response, next) => {
     //console.log(await sessionManager.readSession(session.sessionID));
     const isUserLang = metaDataResponse.userSession && metaDataResponse.userSession.savedSettings && metaDataResponse.userSession.savedSettings.lang && metaDataResponse.userSession.savedSettings.lang;
     const isLangUrlMode = metaDataResponse.urlModes && __NK__.langs.supported.includes(metaDataResponse.urlModes.lang) && metaDataResponse.urlModes.lang;
+    const isLangTLD = request.ThirdLevelDomain && __NK__.langs.supported.includes(request.ThirdLevelDomain) && request.ThirdLevelDomain;
     const isNavigatorLang = __NK__.langs.supported.includes(request.headers['accept-language'].substring(0, 2)) && request.headers['accept-language'].substring(0, 2);
     
-    metaDataResponse.renderLanguage = isLangUrlMode ? isLangUrlMode : isUserLang ? isUserLang : isNavigatorLang || 'en';
+    metaDataResponse.renderLanguage = isLangTLD ? isLangTLD : isLangUrlMode ? isLangUrlMode : isUserLang ? isUserLang : isNavigatorLang || 'en';
 
     let webManifest = await readFileAsync(path.join(`${__PROJECT_DIR__}/static/public/manifest/manifest.${metaDataResponse.renderLanguage}.webmanifest`), 'utf8');
     webManifest = JSON.parse(webManifest);
@@ -632,7 +646,7 @@ const options = {
     
     await Promise.all([
       new Promise((resolve, reject) => {
-        server.listen(process.env.PORT, () => {
+        server.listen(443, () => {
           console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: HTTPS enabled\x1b[39m`);
           resolve();
         });

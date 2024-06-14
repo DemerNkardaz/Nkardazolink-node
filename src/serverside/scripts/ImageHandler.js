@@ -91,7 +91,6 @@ class ImageHandler {
 
 
   async getImage(dataBase) {
-    console.log(this.imageFileName)
     let imagePath;
     if (dataBase) {
       return new Promise((resolve, reject) => {
@@ -137,13 +136,13 @@ class ImageHandler {
     const isCacheExists = await this.#checkCache();
     if (isCacheExists && isCacheExists.mimeType && isCacheExists.imageBuffer) {
       try {
-        console.info(`Line of cached, loaded from cache: ${imagePath}`);
+        //console.info(`Line of cached, loaded from cache: ${imagePath}`);
         return { mimeType: isCacheExists.mimeType, imageBuffer: isCacheExists.imageBuffer, dataBaseInfo: dataBaseInfo || null, cached: true };
       } catch (error) {
         return `Error: ${error.message}`;
       }
     }
-    if (!/\.\w+$/.test(this.staticUrl)) console.info(`Line of generated, new genearion of cache: ${imagePath}`);
+    //if (!/\.\w+$/.test(this.staticUrl)) console.info(`Line of generated, new genearion of cache: ${imagePath}`);
           
     try {
       if (this.watermark && this.postMark !== true && this.watermarkPos) imageBuffer = await this.#watermark(imageBuffer);
