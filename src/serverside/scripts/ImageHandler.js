@@ -122,11 +122,21 @@ class ImageHandler {
 
   async #readAndHandleImage(imagePath, dataBaseInfo = null, infoOnly = false) {
     let imageBuffer;
+    let remoteMetaData = null;
     try {
       if (!imagePath.startsWith('https://')) imageBuffer = await fs.readFile(imagePath);
       else {
-        const response = await axios.get(imagePath, { responseType: 'arraybuffer' });
-        imageBuffer = Buffer.from(response.data);
+        const remoteMeta = await axios.head(imagePath);
+        remoteMetaData = {
+          mimeType: remoteMeta.headers['content-type'],
+          size: remoteMeta.headers['content-length'] / 1024 / 1024 + ' MB',
+          mtime: new Date(remoteMeta.headers['last-modified']).toISOString()
+        }
+        const remoteImage = await axios.get(imagePath, { responseType: 'arraybuffer' });
+        const metaData = await sharp(remoteImage.data).metadata();
+        Object.assign(remoteMetaData, metaData);
+        console.log(`Remote MetaData: ${JSON.stringify(remoteMetaData)}`);
+        imageBuffer = Buffer.from(remoteImage.data);
       }
     } catch (err) {
       if (err.code === 'ENOENT') {
@@ -138,9 +148,9 @@ class ImageHandler {
     const isCacheExists = await this.#checkCache();
     if (isCacheExists && isCacheExists.mimeType && isCacheExists.imageBuffer) {
       try {
-        if (this.infoOnly === true) return {dataBaseInfo: dataBaseInfo || null, cached: true };
+        if (this.infoOnly === true) return {dataBaseInfo: dataBaseInfo || null, cached: true, remoteMetaData: remoteMetaData || null };
         //console.info(`Line of cached, loaded from cache: ${imagePath}`);
-        return { mimeType: isCacheExists.mimeType, imageBuffer: isCacheExists.imageBuffer, dataBaseInfo: dataBaseInfo || null, cached: true, fileInfo: isCacheExists.fileInfo || null };
+        return { mimeType: isCacheExists.mimeType, imageBuffer: isCacheExists.imageBuffer, dataBaseInfo: dataBaseInfo || null, cached: true, fileInfo: isCacheExists.fileInfo || null, remoteMetaData: remoteMetaData || null };
       } catch (error) {
         return `Error: ${error.message}`;
       }
@@ -204,7 +214,7 @@ class ImageHandler {
 
         const fileInfo = await sharp(imageBuffer).metadata();
         fileInfo.icc && delete fileInfo.icc;
-        return { imageBuffer, mimeType, dataBaseInfo, fileInfo };
+        return { imageBuffer, mimeType, dataBaseInfo, fileInfo, remoteMetaData };
       } else {
         return `File is not an image: ${imagePath}`;
       }
