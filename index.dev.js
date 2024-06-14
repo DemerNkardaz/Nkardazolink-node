@@ -405,63 +405,73 @@ app.get('/wiki/:page', async (request, response, next) => {
 });
 
 
-app.get('/shared/models/:3dModelName', async (request, response) => {
+app.get('/shared/models/:3dModelName', async (request, response, next) => {
   try {
 
   } catch (error) {
     console.error('Error processing image:', error);
-    response.status(500).send('Error processing image');
+    next(error);
   }
 });
 
 
-app.get('/shared/images/nocache/:imageFileName', async (request, response) => {
+app.get('/shared/images/nocache/:imageFileName', async (request, response, next) => {
   try {
     const handler = new ImageHandler(__PROJECT_DIR__, request, true);
     const handledResult = await handler.getImage(sharedAssetsDB);
 
-    if (typeof handledResult === 'string') response.status(404).send(handledResult);
+    if (typeof handledResult === 'string') {
+      const error = new Error(handledResult.message);
+      error.status = 404;
+      throw error;
+    }
     else
       response.contentType(handledResult.mimeType);
       response.send(handledResult.imageBuffer);
   } catch (error) {
     console.error('Error processing image:', error);
-    response.status(500).send('Error processing image');
+    next(error);
   }
 });
 
-app.get('/shared/images/:imageFileName', async (request, response) => {
+app.get('/shared/images/:imageFileName', async (request, response, next) => {
   try {
     const handler = new ImageHandler(__PROJECT_DIR__, request);
     const handledResult = await handler.getImage(sharedAssetsDB);
 
-    if (typeof handledResult === 'string') response.status(404).send(handledResult);
+    if (typeof handledResult === 'string') {
+      const error = new Error(handledResult.message);
+      error.status = 404;
+      throw error;
+    }
     else
       response.contentType(handledResult.mimeType);
       response.send(handledResult.imageBuffer);
   } catch (error) {
     console.error('Error processing image:', error);
-    response.status(500).send('Error processing image');
+    next(error);
   }
 });
 
 
-app.get('/local/images/*', async (request, response) => {
+app.get('/local/images/*', async (request, response, next) => {
   try {
     const handler = new ImageHandler(path.join(__PROJECT_DIR__, 'static/public/resource/images'), request);
     const handledResult = await handler.getImage();
 
-    if (typeof handledResult === 'string') response.status(404).send(handledResult);
+    if (typeof handledResult === 'string') {
+      const error = new Error(handledResult.message);
+      error.status = 404;
+      throw error;
+    }
     else
       response.contentType(handledResult.mimeType);
       response.send(handledResult.imageBuffer);
   } catch (error) {
     console.error('Error processing image:', error);
-    response.status(500).send('Error processing image');
+    next(error);
   }
 });
-
-
 
 app.post('/process-dom', (reqest, response) => {
   const { window } = new JSDOM();
