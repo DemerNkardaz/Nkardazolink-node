@@ -18,6 +18,7 @@ IndexDependencies:
   - util: '{ promisify }'
   - path: 'path'
   - express: 'express'
+  - nodemailer: 'nodemailer'
   - sharp: 'sharp'
   - mime-types: 'mime'
   - xmldom: '{ DOMParser, XMLSerializer }'

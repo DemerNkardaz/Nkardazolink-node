@@ -22,6 +22,18 @@ app.use(sessions({
   cookie: { secure: true }
 }));
 
+function mergeObjects(...objects) {
+  try {
+  const result = {};
+  for (const object of objects) Object.assign(result, object);
+  return result;
+  } catch (error) {
+    console.error('Error merging objects:', error);
+  }
+}
+Array.prototype.mergeObjects = function () { return mergeObjects(...this) };
+
+
 async function saveVariableToYAMLFile(variableName, variable) {
   const yamlString = yaml.dump(variable);
   const filePath = `test/${variableName}.yaml`;
@@ -35,22 +47,18 @@ async function saveVariableToYAMLFile(variableName, variable) {
 }
 
 
-const imageCacheCleaner = new ImageCacheCleaner();
-
+new ImageCacheCleaner();
 
 const usersDataBase = new sqlite3.Database(path.join(__PROJECT_DIR__, 'static/data_base/users.db'));
 usersDataBase.run(`CREATE TABLE IF NOT EXISTS users (rowID INTEGER PRIMARY KEY, userID TEXT, userName TEXT, userLink TEXT, login TEXT, password TEXT, email TEXT, sessionID TEXT, settings JSON, authorize JSON)`);
 usersDataBase.run(`CREATE TABLE IF NOT EXISTS anonymousSessions (sessionID TEXT, settings JSON)`);
 const sessionManager = new SessionManager(usersDataBase);
 
-
-const wikiDataBase = new sqlite3.Database(path.join(__PROJECT_DIR__, 'static/data_base/wikipages.db'));
-wikiDataBase.run(`CREATE TABLE IF NOT EXISTS articles (rowID INTEGER PRIMARY KEY, articleTitle TEXT, articleContent TEXT)`);
-//wikiDataBase.run(`CREATE TABLE IF NOT EXISTS sharedImages (rowID INTEGER PRIMARY KEY, imageTitle TEXT, imageFileName TEXT, mimeType TEXT, imageFile BLOB)`);
-wikiDataBase.run(`CREATE TABLE IF NOT EXISTS sharedImages (rowID INTEGER PRIMARY KEY, imageTitle TEXT, imageTitleLocales JSON, imageDescriptionLocales JSON, imageFileName TEXT, imageFile TEXT)`);
+const wikiDataBase = new sqlite3.Database(path.join(__PROJECT_DIR__, 'static/data_base/wikiPages.db'));
+wikiDataBase.run(`CREATE TABLE IF NOT EXISTS articles (rowID INTEGER PRIMARY KEY, articleTitle TEXT, articleContent TEXT, otherLanguageVariants JSON)`);
 
 const sharedAssetsDB = new sqlite3.Database(path.join(__PROJECT_DIR__, 'static/data_base/sharedAssets.db'));
-sharedAssetsDB.run(`CREATE TABLE IF NOT EXISTS sharedFiles (rowID INTEGER PRIMARY KEY, FileType TEXT, Title TEXT, TitleLocales JSON, DescriptionLocales JSON, FileName TEXT, FileLink TEXT, FileEmbedded BLOB, FileStat JSON)`);
+sharedAssetsDB.run(`CREATE TABLE IF NOT EXISTS sharedFiles (rowID INTEGER PRIMARY KEY, FileType TEXT, Title TEXT, TitleLocales JSON, DescriptionLocales JSON, FileName TEXT, FileLink TEXT, FileEmbedded BLOB, FileInfo JSON)`);
 
 /*(async () => {
     try {
@@ -72,16 +80,18 @@ sharedAssetsDB.run(`CREATE TABLE IF NOT EXISTS sharedFiles (rowID INTEGER PRIMAR
         console.error('Error inserting test image:', error);
     }
 })();
+
+
 (async () => {
   try {
     // Чтение содержимого изображения из файла
     const testImage = 'static/public/resource/images/seo/kamon_glyph.png';
     const pathTo = path.join(__PROJECT_DIR__, testImage);
-    const getStat = await fileStat(pathTo);
-    const statStringify = JSON.stringify(getStat);
-    // Выполнение запроса INSERT с использованием промиса
+    const mergedMeta = [await fileStat(pathTo), await sharp(pathTo).metadata()].mergeObjects();
+    mergedMeta.icc && delete mergedMeta.icc;
+    console.log(mergedMeta);
     await new Promise((resolve, reject) => {
-      sharedAssetsDB.run(`INSERT INTO sharedFiles (FileType, Title, FileName, FileLink, FileStat) VALUES (?, ?, ?, ?, ?)`, ['Image', 'Nkardaz kamon glyph', 'kamon_glyph.png', testImage, statStringify], function (err) {
+      sharedAssetsDB.run(`INSERT INTO sharedFiles (FileType, Title, FileName, FileLink,  FileInfo) VALUES (?, ?, ?, ?, ?)`, ['Image', 'Nkardaz kamon glyph', 'kamon_glyph.png', testImage, JSON.stringify(mergedMeta)], function (err) {
         if (err) {
           reject(err);
         } else {
@@ -95,7 +105,6 @@ sharedAssetsDB.run(`CREATE TABLE IF NOT EXISTS sharedFiles (rowID INTEGER PRIMAR
     console.error('Error inserting test image:', error);
   }
 })();*/
-
 markdown.core.ruler.enable(['abbr']);
 markdown.inline.ruler.enable(['ins', 'mark','footnote_inline', 'sub', 'sup']);
 markdown.block.ruler.enable(['footnote', 'deflist']);
@@ -524,6 +533,35 @@ app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
         `;
 
         const isCached = handledResult.cached ? 'Кэш' : 'Не кэшируется';
+        const metaSize = `${handledResult.fileInfo.width}x${handledResult.fileInfo.height}`;
+        const metaInfo = handledResult.dataBaseInfo.FileInfo || null;
+        let metaResolution, metaFileSize, metaAccessTime, metaModifiedTime, metaCreateTime, metaSpace, metaHasAlpha, metaFormat, metaDensity, metaChannels;
+        if (metaInfo) {
+          metaResolution = `${metaInfo.width}x${metaInfo.height}` || null;
+          metaFileSize = metaInfo.size / 1024 / 1024 + ' МБ'; 
+          metaAccessTime = metaInfo.atime;
+          metaModifiedTime = metaInfo.mtime;
+          metaCreateTime = metaInfo.ctime;
+          metaSpace = metaInfo.space;
+          metaHasAlpha = metaInfo.hasAlpha || false;
+          metaFormat = metaInfo.format;
+          metaDensity = metaInfo.density;
+          metaChannels = metaInfo.channels;
+        }
+        const fileLoadedInfo = handledResult.fileInfo || null;
+        let fileResolution, fileSize, fileAccessTime, fileModifiedTime, fileCreateTime, fileSpace, fileHasAlpha, fileFormat, fileDensity, fileChannels;
+        if (fileLoadedInfo) {
+          fileResolution = `${fileLoadedInfo.width}x${fileLoadedInfo.height}` || null;
+          fileSize = fileLoadedInfo.size / 1024 / 1024 + ' МБ'; 
+          fileAccessTime = fileLoadedInfo.atime;
+          fileModifiedTime = fileLoadedInfo.mtime;
+          fileCreateTime = fileLoadedInfo.ctime;
+          fileSpace = fileLoadedInfo.space;
+          fileHasAlpha = fileLoadedInfo.hasAlpha || false;
+          fileFormat = fileLoadedInfo.format;
+          fileDensity = fileLoadedInfo.density;
+          fileChannels = fileLoadedInfo.channels;
+        }
         const dbTitle = handledResult.dataBaseInfo.Title || '';
         const dbFileName = handledResult.dataBaseInfo.FileName;
         const dbFileType = locale[language].FileTypes[handledResult.dataBaseInfo.FileType];
@@ -538,6 +576,7 @@ app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
           ${Arguments ? queriesTable : ''}
           <br>
           <a href="${dbFileLink}">${dbFileLink}</a>
+          <p>Старое разрешение: ${metaInfo && metaResolution} ${Arguments && fileLoadedInfo && fileResolution ? `| Новое разрешение: ${fileResolution}` : ''}</p>
           <a href="/shared/images/${dbFileSource}${Arguments}" target="_blank"><img src="/shared/images/${dbFileSource}${Arguments}" alt="${dbTitle}"></a>
         `;
         
@@ -625,6 +664,17 @@ app.post('/process-dom', (reqest, response) => {
   const processedDom = domInstance.window.document.documentElement.outerHTML;
 
   response.json({ dom: processedDom });
+});
+
+app.post('/registration', (request, response) => {
+  try {
+    const messageSender = nodemailer.createTransport({
+
+    });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
 });
 
 app.use((req, res, next) => {

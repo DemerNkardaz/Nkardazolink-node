@@ -63,27 +63,27 @@ class ImageCacheCleaner {
 
 class ImageHandler {
   constructor(sourcePath, request, disableCache = false, infoOnly = false) {
-    this.infoOnly = infoOnly;
-    this.sourcePath = sourcePath;
-    this.cacheDir = path.join(__PROJECT_DIR__, 'cache/images');
-    this.filePath = /^(File:|Файл:)/i.test(request.params[0]) ? request.params[0].replace(/^(File:|Файл:)/i, '') : request.params[0];
-    this.imageFileName = /^(File:|Файл:)/i.test(request.params.imageFileName) ? request.params.imageFileName.replace(/^(File:|Файл:)/i, '') : request.params.imageFileName || null;
-    [this.size, this.wh, this.fit, this.toFormat, this.quality, this.paddingPercent, this.resolution, this.staticUrl, this.watermark, this.watermarkPos, this.watermarkScale, this.postMark] = [
-      request.query.s ? parseInt(request.query.s) : null,
-      request.query.wh ? request.query.wh.split('x').map(Number) : null,
-      request.query.fit || null,
-      request.query.to || null,
-      request.query.q ? parseInt(request.query.q) : null,
-      request.query.p ? parseFloat(request.query.p) : 0,
-      request.query.r ? parseInt(request.query.r) : 0,
-      request.url,
-      request.query.water || null,
-      request.query.pos || null,
-      request.query.ws || null,
-      request.query.wpost ? Boolean(request.query.wpost) : null
-    ];
-    this.cacheKey = this.#generateCacheKey(this.staticUrl);
-    this.disableCache = disableCache;
+    Object.assign(this, {
+      infoOnly: infoOnly,
+      sourcePath: sourcePath,
+      cacheDir: path.join(__PROJECT_DIR__, 'cache/images'),
+      filePath: /^(File:|Файл:)/i.test(request.params[0]) ? request.params[0].replace(/^(File:|Файл:)/i, '') : request.params[0],
+      imageFileName: /^(File:|Файл:)/i.test(request.params.imageFileName) ? request.params.imageFileName.replace(/^(File:|Файл:)/i, '') : request.params.imageFileName || null,
+      size: request.query.s ? parseInt(request.query.s) : null,
+      wh: request.query.wh ? request.query.wh.split('x').map(Number) : null,
+      fit: request.query.fit || null,
+      toFormat: request.query.to || null,
+      quality: request.query.q ? parseInt(request.query.q) : null,
+      paddingPercent: request.query.p ? parseFloat(request.query.p) : 0,
+      resolution: request.query.r ? parseInt(request.query.r) : 0,
+      staticUrl: request.url,
+      watermark: request.query.water || null,
+      watermarkPos: request.query.pos || null,
+      watermarkScale: request.query.ws || null,
+      postMark: request.query.wpost ? Boolean(request.query.wpost) : null,
+      cacheKey: this.#generateCacheKey(request.url),
+      disableCache: disableCache
+    });
     (async () => await this.#manageCacheSize())();
   }
   #generateCacheKey(keyString) {
@@ -100,6 +100,7 @@ class ImageHandler {
           if (!row) return resolve(`${this.filePath || this.imageFileName} Image Not Found`);
           const imagePath = row.FileLink.startsWith('https://') ? row.FileLink : path.join(this.sourcePath, row.FileLink);
           try {
+            row.FileInfo = row.FileInfo ? JSON.parse(row.FileInfo) : {};
             const result = await this.#readAndHandleImage(imagePath, row);
             resolve(result);
           } catch (error) {
@@ -139,7 +140,7 @@ class ImageHandler {
       try {
         if (this.infoOnly === true) return {dataBaseInfo: dataBaseInfo || null, cached: true };
         //console.info(`Line of cached, loaded from cache: ${imagePath}`);
-        return { mimeType: isCacheExists.mimeType, imageBuffer: isCacheExists.imageBuffer, dataBaseInfo: dataBaseInfo || null, cached: true };
+        return { mimeType: isCacheExists.mimeType, imageBuffer: isCacheExists.imageBuffer, dataBaseInfo: dataBaseInfo || null, cached: true, fileInfo: isCacheExists.fileInfo || null };
       } catch (error) {
         return `Error: ${error.message}`;
       }
@@ -201,7 +202,9 @@ class ImageHandler {
           this.disableCache !== true && await this.#saveToCache(imageBuffer, cachedName);
         }
 
-        return { imageBuffer, mimeType, dataBaseInfo };
+        const fileInfo = await sharp(imageBuffer).metadata();
+        fileInfo.icc && delete fileInfo.icc;
+        return { imageBuffer, mimeType, dataBaseInfo, fileInfo };
       } else {
         return `File is not an image: ${imagePath}`;
       }
@@ -260,11 +263,12 @@ class ImageHandler {
 
             try {
               const cachedBuffer = await fs.readFile(filePath);
-            
+              const fileInfo = [await fs.stat(filePath), await sharp(cachedBuffer).metadata()].mergeObjects();
+
               const now = new Date();
               await fs.utimes(filePath, now, now);
 
-              return { imageBuffer: cachedBuffer, mimeType };
+              return { imageBuffer: cachedBuffer, mimeType, fileInfo };
             } catch (error) {
               console.error(`Ошибка чтения кеш-файла: ${error.message}`);
               return null;
