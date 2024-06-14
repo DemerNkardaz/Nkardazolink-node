@@ -138,7 +138,7 @@ class ImageHandler {
     if (isCacheExists && isCacheExists.mimeType && isCacheExists.imageBuffer) {
       try {
         console.info(`Line of cached, loaded from cache: ${imagePath}`);
-        return { mimeType: isCacheExists.mimeType, imageBuffer: isCacheExists.imageBuffer };
+        return { mimeType: isCacheExists.mimeType, imageBuffer: isCacheExists.imageBuffer, dataBaseInfo: dataBaseInfo || null };
       } catch (error) {
         return `Error: ${error.message}`;
       }

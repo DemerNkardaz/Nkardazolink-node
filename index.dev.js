@@ -460,12 +460,15 @@ app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
   try {
 
     if (/^\/(File|Файл):/.test(decodedUrl)) {
-      const FileName = decodedUrl.replace(/^\/(File|Файл):/, '')
-      const getExtension = () => FileName.split('.').pop().replace(/\?.*$/, '');
+        const FileName = decodedUrl.replace(/^\/(File|Файл):/, '').replace(/\?.*$/, '');
+        const Arguments = request.url.includes('?') ? request.url.replace(/^[^?]*\?/, '?') : '';
+        console.log(Arguments);
+        const getExtension = () => FileName.split('.').pop();
     
       if (imageExtensions.includes(getExtension())) {
-        const language = request.headers['accept-language'].substring(0, 2);
+        const language = await request.headers['accept-language'].substring(0, 2);
         request.params.imageFileName = FileName;
+        console.log(request.params.imageFileName);
         const imageHandler = new ImageHandler(__PROJECT_DIR__, request);
         const handledResult = await imageHandler.getImage(sharedAssetsDB);
       
@@ -475,20 +478,23 @@ app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
           throw error;
         }
 
-        const dbTitle = handledResult.dataBaseInfo.Title;
+
+        const dbTitle = handledResult.dataBaseInfo.Title || '';
         const dbFileName = handledResult.dataBaseInfo.FileName;
         const dbFileType = locale[language].FileTypes[handledResult.dataBaseInfo.FileType];
         const dbFileSource = request.params.imageFileName;
         let dbFileLink = handledResult.dataBaseInfo.FileLink;
         dbFileLink = !dbFileLink.startsWith('https://') ? `/${dbFileLink}` : dbFileLink;
         result = `
-          <h1>${dbTitle}</h1>
-          <h2>${dbFileName}</h2>
+          <h1 style="display: flex; justify-content: space-between;"><span>${dbTitle}</span><span>${Arguments ? 'Сгенерировано запросом' : ''}</span></h1>
+          <h2 style="display: flex; justify-content: space-between;"><span>${dbFileName}</span><span>${Arguments ? 'Аргументы: ${Arguments}' : ''}</span></h2>
           <h3>${dbFileType}</h3>
           <a href="${dbFileLink}">${dbFileLink}</a>
-          <img src="/shared/images/${dbFileSource}" alt="${dbFileSource}">
+          <img src="/shared/images/${dbFileSource}${Arguments}" alt="${dbTitle}">
         `;
+        
       }
+      
     } else {
       response.status(400).send('Invalid URL format');
       return;
@@ -503,8 +509,7 @@ app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
 
 
 app.get('/shared/images/:imageFileName', async (request, response, next) => {
-  const imageFileRequest = request.params.imageFileName;
-  const imageFileName = request.params.imageFileName.replace(/^(File:|Файл:)/i, ''); 
+
   try {
     const handler = new ImageHandler(__PROJECT_DIR__, request);
     const handledResult = await handler.getImage(sharedAssetsDB);
