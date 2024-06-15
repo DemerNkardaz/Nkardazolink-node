@@ -5,3 +5,5 @@ source/
 cache/
 .vercel
 index.js
+extensions/*/*
+!extensions/*/src/

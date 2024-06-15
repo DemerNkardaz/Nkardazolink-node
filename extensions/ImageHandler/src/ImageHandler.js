@@ -1,6 +1,6 @@
 const sharp = require('sharp');
 const path = require('path');
-const fs = require('fs').promises; // Изменено для использования промисов с файловой системой
+const fs = require('fs').promises;
 const mime = require('mime-types');
 const crypto = require('crypto');
 const axios = require('axios');
@@ -153,7 +153,7 @@ class ImageHandler {
         const remoteImage = await axios.get(imagePath, { responseType: 'arraybuffer' });
         const metaData = await sharp(remoteImage.data).metadata();
         Object.assign(remoteMetaData, metaData);
-        console.log(JSON.stringify(remoteMetaData));
+        //!console.log(JSON.stringify(remoteMetaData));
         imageBuffer = Buffer.from(remoteImage.data);
       }
     } catch (err) {

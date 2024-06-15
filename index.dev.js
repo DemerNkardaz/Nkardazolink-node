@@ -2,6 +2,7 @@ const { loadComponent } = require('./src/serverside/scripts/ComponentHandling.js
 const crypto = require('crypto');
 require('dotenv').config();
 require('./nk.config.js').config().init();
+require('./extensions/extensions').config().init(srcMode = true);
 console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Server started\x1b[39m`);
 app.use((req, res, next) => {
     req.originalUrl = req.url;
@@ -51,7 +52,7 @@ async function saveVariableToYAMLFile(variableName, variable) {
   }
 }
 
-
+//global['ImageCacheCleaner'] = require('./extensions/ImageHandler/src/ImageHandler.js').ImageCacheCleaner;
 new ImageCacheCleaner();
 
 const usersDataBase = new sqlite3.Database(path.join(__PROJECT_DIR__, 'static/data_base/users.db'));

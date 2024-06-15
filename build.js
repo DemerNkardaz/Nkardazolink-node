@@ -6,7 +6,7 @@ const { promisify } = require('util');
 const writeFileAsync = promisify(fs.writeFile);
 const readFileAsync = promisify(fs.readFile);
 const crypto = require('crypto');
-const { copyFilesAndMinify, createManifest, index, checkForIndex } = require('./server.workers/server/building.files.js');
+const { copyFilesAndMinify, createManifest, index, checkForIndex, buildExtensions } = require('./server.workers/server/building.files.js');
 
 
 const runArguments = process.argv.slice(2);
@@ -28,6 +28,7 @@ function generateMuchTokens() {
 async function build() {
   try {
     await writeFileAsync(path.join(__PROJECT_DIR__, 'static/token.txt'), generateMuchTokens(), 'utf-8');
+    await buildExtensions(path.join(__PROJECT_DIR__, 'extensions'));
     await copyFilesAndMinify(path.join(__PROJECT_DIR__, 'src/clientside'), path.join(__PROJECT_DIR__, 'static/public'));
     await copyFilesAndMinify(path.join(__PROJECT_DIR__, 'src/serverside'), path.join(__PROJECT_DIR__, 'app'))
       .then(() => console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [BUILDER] :: Files copied and minified successfully\x1b[39m`))

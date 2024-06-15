@@ -20,6 +20,68 @@ const checkForIndex = async (sourcePath) => {
   }
 }
 
+async function buildExtensions(sourceDirectory) {
+const handlingExtensions = ['.js', '.html', '.scss', '.css'];
+
+  async function copyFilesAndMinify(sourceDir, baseDestinationDir) {
+    const entries = await fs.readdir(sourceDir, { withFileTypes: true });
+
+    for (const entry of entries) {
+      const sourcePath = path.join(sourceDir, entry.name);
+      const destinationDir = baseDestinationDir;
+
+      if (entry.isFile()) {
+        const destinationPath = path.join(destinationDir, entry.name);
+
+        if (path.extname(sourcePath) === '.js') {
+          const fileContent = await fs.readFile(sourcePath, 'utf8');
+          const minified = await terser.minify(fileContent, {
+            compress: true,
+            mangle: true,
+            keep_fnames: true,
+            keep_classnames: true,
+            output: { comments: false }
+          });
+          await fs.ensureDir(path.dirname(destinationPath));
+          await fs.writeFile(destinationPath, minified.code);
+        } else if (path.extname(sourcePath) === '.html') {
+          const fileContent = await fs.readFile(sourcePath, 'utf8');
+          const minified = htmlMinifier.minify(fileContent, {
+            collapseWhitespace: true,
+            removeComments: true
+          });
+          await fs.ensureDir(path.dirname(destinationPath));
+          await fs.writeFile(destinationPath, minified);
+        } else if (path.extname(sourcePath) === '.scss' || path.extname(sourcePath) === '.css') {
+          const result = sass.compile(sourcePath, { style: 'compressed' });
+          await fs.ensureDir(path.dirname(destinationPath));
+          await fs.writeFile(destinationPath, result.css.toString());
+        } else if (!handlingExtensions.includes(path.extname(sourcePath))) {
+          await fs.ensureDir(path.dirname(destinationPath));
+          await fs.copy(sourcePath, destinationPath);
+        }
+      } else if (entry.isDirectory()) {
+        await copyFilesAndMinify(sourcePath, destinationDir);
+      }
+
+      console.log(`\x1b[33m[${new Date().toLocaleString().replace(',', '')}] :: 🟨 > [BUILDER] % “${path.join(baseDestinationDir, entry.name)}” created successfully!\x1b[39m`);
+    }
+  }
+
+  const extensions = await fs.readdir(sourceDirectory, { withFileTypes: true });
+
+  for (const extension of extensions) {
+    if (extension.isDirectory()) {
+      const extensionPath = path.join(sourceDirectory, extension.name);
+      const srcDirPath = path.join(extensionPath, 'src');
+
+      if (await fs.pathExists(srcDirPath)) {
+        const destinationDir = extensionPath;
+        await copyFilesAndMinify(srcDirPath, destinationDir);
+      }
+    }
+  }
+}
 
 async function copyFilesAndMinify(sourceDir, destinationDir) {
   await fs.ensureDir(destinationDir);
@@ -36,7 +98,8 @@ async function copyFilesAndMinify(sourceDir, destinationDir) {
           compress: true,
           mangle: true,
           keep_fnames: true,
-          keep_classnames: true
+          keep_classnames: true,
+          output: { comments: false }
         });
         await fs.writeFile(destinationPath, minified.code);
       } else if (path.extname(sourcePath) === '.html') {
@@ -108,4 +171,4 @@ async function index(sourcePath) {
   console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [BUILDER] :: “${destinationPath}” Index file builded\x1b[39m`);
 }
 
-module.exports = { copyFilesAndMinify, createManifest, index, checkForIndex };
+module.exports = { copyFilesAndMinify, createManifest, index, checkForIndex, buildExtensions };
