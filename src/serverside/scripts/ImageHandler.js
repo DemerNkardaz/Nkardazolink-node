@@ -167,7 +167,7 @@ class ImageHandler {
     if (isCacheExists) {
       try {
         //console.info(`Line of cached, loaded from cache: ${imagePath}`);
-        if (this.infoOnly === true) return {dataBaseInfo: dataBaseInfo || null, cached: true, remoteMetaData: remoteMetaData || null };
+        if (this.infoOnly === true) return {dataBaseInfo: dataBaseInfo || null, cached: true, remoteMetaData: remoteMetaData || null, fileInfo: isCacheExists.fileInfo };
         return { mimeType: isCacheExists.mimeType || 'application/octet-stream', imageBuffer: isCacheExists.imageBuffer, dataBaseInfo: dataBaseInfo || null, cached: true, fileInfo: isCacheExists.fileInfo || null, remoteMetaData: remoteMetaData || null };
       } catch (error) {
         return `Error: ${error.message}`;
