@@ -12,6 +12,7 @@ IndexDependencies:
   - compression: 'compression'
   - zlib: 'zlib'
   - fs: 'fs'
+  - mysql2: 'mysql'
   - js-yaml: 'yaml'
   - util: '{ promisify }'
   - path: 'path'

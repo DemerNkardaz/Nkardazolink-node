@@ -6,7 +6,8 @@ require('./modules/modules').config().init(srcMode = true);
 require('./extensions/extensions').config().init(srcMode = true);
 
 const serverINI = path.join(__PROJECT_DIR__, 'server.ini');
-global.serverConfig = ini.parse(serverINI); ini.watch(serverINI, 'serverConfig');
+ini.parse(serverINI, 'serverConfig');
+ini.watch(serverINI, 'serverConfig');
 
 console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Server started\x1b[39m`);
 app.use(liveSassCompiler);
@@ -191,6 +192,7 @@ app.use(async (req, res, next) => {
 
 app.get('/', async (request, response, next) => {
   try {
+    console.log(serverConfig);
     console.log(`Request ${request.ThirdLevelDomain}`)
     console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 💠 > [SERVER] :: Latest modify date is [${new Date(await getLastModifiedInFolders()).toLocaleString()}]\x1b[39m`);
 

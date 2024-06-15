@@ -2,7 +2,7 @@ const fs = require('fs');
 const chokidar = require('chokidar');
 
 const ini = {
-  parse(file) {
+  parse(file, variable) {
     const data = fs.readFileSync(file, 'utf-8');
     const lines = data.split('\n');
     let currentSection = null;
@@ -34,8 +34,8 @@ const ini = {
         parsedData[currentSection][key] = value;
       }
     });
-
-    return parsedData;
+    if (variable) global[variable] = parsedData;
+    else return parsedData;
   },
   watch(file, variable) {
     chokidar.watch(file).on('change', () => {
