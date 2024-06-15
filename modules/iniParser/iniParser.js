@@ -1,0 +1,1 @@
+const fs=require("fs"),ini={parse(t){const i=fs.readFileSync(t,"utf-8").split("\n");let s=null;const r={};return i.forEach((t=>{if(!(t=t.trim()).startsWith(";")&&""!==t)if(t.startsWith("[")&&t.endsWith("]"))s=t.substring(1,t.length-1),r[s]={};else{const i=t.split("="),n=i[0].trim(),e=i[1].trim();r[s][n]=e.split(",").map((t=>t.trim()))}})),r}};module.exports={ini:ini};

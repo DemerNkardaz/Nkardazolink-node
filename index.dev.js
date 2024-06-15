@@ -2,7 +2,13 @@ const { loadComponent } = require('./src/serverside/scripts/ComponentHandling.js
 const crypto = require('crypto');
 require('dotenv').config();
 require('./nk.config.js').config().init();
+require('./modules/modules').config().init(srcMode = true);
 require('./extensions/extensions').config().init(srcMode = true);
+global.serverConfig = ini.parse(path.join(__PROJECT_DIR__, 'server.ini'));
+
+console.log(serverConfig)
+
+
 console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Server started\x1b[39m`);
 app.use((req, res, next) => {
     req.originalUrl = req.url;

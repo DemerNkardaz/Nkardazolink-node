@@ -29,6 +29,7 @@ async function build() {
   try {
     await writeFileAsync(path.join(__PROJECT_DIR__, 'static/token.txt'), generateMuchTokens(), 'utf-8');
     await buildExtensions(path.join(__PROJECT_DIR__, 'extensions'));
+    await buildExtensions(path.join(__PROJECT_DIR__, 'modules'));
     await copyFilesAndMinify(path.join(__PROJECT_DIR__, 'src/clientside'), path.join(__PROJECT_DIR__, 'static/public'));
     await copyFilesAndMinify(path.join(__PROJECT_DIR__, 'src/serverside'), path.join(__PROJECT_DIR__, 'app'))
       .then(() => console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [BUILDER] :: Files copied and minified successfully\x1b[39m`))

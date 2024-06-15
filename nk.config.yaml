@@ -14,6 +14,7 @@ IndexDependencies:
   - compression: 'compression'
   - zlib: 'zlib'
   - fs: 'fs'
+  - ini: 'ini'
   - js-yaml: 'yaml'
   - util: '{ promisify }'
   - path: 'path'
@@ -42,7 +43,6 @@ IndexDependencies:
 BuildingDependencies:
   - ./server.workers/server/sitemap.gen.js: '{ generateSitemaps }'
 ProjectDependencies:
-  - ./app/hooks/DataExtend.js: '{ DataExtend }'
   - ./app/hooks/StringHandling.js: '{ StringHandling }'
   - ./app/hooks/LocalisationHandling.js: '{ localise }'
   - ./app/scripts/PostProcessor.js: '{ PostProcessor }'
