@@ -7,3 +7,4 @@ cache/
 index.js
 extensions/*/*
 !extensions/*/src/
+bin/

@@ -1,7 +1,7 @@
 {
   "watch": ["*.*", "extensions/*/src/", "modules/*/src/"],
   "ext": "md,ejs,js,json,pug,yaml,yml,css,sass,scss,htm,html,xml,xhtml,php,jsonnet,ts,tsx,jsx,vue,asp,aspx,rb,py,pl,jade,haml,coffe,dart",
-  "ignore": ["static/*", "app/*", "index.js", "test/*", "extensions/*/*.*", "modules/*/*.*"],
+  "ignore": ["static/*", "app/*", "index.js", "test/*", "extensions/*/*.*", "modules/*/*.*", "bin/*"],
   "commands": [
     "node run-script.js build",
     "node app.js"

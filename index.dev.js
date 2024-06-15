@@ -286,9 +286,12 @@ async function parseUrl(request) {
 
 app.use(async (req, res, next) => {
   try {
-    if (req.hostname.split('.').length > 2) {
+    if (
+      serverConfig.routes.useThirdLevelDomains && req.hostname.split('.').length > 2 ||
+      !serverConfig.routes.useThirdLevelDomains && req.url.split('/')[1].substring(0, 2)
+    ) {
       const getTLD = req.hostname.split('.')[0].split('https://').join('').split('http://').join('');
-      req.ThirdLevelDomain = getTLD;
+      req.ThirdLevelDomain = serverConfig.routes.useThirdLevelDomains ? getTLD : req.url.split('/')[1].substring(0, 2) || null;
     }
     next();
   } catch (error) {
@@ -401,7 +404,7 @@ app.get('/', async (request, response, next) => {
 });
 
 
-app.get('/wiki', async (request, response, next) => {
+app.get('/:lang?/wiki', async (request, response, next) => {
   try {
 
     response.send('Future WIKI Section')
@@ -411,7 +414,7 @@ app.get('/wiki', async (request, response, next) => {
   }
 });
 
-app.get('/wiki/:page', async (request, response, next) => {
+app.get('/:lang?/wiki/:page', async (request, response, next) => {
   try {
   
     response.send(`Вики-страница “${request.params.page}”`)

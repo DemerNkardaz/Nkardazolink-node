@@ -21,8 +21,17 @@ const ini = {
       } else {
         const keyValue = line.split('=');
         const key = keyValue[0].trim();
-        const value = keyValue[1].trim();
-        parsedData[currentSection][key] = value.split(',').map(ext => ext.trim());
+        let value = keyValue[1].trim();
+
+        if (value.toLowerCase() === 'true') {
+          value = true;
+        } else if (value.toLowerCase() === 'false') {
+          value = false;
+        } else {
+          value = value.split(',').map(ext => ext.trim());
+        }
+
+        parsedData[currentSection][key] = value;
       }
     });
 

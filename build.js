@@ -29,7 +29,10 @@ function generateMuchTokens() {
 
 async function build() {
   try {
-    await writeFileAsync(path.join(__PROJECT_DIR__, 'localtunnel-run.cmd'), `lt --port ${process.env.PORT} --subdomain ${process.env.LOCAL_TUNNER}`, 'utf-8');
+    await writeFileAsync(path.join(__PROJECT_DIR__, 'bin', 'localtunnel-run.cmd'), `lt --port ${process.env.PORT} --subdomain ${process.env.LOCAL_TUNNER}`, 'utf-8');
+    await writeFileAsync(path.join(__PROJECT_DIR__, 'bin', 'lighthouse-analyzer-http.cmd'), `lighthouse http://${process.env.HOST}:${process.env.PORT} --output-path=./lighthouse_report.html`, 'utf-8');
+    await writeFileAsync(path.join(__PROJECT_DIR__, 'bin', 'lighthouse-analyzer-https.cmd'), `lighthouse https://${process.env.HOST} --output-path=./lighthouse_report.html`, 'utf-8');
+    await writeFileAsync(path.join(__PROJECT_DIR__, 'bin', 'install-ltunnel-n-lhouse-via-npm-globally.cmd'), `npm install -g localtunnel lighthouse`, 'utf-8');
     await writeFileAsync(path.join(__PROJECT_DIR__, 'static/token.txt'), generateMuchTokens(), 'utf-8');
     await buildExtensions(path.join(__PROJECT_DIR__, 'extensions'));
     await buildExtensions(path.join(__PROJECT_DIR__, 'modules'));

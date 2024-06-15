@@ -164,7 +164,9 @@ class ImageHandler {
     }
 
     const isCacheExists = await this.#checkCache();
-    if (isCacheExists) {
+    let sourceMeta = !imagePath.startsWith('https://') ? await fs.stat(imagePath) : remoteMetaData;
+    const isSourceImageChanged = isCacheExists?.fileInfo && sourceMeta.mtime > isCacheExists?.fileInfo?.mtime;
+    if (isCacheExists && !isSourceImageChanged) {
       try {
         //console.info(`Line of cached, loaded from cache: ${imagePath}`);
         if (this.infoOnly === true) return {dataBaseInfo: dataBaseInfo || null, cached: true, remoteMetaData: remoteMetaData || null, fileInfo: isCacheExists.fileInfo };
@@ -320,9 +322,10 @@ class ImageHandler {
                 fileInfo = await [fileStat, fileMetadata].mergeObjects();
                 resolve(fileInfo);
               });
-
-              const now = new Date();
-              await fs.utimes(filePath, now, now);
+              setTimeout(async () => {
+                const now = new Date();
+                await fs.utimes(filePath, now, now);
+              }, 1000);
 
               return { imageBuffer: cachedBuffer, mimeType, fileInfo, TEST: 'SDASFASFASF' };
             } catch (error) {
