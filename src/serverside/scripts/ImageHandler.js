@@ -4,6 +4,7 @@ const fs = require('fs').promises; // Изменено для использов
 const mime = require('mime-types');
 const crypto = require('crypto');
 const axios = require('axios');
+const chroma = require('chroma-js');
 const { DOMParser, XMLSerializer } = require('xmldom');
 
 
@@ -76,6 +77,7 @@ class ImageHandler {
       quality: request.query.q ? parseInt(request.query.q) : null,
       paddingPercent: request.query.p ? parseFloat(request.query.p) : 0,
       resolution: request.query.r ? parseInt(request.query.r) : 0,
+      background: request.query.bg || null,
       staticUrl: request.url,
       watermark: request.query.water || null,
       watermarkPos: request.query.pos || null,
@@ -84,6 +86,20 @@ class ImageHandler {
       cacheKey: this.#generateCacheKey(request.url),
       disableCache: disableCache
     });
+    //console.log(chroma('#eee').rgba());
+    //console.log(chroma('#ef03df').rgba());
+    //console.log(chroma('#a3f3e1D0').rgba());
+    if (this.background) {
+      if (!this.background.includes(',')) {
+        const [r, g, b, alpha] = chroma(this.background).rgba();
+        this.background = { r, g, b, alpha };
+        console.log('background', this.background);
+      } else if (this.background.split(',').length === 4) {
+        const [r, g, b, alpha] = this.background.split(',').map(Number);
+        this.background = { r, g, b, alpha };
+        console.log('background', this.background);
+      }
+    }
     (async () => await this.#manageCacheSize())();
   }
   #generateCacheKey(keyString) {
@@ -130,12 +146,13 @@ class ImageHandler {
         remoteMetaData = {
           mimeType: remoteMeta.headers['content-type'],
           size: remoteMeta.headers['content-length'] / 1024 / 1024 + ' MB',
-          mtime: new Date(remoteMeta.headers['last-modified']).toISOString()
+          mtime: new Date(remoteMeta.headers['last-modified']).toISOString(),
+          atime: new Date(remoteMeta.headers['date']).toISOString(),
         }
         const remoteImage = await axios.get(imagePath, { responseType: 'arraybuffer' });
         const metaData = await sharp(remoteImage.data).metadata();
         Object.assign(remoteMetaData, metaData);
-        console.log(`Remote MetaData: ${JSON.stringify(remoteMetaData)}`);
+        console.log(JSON.stringify(remoteMetaData));
         imageBuffer = Buffer.from(remoteImage.data);
       }
     } catch (err) {
@@ -172,12 +189,12 @@ class ImageHandler {
             const finalSize = this.size ? Math.min(this.size, maxDimension) : null;
 
             if (finalSize && finalSize < maxDimension) {
-              imageBuffer = await sharp(imageBuffer).resize(finalSize, finalSize, { withoutEnlargement: true, fit: this.fit || 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
+              imageBuffer = await sharp(imageBuffer).resize(finalSize, finalSize, { withoutEnlargement: true, fit: this.fit || 'inside', background: this.background || { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
             }
           } else if (this.wh) {
             const maxWidth = Math.min(this.wh[0], metadata.width);
             const maxHeight = Math.min(this.wh[1], metadata.height);
-            imageBuffer = await sharp(imageBuffer).resize(maxWidth, maxHeight, { withoutEnlargement: true, fit: this.fit || 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
+            imageBuffer = await sharp(imageBuffer).resize(maxWidth, maxHeight, { withoutEnlargement: true, fit: this.fit || 'inside', background: this.background || { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
 
           }
         } else {
@@ -457,7 +474,7 @@ class ImageHandler {
         bottom: paddingSize,
         left: paddingSize,
         right: paddingSize,
-        background: { r: 255, g: 255, b: 255, alpha: 0 }
+        background: this.background || { r: 0, g: 0, b: 0, alpha: 0 }
       })
       .toBuffer();
 

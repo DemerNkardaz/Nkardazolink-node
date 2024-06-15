@@ -3,6 +3,11 @@ const crypto = require('crypto');
 require('dotenv').config();
 require('./nk.config.js').config().init();
 console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Server started\x1b[39m`);
+app.use((req, res, next) => {
+    req.originalUrl = req.url;
+    req.url = req.url.replace(/\s/g, '_');
+    next();
+});
 app.use(compression());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__PROJECT_DIR__, 'static/assets')));
