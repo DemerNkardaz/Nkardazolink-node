@@ -87,9 +87,6 @@ class ImageHandler {
       cacheKey: this.#generateCacheKey(request.url),
       disableCache: disableCache
     });
-    //console.log(chroma('#eee').rgba());
-    //console.log(chroma('#ef03df').rgba());
-    //console.log(chroma('#a3f3e1D0').rgba());
     Object.keys(this).forEach(key => {
       if (key.toLowerCase().includes('background') && this[key] !== null) {
         const [r, g, b, alpha] = chroma(this[key]).rgba();
@@ -186,12 +183,12 @@ class ImageHandler {
             const finalSize = this.size ? Math.min(this.size, maxDimension) : null;
 
             if (finalSize && finalSize < maxDimension) {
-              imageBuffer = await sharp(imageBuffer).resize(finalSize, finalSize, { withoutEnlargement: true, fit: this.fit || 'inside', background: this.background || { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
+              imageBuffer = await sharp(imageBuffer).resize(finalSize, finalSize, { withoutEnlargement: true, fit: this.fit || 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
             }
           } else if (this.wh) {
             const maxWidth = Math.min(this.wh[0], metadata.width);
             const maxHeight = Math.min(this.wh[1], metadata.height);
-            imageBuffer = await sharp(imageBuffer).resize(maxWidth, maxHeight, { withoutEnlargement: true, fit: this.fit || 'inside', background: this.background || { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
+            imageBuffer = await sharp(imageBuffer).resize(maxWidth, maxHeight, { withoutEnlargement: true, fit: this.fit || 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
 
           }
         } else {
@@ -227,9 +224,11 @@ class ImageHandler {
         }
 
         if (this.background) {
-          imageBuffer = await sharp(imageBuffer)
-            .flatten({ background: this.background })
-            .toBuffer();
+          const afterScaleMeta = await sharp(imageBuffer).metadata();
+          let backgroundImage = await sharp({ create: { width: afterScaleMeta.width, height: afterScaleMeta.height, channels: 4, background: this.background } }).webp().toBuffer();
+
+          imageBuffer = await sharp(backgroundImage).composite([{ input: imageBuffer }]).toBuffer();
+          console.log(afterScaleMeta.width);
         }
 
         const fileInfo = await sharp(imageBuffer).metadata();
