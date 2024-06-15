@@ -85,7 +85,10 @@ class ImageHandler {
       watermarkScale: request.query.ws || null,
       postMark: request.query.wpost ? Boolean(request.query.wpost) : null,
       cacheKey: this.#generateCacheKey(request.url),
-      disableCache: disableCache
+      disableCache: disableCache,
+      rotate: request.query.rotate ? parseInt(request.query.rotate) : null,
+      postRotate: request.query.protate ? parseInt(request.query.protate) : null,
+      rotateBackground: request.query.rbg || null
     });
     Object.keys(this).forEach(key => {
       if (key.toLowerCase().includes('background') && this[key] !== null) {
@@ -191,6 +194,9 @@ class ImageHandler {
             imageBuffer = await sharp(imageBuffer).resize(maxWidth, maxHeight, { withoutEnlargement: true, fit: this.fit || 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
 
           }
+          if (this.rotate) {
+            imageBuffer = await sharp(imageBuffer).rotate(this.rotate, { background: this.rotateBackground || { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
+          }
         } else {
           imageBuffer = Buffer.from(await this.#rescaleSVG(imageBuffer, this.size), 'utf8');
           svgScales = await this.#checkSVGScale(imageBuffer);
@@ -229,6 +235,10 @@ class ImageHandler {
 
           imageBuffer = await sharp(backgroundImage).composite([{ input: imageBuffer }]).toBuffer();
           console.log(afterScaleMeta.width);
+        }
+
+        if (this.postRotate) {
+          imageBuffer = await sharp(imageBuffer).rotate(this.rotate, { background: this.rotateBackground || { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
         }
 
         const fileInfo = await sharp(imageBuffer).metadata();
