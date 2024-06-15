@@ -483,6 +483,29 @@ const docExtensions = ['pdf', 'doc', 'docx', 'odt', 'rtf', 'txt', 'csv', 'xls', 
 const dataExtensions = ['xml', 'html', 'xhtml', 'yaml', 'yml', 'json', 'ejs', 'pug', 'jade', 'csv'];
 
 
+
+const queriesType = {
+  s: `<tr><td><p>s</p>размер</td><td>Изменяет размер изображения на основе одного значения</td><tr>`,
+  wh: `<tr><td><p>wh</p>ширина/высота</td><td>Изменяет размер изображения на основе двух значений</td><tr>`,
+  r: `<tr><td><p>r</p>пост-размер</td><td>Изменяет размер изображения на основе одного значения после конвертаций</td><tr>`,
+  bg: `<tr><td><p>bg</p>фон</td><td>Если изображение имеет альфа канал, указывает цвет фона в формате HEX/HEXA (без знака #), или в формате RGBA (255,255,255,1)</td><tr>`,
+  fit: `<tr><td><p>fit</p>подгонка</td><td>Указание способна подгонки изображения (cover, contain, fill, inside)</td><tr>`,
+  to: `<tr><td><p>to</p>формат</td><td>Указание формата для конвертации (jpg, png, webp, aviff, gif, tiff)</td><tr>`,
+  q: `<tr><td><p>q</p>качество</td><td>Указание качества изображения (1-100) при конвертации в jpg, avif, webp, tiff</td><tr>`,
+  p: `<tr><td><p>p</p>отступы</td><td>Указание отступов содержимого изображения от его границ</td><tr>`,
+  pbg: `<tr><td><p>pbg</p>«рамка»</td><td>Указание цвета фона отступа в формате HEX/HEXA (без знака #), или в формате RGBA (255,255,255,1)</td><tr>`,
+  rotate: `<tr><td><p>rotate</p>поворот</td><td>Указание поворота изображения в градусах (&minus;360—360)</td><tr>`,
+  protate: `<tr><td><p>protate</p>пост-поворот</td><td>Указание поворота изображения в градусах (&minus;360—360) после предыдущих преобразований</td><tr>`,
+  rbg: `<tr><td><p>rbg</p>заливка поворота</td><td>Указание цвета фона заполнения при повороте изобраэения в формате HEX/HEXA (без знака #), или в формате RGBA (255,255,255,1)</td><tr>`,
+  water: `<tr><td><p>water</p>водяной знак</td><td>Название файла водяного знака</td><tr>`,
+  gamma: `<tr><td><p>gamma</p>гамма</td><td>Указание гаммы для изображения в двух целых или плавающих значениях через запятую (2.2,0.5 или 3,1)</td><tr>`,
+  brightness: `<tr><td><p>brightness</p>яркость</td><td>Указание яркости изображения в целом или плавающем значении</td><tr>`,
+  saturation: `<tr><td><p>saturate</p>насыщенность</td><td>Указание насыщенности изображения в целом или плавающем значении</td><tr>`,
+  hue: `<tr><td><p>hue</p>тон</td><td>Указание смещения тона изображения в градусах (&minus;360—360)</td><tr>`,
+  pos: `<tr><td><p>pos</p>положение</td><td>Положение водяного знака (n — по центру свреху, nw — по левому верхнему углу, ne — по правому верхнему углу, s — по центру снизу, sw — по левому нижнему углу, se — по правому нижнему углу)</td><tr>`,
+  ws: `<tr><td><p>ws</p>размер</td><td>Указание размера водяного знака на основе одного значения</td><tr>`,
+  wpost: `<tr><td><p>wpost</p>пост-знак</td><td>Указание должен ли знак устанавливаться на изображение после всех преобразований, если да — wpost=true</td><tr>`,
+};
 app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
   const decodedUrl = decodeURIComponent(request.url);
   let result;
@@ -491,13 +514,11 @@ app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
     if (/^\/(File|Файл):/.test(decodedUrl)) {
       const FileName = decodedUrl.replace(/^\/(File|Файл):/, '').replace(/\?.*$/, '');
       const Arguments = request.url.includes('?') ? request.url.replace(/^[^?]*\?/, '?') : '';
-      console.log(FileName, Arguments);
       const getExtension = FileName.split('.').pop();
     
       if (imageExtensions.includes(getExtension)) {
         const language = await request.headers['accept-language'].substring(0, 2);
         request.params.imageFileName = FileName;
-        console.log(request.params.imageFileName);
         const imageHandler = new ImageHandler(__PROJECT_DIR__, request, false, true);
         const handledResult = await imageHandler.getImage(sharedAssetsDB);
       
@@ -508,28 +529,6 @@ app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
         }
 
 
-        const queriesType = {
-          s: `<tr><td><p>s</p>размер</td><td>Изменяет размер изображения на основе одного значения</td><tr>`,
-          wh: `<tr><td><p>wh</p>ширина/высота</td><td>Изменяет размер изображения на основе двух значений</td><tr>`,
-          r: `<tr><td><p>r</p>пост-размер</td><td>Изменяет размер изображения на основе одного значения после конвертаций</td><tr>`,
-          bg: `<tr><td><p>bg</p>фон</td><td>Если изображение имеет альфа канал, указывает цвет фона в формате HEX/HEXA (без знака #), или в формате RGBA (255,255,255,1)</td><tr>`,
-          fit: `<tr><td><p>fit</p>подгонка</td><td>Указание способна подгонки изображения (cover, contain, fill, inside)</td><tr>`,
-          to: `<tr><td><p>to</p>формат</td><td>Указание формата для конвертации (jpg, png, webp, aviff, gif, tiff)</td><tr>`,
-          q: `<tr><td><p>q</p>качество</td><td>Указание качества изображения (1-100) при конвертации в jpg, avif, webp, tiff</td><tr>`,
-          p: `<tr><td><p>p</p>отступы</td><td>Указание отступов содержимого изображения от его границ</td><tr>`,
-          pbg: `<tr><td><p>pbg</p>«рамка»</td><td>Указание цвета фона отступа в формате HEX/HEXA (без знака #), или в формате RGBA (255,255,255,1)</td><tr>`,
-          rotate: `<tr><td><p>rotate</p>поворот</td><td>Указание поворота изображения в градусах (&minus;360—360)</td><tr>`,
-          protate: `<tr><td><p>protate</p>пост-поворот</td><td>Указание поворота изображения в градусах (&minus;360—360) после предыдущих преобразований</td><tr>`,
-          rbg: `<tr><td><p>rbg</p>заливка поворота</td><td>Указание цвета фона заполнения при повороте изобраэения в формате HEX/HEXA (без знака #), или в формате RGBA (255,255,255,1)</td><tr>`,
-          water: `<tr><td><p>water</p>водяной знак</td><td>Название файла водяного знака</td><tr>`,
-          gamma: `<tr><td><p>gamma</p>гамма</td><td>Указание гаммы для изображения в двух целых или плавающих значениях через запятую (2.2,0.5 или 3,1)</td><tr>`,
-          brightness: `<tr><td><p>brightness</p>яркость</td><td>Указание яркости изображения в целом или плавающем значении</td><tr>`,
-          saturation: `<tr><td><p>saturate</p>насыщенность</td><td>Указание насыщенности изображения в целом или плавающем значении</td><tr>`,
-          hue: `<tr><td><p>hue</p>тон</td><td>Указание смещения тона изображения в градусах (&minus;360—360)</td><tr>`,
-          pos: `<tr><td><p>pos</p>положение</td><td>Положение водяного знака (n — по центру свреху, nw — по левому верхнему углу, ne — по правому верхнему углу, s — по центру снизу, sw — по левому нижнему углу, se — по правому нижнему углу)</td><tr>`,
-          ws: `<tr><td><p>ws</p>размер</td><td>Указание размера водяного знака на основе одного значения</td><tr>`,
-          wpost: `<tr><td><p>wpost</p>пост-знак</td><td>Указание должен ли знак устанавливаться на изображение после всех преобразований, если да — wpost=true</td><tr>`,
-        };
         const queriesTable = `
           <table>
             <tr>
@@ -545,9 +544,9 @@ app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
         }).join('')}
           </table>
         `;
+        //console.log(handledResult);
 
         const isCached = handledResult.cached ? 'Кэш' : 'Не кэшируется';
-        const metaSize = `${handledResult.fileInfo.width}x${handledResult.fileInfo.height}`;
         const metaInfo = handledResult.dataBaseInfo.FileInfo || null;
         let metaResolution, metaFileSize, metaAccessTime, metaModifiedTime, metaCreateTime, metaSpace, metaHasAlpha, metaFormat, metaDensity, metaChannels;
         if (metaInfo) {

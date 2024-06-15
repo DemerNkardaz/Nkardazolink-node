@@ -137,7 +137,7 @@ class ImageHandler {
   }
 
 
-  async #readAndHandleImage(imagePath, dataBaseInfo = null, infoOnly = false) {
+  async #readAndHandleImage(imagePath, dataBaseInfo = null) {
     let imageBuffer;
     let remoteMetaData = null;
     try {
@@ -164,11 +164,11 @@ class ImageHandler {
     }
 
     const isCacheExists = await this.#checkCache();
-    if (isCacheExists && isCacheExists.mimeType && isCacheExists.imageBuffer) {
+    if (isCacheExists) {
       try {
-        if (this.infoOnly === true) return {dataBaseInfo: dataBaseInfo || null, cached: true, remoteMetaData: remoteMetaData || null };
         //console.info(`Line of cached, loaded from cache: ${imagePath}`);
-        return { mimeType: isCacheExists.mimeType, imageBuffer: isCacheExists.imageBuffer, dataBaseInfo: dataBaseInfo || null, cached: true, fileInfo: isCacheExists.fileInfo || null, remoteMetaData: remoteMetaData || null };
+        if (this.infoOnly === true) return {dataBaseInfo: dataBaseInfo || null, cached: true, remoteMetaData: remoteMetaData || null };
+        return { mimeType: isCacheExists.mimeType || 'application/octet-stream', imageBuffer: isCacheExists.imageBuffer, dataBaseInfo: dataBaseInfo || null, cached: true, fileInfo: isCacheExists.fileInfo || null, remoteMetaData: remoteMetaData || null };
       } catch (error) {
         return `Error: ${error.message}`;
       }
@@ -228,17 +228,11 @@ class ImageHandler {
         
         if (this.watermark && this.postMark === true && this.watermarkPos) imageBuffer = await this.#watermark(imageBuffer);
 
-        if (this.staticUrl.includes('?') && imageBuffer.length <= 1 * 1024 * 1024) {
-          const cachedName = `${this.cacheKey}-${this.#generateCacheKey(mimeType.slice(6))}`;
-          this.disableCache !== true && await this.#saveToCache(imageBuffer, cachedName);
-        }
-
         if (this.background) {
           const afterScaleMeta = await sharp(imageBuffer).metadata();
           let backgroundImage = await sharp({ create: { width: afterScaleMeta.width, height: afterScaleMeta.height, channels: 4, background: this.background } }).webp().toBuffer();
 
-          imageBuffer = await sharp(backgroundImage).composite([{ input: imageBuffer }]).toBuffer();
-          console.log(afterScaleMeta.width);
+          imageBuffer = await sharp(backgroundImage).composite([{ input: imageBuffer }]).toBuffer();;
         }
 
         if (this.postRotate) {
@@ -252,6 +246,12 @@ class ImageHandler {
           if (this.hue) options.hue = this.hue;
           imageBuffer = await sharp(imageBuffer).modulate(options).gamma(this.gamma[0], this.gamma[1]).toBuffer();
         }
+
+        if (this.staticUrl.includes('?') && imageBuffer.length <= 1 * 1024 * 1024) {
+          const cachedName = `${this.cacheKey}-${this.#generateCacheKey(mimeType.slice(6))}`;
+          this.disableCache !== true && await this.#saveToCache(imageBuffer, cachedName);
+        }
+
 
         const fileInfo = await sharp(imageBuffer).metadata();
         fileInfo.icc && delete fileInfo.icc;
@@ -308,18 +308,23 @@ class ImageHandler {
         const mimeTypePart = file.split('-')[1];
         for (const type of fileMimes) {
           if (mimeTypePart === this.#generateCacheKey(type)) {
-            if (this.infoOnly === true) return;
             const mimeType = `image/${type}`;
             const filePath = path.join(this.cacheDir, file);
 
             try {
               const cachedBuffer = await fs.readFile(filePath);
-              const fileInfo = [await fs.stat(filePath), await sharp(cachedBuffer).metadata()].mergeObjects();
+              let fileInfo;
+              await new Promise(async (resolve, reject) => {
+                const fileStat = await fs.stat(filePath);
+                const fileMetadata = await sharp(cachedBuffer).metadata();
+                fileInfo = await [fileStat, fileMetadata].mergeObjects();
+                resolve(fileInfo);
+              });
 
               const now = new Date();
               await fs.utimes(filePath, now, now);
 
-              return { imageBuffer: cachedBuffer, mimeType, fileInfo };
+              return { imageBuffer: cachedBuffer, mimeType, fileInfo, TEST: 'SDASFASFASF' };
             } catch (error) {
               console.error(`Ошибка чтения кеш-файла: ${error.message}`);
               return null;
