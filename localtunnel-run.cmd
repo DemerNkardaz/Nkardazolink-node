@@ -1,1 +1,1 @@
-lt --port 3001 --subdomain nkardaz
+lt --port 3000 --subdomain nkardaz

@@ -1,3 +1,4 @@
+require('dotenv').config();
 require('./nk.config.js').config().init(['AppVariables']);
 const { ini } = require('./modules/iniParser/src/iniParser.js');
 const { execSync } = require('child_process');
@@ -28,6 +29,7 @@ function generateMuchTokens() {
 
 async function build() {
   try {
+    await writeFileAsync(path.join(__PROJECT_DIR__, 'localtunnel-run.cmd'), `lt --port ${process.env.PORT} --subdomain ${process.env.LOCAL_TUNNER}`, 'utf-8');
     await writeFileAsync(path.join(__PROJECT_DIR__, 'static/token.txt'), generateMuchTokens(), 'utf-8');
     await buildExtensions(path.join(__PROJECT_DIR__, 'extensions'));
     await buildExtensions(path.join(__PROJECT_DIR__, 'modules'));

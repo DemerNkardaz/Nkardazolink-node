@@ -700,18 +700,18 @@ const options = {
 (async () => {
   try {
     const server = https.createServer(options, app);
-    const expressServer = app.listen(3001);
+    const expressServer = app.listen(process.env.PORT);
     
     await Promise.all([
       new Promise((resolve, reject) => {
-        server.listen(443, () => {
-          console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: HTTPS enabled\x1b[39m`);
+        server.listen(process.env.PORT_HTTPS, () => {
+          console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: HTTPS enabled | PORT : ${process.env.PORT_HTTPS}\x1b[39m`);
           resolve();
         });
       }),
       new Promise((resolve, reject) => {
         expressServer.on('listening', () => {
-          console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: HTTP enabled\x1b[39m`);
+          console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: HTTP enabled | PORT : ${process.env.PORT}\x1b[39m`);
           resolve();
         });
       })
