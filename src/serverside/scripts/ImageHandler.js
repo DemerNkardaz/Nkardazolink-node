@@ -88,7 +88,11 @@ class ImageHandler {
       disableCache: disableCache,
       rotate: request.query.rotate ? parseInt(request.query.rotate) : null,
       postRotate: request.query.protate ? parseInt(request.query.protate) : null,
-      rotateBackground: request.query.rbg || null
+      rotateBackground: request.query.rbg || null,
+      gamma: request.query.gamma ? request.query.gamma.split(',').map(Number) : null,
+      brightness: request.query.brightness ? parseFloat(request.query.brightness) : null,
+      saturation: request.query.saturation ? parseFloat(request.query.saturation) : null,
+      hue: request.query.hue ? parseFloat(request.query.hue) : null,
     });
     Object.keys(this).forEach(key => {
       if (key.toLowerCase().includes('background') && this[key] !== null) {
@@ -239,6 +243,14 @@ class ImageHandler {
 
         if (this.postRotate) {
           imageBuffer = await sharp(imageBuffer).rotate(this.rotate, { background: this.rotateBackground || { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
+        }
+
+        if (this.gamma || this.brightness || this.saturation || this.hue) {
+          const options = {};
+          if (this.brightness) options.brightness = this.brightness;
+          if (this.saturation) options.saturation = this.saturation;
+          if (this.hue) options.hue = this.hue;
+          imageBuffer = await sharp(imageBuffer).modulate(options).gamma(this.gamma[0], this.gamma[1]).toBuffer();
         }
 
         const fileInfo = await sharp(imageBuffer).metadata();
