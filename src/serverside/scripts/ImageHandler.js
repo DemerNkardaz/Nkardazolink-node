@@ -78,6 +78,7 @@ class ImageHandler {
       paddingPercent: request.query.p ? parseFloat(request.query.p) : 0,
       resolution: request.query.r ? parseInt(request.query.r) : 0,
       background: request.query.bg || null,
+      paddingBackground: request.query.pbg || null,
       staticUrl: request.url,
       watermark: request.query.water || null,
       watermarkPos: request.query.pos || null,
@@ -89,17 +90,13 @@ class ImageHandler {
     //console.log(chroma('#eee').rgba());
     //console.log(chroma('#ef03df').rgba());
     //console.log(chroma('#a3f3e1D0').rgba());
-    if (this.background) {
-      if (!this.background.includes(',')) {
-        const [r, g, b, alpha] = chroma(this.background).rgba();
-        this.background = { r, g, b, alpha };
-        console.log('background', this.background);
-      } else if (this.background.split(',').length === 4) {
-        const [r, g, b, alpha] = this.background.split(',').map(Number);
-        this.background = { r, g, b, alpha };
-        console.log('background', this.background);
+    Object.keys(this).forEach(key => {
+      if (key.toLowerCase().includes('background') && this[key] !== null) {
+        const [r, g, b, alpha] = chroma(this[key]).rgba();
+        this[key] = { r, g, b, alpha };
       }
-    }
+    });
+
     (async () => await this.#manageCacheSize())();
   }
   #generateCacheKey(keyString) {
@@ -227,6 +224,12 @@ class ImageHandler {
         if (this.staticUrl.includes('?') && imageBuffer.length <= 1 * 1024 * 1024) {
           const cachedName = `${this.cacheKey}-${this.#generateCacheKey(mimeType.slice(6))}`;
           this.disableCache !== true && await this.#saveToCache(imageBuffer, cachedName);
+        }
+
+        if (this.background) {
+          imageBuffer = await sharp(imageBuffer)
+            .flatten({ background: this.background })
+            .toBuffer();
         }
 
         const fileInfo = await sharp(imageBuffer).metadata();
@@ -474,7 +477,7 @@ class ImageHandler {
         bottom: paddingSize,
         left: paddingSize,
         right: paddingSize,
-        background: this.background || { r: 0, g: 0, b: 0, alpha: 0 }
+        background: this.paddingBackground || { r: 0, g: 0, b: 0, alpha: 0 }
       })
       .toBuffer();
 
