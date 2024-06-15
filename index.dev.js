@@ -4,18 +4,13 @@ require('dotenv').config();
 require('./nk.config.js').config().init();
 require('./modules/modules').config().init(srcMode = true);
 require('./extensions/extensions').config().init(srcMode = true);
+
 const serverINI = path.join(__PROJECT_DIR__, 'server.ini');
 global.serverConfig = ini.parse(serverINI); ini.watch(serverINI, 'serverConfig');
 
-//console.log(serverConfig)
-
-
 console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Server started\x1b[39m`);
-app.use((req, res, next) => {
-    req.originalUrl = req.url;
-    req.url = req.url.replace(/\s/g, '_');
-    next();
-});
+app.use(liveSassCompiler);
+app.use(urlSpaceToUnderscore);
 app.use(compression());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__PROJECT_DIR__, 'assets')));
@@ -35,31 +30,7 @@ app.use(sessions({
   cookie: { secure: true }
 }));
 
-function mergeObjects(...objects) {
-  try {
-  const result = {};
-  for (const object of objects) Object.assign(result, object);
-  return result;
-  } catch (error) {
-    console.error('Error merging objects:', error);
-  }
-}
-Array.prototype.mergeObjects = function () { return mergeObjects(...this) };
 
-
-async function saveVariableToYAMLFile(variableName, variable) {
-  const yamlString = yaml.dump(variable);
-  const filePath = `test/${variableName}.yaml`;
-
-  try {
-    fs.writeFileSync(filePath, yamlString, 'utf8');
-    console.log(`Variable saved as YAML in ${filePath}`);
-  } catch (error) {
-    console.error('Error saving variable as YAML:', error);
-  }
-}
-
-//global['ImageCacheCleaner'] = require('./extensions/ImageHandler/src/ImageHandler.js').ImageCacheCleaner;
 new ImageCacheCleaner();
 
 const usersDataBase = new sqlite3.Database(path.join(__PROJECT_DIR__, 'static/data_base/users.db'));
@@ -164,51 +135,6 @@ app.use(
 );
 
 
-app.use((req, res, next) => {
-    if (req.url.endsWith('.css')) {
-        res.setHeader('Content-Type', 'text/css');
-        const scssFilePath = path.join(__dirname, 'app', 'styles', req.url.replace('.css', '.scss'));
-
-        if (fs.existsSync(scssFilePath)) {
-            const result = sass.compile(scssFilePath, { style: 'compressed' });
-
-            const stream = new Readable();
-            stream._read = () => {};
-            stream.push(result.css);
-            stream.push(null);
-
-            stream.pipe(res);
-        } else {
-            const scssSkinFilePath = path.join(__dirname, 'app', 'styles', 'skins', req.url.replace('.css', '.scss'));
-            if (fs.existsSync(scssSkinFilePath)) {
-                const child = spawn('node', ['-e', `
-                    const sass = require('sass');
-                    const fs = require('fs');
-                    const scssFilePath = '${scssSkinFilePath}';
-                    const result = sass.compile(scssFilePath, { style: 'compressed' });
-                    process.stdout.write(result.css);
-                `]);
-
-                child.stdout.on('data', (data) => {
-                    res.write(data);
-                });
-
-                child.on('close', (code) => {
-                    res.end();
-                });
-
-                child.stderr.on('data', (data) => {
-                    console.error(`Ошибка: ${data}`);
-                    res.status(500).send('Ошибка компиляции SCSS');
-                });
-            } else {
-                next();
-            }
-        }
-    } else {
-        next();
-    }
-});
 
 
 const dataArray = [];
@@ -228,61 +154,7 @@ app.use((request, response, next) => {
   next();
 });
 
-function generateUserId(length) {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let userId = '';
-    for (let i = 0; i < length; i++) {
-        const randomIndex = Math.floor(Math.random() * characters.length);
-        userId += characters.charAt(randomIndex);
-    }
-    return userId;
-}
 
-
-
-
-async function getLastModifiedInFolders() {
-    try {
-        const paths = ['./', './app', './static'];
-        const lastModifiedDates = await Promise.all(paths.map(async folderPath => {
-            const files = await fs.promises.readdir(folderPath);
-            const lastModifiedDates = await Promise.all(files.map(async file => {
-                const filePath = path.join(folderPath, file);
-                const stats = await fs.promises.stat(filePath);
-                return stats.mtime;
-            }));
-            return Math.max(...lastModifiedDates);
-        }));
-        return Math.max(...lastModifiedDates);
-    } catch (error) {
-        console.error('Ошибка при получении даты последнего обновления:', error);
-        throw error;
-    }
-}
-
-async function parseUrl(request) {
-  try {
-    const protocol = request.protocol;
-    const host = request.get('host');
-    const urlPath = `${protocol}://${host}${request.url}`;
-    const urlObject = new URL(urlPath);
-    const urlSearchParams = urlObject.searchParams;
-    const urlParamsObject = {};
-
-    for (const [key, value] of urlSearchParams.entries()) {
-      urlParamsObject[key] = value;
-    }
-
-    if (Object.keys(urlParamsObject).length === 0) {
-      return null;
-    }
-
-    return urlParamsObject;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-}
 
 app.use(async (req, res, next) => {
   try {

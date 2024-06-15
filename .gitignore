@@ -8,3 +8,5 @@ index.js
 extensions/*/*
 !extensions/*/src/
 bin/
+static/site.maps/*.xml
+static/site.maps/*.xml.gz
