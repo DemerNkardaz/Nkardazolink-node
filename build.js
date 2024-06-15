@@ -1,4 +1,5 @@
 require('./nk.config.js').config().init(['AppVariables']);
+const { ini } = require('./modules/iniParser/src/iniParser.js');
 const { execSync } = require('child_process');
 const fs = require('fs-extra');
 const path = require('path');
@@ -7,7 +8,7 @@ const writeFileAsync = promisify(fs.writeFile);
 const readFileAsync = promisify(fs.readFile);
 const crypto = require('crypto');
 const { copyFilesAndMinify, createManifest, index, checkForIndex, buildExtensions } = require('./server.workers/server/building.files.js');
-
+global.serverConfig = ini.parse(path.join(__PROJECT_DIR__, 'server.ini'));
 
 const runArguments = process.argv.slice(2);
 function generateToken(count, mode) {
@@ -39,7 +40,7 @@ async function build() {
     if (!fs.existsSync(manifestOutput)) fs.mkdirSync(manifestOutput, { recursive: true });
     const { Manifest } = require('./app/templates/manifest_template.js');
     const manifestTemplate = new Manifest();
-    const createManifestPromises = await __NK__.langs.supported.map(lang => createManifest(__PROJECT_DIR__, lang, manifestTemplate.getManifest()));
+    const createManifestPromises = await serverConfig.language.supported.map(lang => createManifest(__PROJECT_DIR__, lang, manifestTemplate.getManifest()));
     await Promise.all(createManifestPromises)
       .then(() => console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [BUILDER] :: All manifests created successfully\x1b[39m`)).catch(error => console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > Error during build: ${error.message}`));
     require('./server.workers/server/sitemap.gen.js').generateSiteMaps(__PROJECT_DIR__);

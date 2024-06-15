@@ -4,9 +4,10 @@ require('dotenv').config();
 require('./nk.config.js').config().init();
 require('./modules/modules').config().init(srcMode = true);
 require('./extensions/extensions').config().init(srcMode = true);
-global.serverConfig = ini.parse(path.join(__PROJECT_DIR__, 'server.ini'));
+const serverINI = path.join(__PROJECT_DIR__, 'server.ini');
+global.serverConfig = ini.parse(serverINI); ini.watch(serverINI, 'serverConfig');
 
-console.log(serverConfig)
+//console.log(serverConfig)
 
 
 console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Server started\x1b[39m`);
@@ -17,7 +18,7 @@ app.use((req, res, next) => {
 });
 app.use(compression());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__PROJECT_DIR__, 'static/assets')));
+app.use(express.static(path.join(__PROJECT_DIR__, 'assets')));
 app.use(express.static(path.join(__PROJECT_DIR__, 'static/public')));
 app.use(express.static(path.join(__PROJECT_DIR__, 'static/site.maps')));
 app.use(express.urlencoded({ extended: false }));
@@ -211,10 +212,10 @@ app.use((req, res, next) => {
 
 
 const dataArray = [];
-__NK__.langs.supported.forEach(lang => { dataArray.push({ source: `./static/assets/locale/common/main.${lang}.yaml`, as: `locale.${lang}` }) });
-dataArray.push({ source: `./static/assets/locale/common/asset.common.yaml`, as: `locale.common` });
-dataArray.push({ source: `./static/assets/locale/common/asset.templates.yaml`, as: `locale.templates` });
-dataArray.push({ source: `./static/assets/locale/misc.yaml`, as: `locale` });
+serverConfig.language.supported.forEach(lang => { dataArray.push({ source: `./assets/locale/main.${lang}.yaml`, as: `locale.${lang}` }) });
+dataArray.push({ source: `./assets/locale/asset.common.yaml`, as: `locale.common` });
+dataArray.push({ source: `./assets/locale/asset.templates.yaml`, as: `locale.templates` });
+dataArray.push({ source: `./assets/locale/misc.yaml`, as: `locale` });
 
 
 DataExtend(dataArray, __PROJECT_DIR__)
@@ -282,39 +283,6 @@ async function parseUrl(request) {
     return null;
   }
 }
-
-const booleanOptions = ['true', 'false'];
-async function jsonDBStessTest() {
-  for (let i = 0; i < 10; i++) {
-    
-    let randomID = `{${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}-${-(new Date().getTimezoneOffset() / 60)}-${new Date().getTime()}}`;
-    await sessionManager.writeSessionToSQL(randomID, {
-      savedSettings: {
-        lang: await __NK__.langs.supported[Math.floor(Math.random() * __NK__.langs.supported.length)],
-        skin: await __NK__.skins.supported[Math.floor(Math.random() * __NK__.skins.supported.length)],
-        save_search_result: booleanOptions[Math.floor(Math.random() * booleanOptions.length)],
-        save_selected_item: booleanOptions[Math.floor(Math.random() * booleanOptions.length)],
-        turn_off_preloader: booleanOptions[Math.floor(Math.random() * booleanOptions.length)],
-        ambience_off: booleanOptions[Math.floor(Math.random() * booleanOptions.length)],
-        change_skin_by_time: booleanOptions[Math.floor(Math.random() * booleanOptions.length)],
-        current_banner: `${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}-${-(new Date().getTimezoneOffset() / 60)}-${new Date().getTime()}`,
-        latestSearchesKamon: `${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}-${-(new Date().getTimezoneOffset() / 60)}-${new Date().getTime()}`,
-        latestSearchesBanners: `${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}-${-(new Date().getTimezoneOffset() / 60)}-${new Date().getTime()}`,
-        latestSearchesClans: `${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}-${-(new Date().getTimezoneOffset() / 60)}-${new Date().getTime()}`,
-        latestSearchesPattern: `${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}-${-(new Date().getTimezoneOffset() / 60)}-${new Date().getTime()}`,
-        selectedItemsKamon: `${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}-${-(new Date().getTimezoneOffset() / 60)}-${new Date().getTime()}`,
-        selectedItemsBanners: `${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}-${-(new Date().getTimezoneOffset() / 60)}-${new Date().getTime()}`,
-        selectedItemsClans: `${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}-${-(new Date().getTimezoneOffset() / 60)}-${new Date().getTime()}`,
-        selectedItemsPattern: `${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}-${-(new Date().getTimezoneOffset() / 60)}-${new Date().getTime()}`,
-      }
-    });
-  }
-}
-
-(async () => {
-  //await jsonDBStessTest();
-  //await sessionManager.explainFile();
-})();
 
 app.use(async (req, res, next) => {
   try {
@@ -394,9 +362,9 @@ app.get('/', async (request, response, next) => {
     }
     //console.log(await sessionManager.readSession(session.sessionID));
     const isUserLang = metaDataResponse.userSession && metaDataResponse.userSession.savedSettings && metaDataResponse.userSession.savedSettings.lang && metaDataResponse.userSession.savedSettings.lang;
-    const isLangUrlMode = metaDataResponse.urlModes && __NK__.langs.supported.includes(metaDataResponse.urlModes.lang) && metaDataResponse.urlModes.lang;
-    const isLangTLD = request.ThirdLevelDomain && __NK__.langs.supported.includes(request.ThirdLevelDomain) && request.ThirdLevelDomain;
-    const isNavigatorLang = __NK__.langs.supported.includes(request.headers['accept-language'].substring(0, 2)) && request.headers['accept-language'].substring(0, 2);
+    const isLangUrlMode = metaDataResponse.urlModes && serverConfig.language.supported.includes(metaDataResponse.urlModes.lang) && metaDataResponse.urlModes.lang;
+    const isLangTLD = request.ThirdLevelDomain && serverConfig.language.supported.includes(request.ThirdLevelDomain) && request.ThirdLevelDomain;
+    const isNavigatorLang = serverConfig.language.supported.includes(request.headers['accept-language'].substring(0, 2)) && request.headers['accept-language'].substring(0, 2);
     
     metaDataResponse.renderLanguage = isLangTLD ? isLangTLD : isLangUrlMode ? isLangUrlMode : isUserLang ? isUserLang : isNavigatorLang || 'en';
 
@@ -521,9 +489,9 @@ app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
     if (/^\/(File|Файл):/.test(decodedUrl)) {
       const FileName = decodedUrl.replace(/^\/(File|Файл):/, '').replace(/\?.*$/, '');
       const Arguments = request.url.includes('?') ? request.url.replace(/^[^?]*\?/, '?') : '';
-      const getExtension = FileName.split('.').pop();
+      const getExtension = `.${FileName.split('.').pop()}`;
     
-      if (imageExtensions.includes(getExtension)) {
+      if (serverConfig.allowedFileTypes.images.includes(getExtension)) {
         const language = await request.headers['accept-language'].substring(0, 2);
         request.params.imageFileName = FileName;
         const imageHandler = new ImageHandler(__PROJECT_DIR__, request, false, true);

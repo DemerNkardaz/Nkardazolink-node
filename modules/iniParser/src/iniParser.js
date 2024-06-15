@@ -1,4 +1,5 @@
 const fs = require('fs');
+const chokidar = require('chokidar');
 
 const ini = {
   parse(file) {
@@ -26,6 +27,13 @@ const ini = {
     });
 
     return parsedData;
+  },
+  watch(file, variable) {
+    chokidar.watch(file).on('change', () => {
+      const data = ini.parse(file);
+      global[variable] = data;
+      console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟧 > [INI] :: Configuration file ${file.split('/').pop()} has been changed\x1b[39m`);
+    });
   }
 }
 
