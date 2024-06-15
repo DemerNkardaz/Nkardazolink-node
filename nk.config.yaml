@@ -6,21 +6,17 @@ Renderers:
 Remarkable-settings:
   - Vars
   - markdown: 'new Remarkable({ html: true }).use(linkify)'
-Interpretators:
-  - sass: 'sass'
 IndexDependencies:
   - https: 'https'
   - http-proxy-middleware: '{ createProxyMiddleware }'
   - compression: 'compression'
   - zlib: 'zlib'
   - fs: 'fs'
-  - ini: 'ini'
   - js-yaml: 'yaml'
   - util: '{ promisify }'
   - path: 'path'
   - express: 'express'
   - nodemailer: 'nodemailer'
-  - sharp: 'sharp'
   - mime-types: 'mime'
   - xmldom: '{ DOMParser, XMLSerializer }'
   - express-session: 'sessions'
