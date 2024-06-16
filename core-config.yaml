@@ -43,8 +43,6 @@ ProjectDependencies:
   - ./modules/iniParser/iniParser.js: '{ ini }'
   - ./app/hooks/StringHandling.js: '{ StringHandling }'
   - ./app/hooks/LocalisationHandling.js: 'localise'
-  - ./app/scripts/PostProcessor.js: '{ PostProcessor }'
-  - ./app/scripts/ComponentHandling.js: '{ loadComponent }'
   - ./app/scripts/DataBaseHandling.js: '{ dbHandle }'
   - ./app/scripts/SessionManagement.js: '{ SessionManager }'
 AppFuncs:

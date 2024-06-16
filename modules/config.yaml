@@ -2,5 +2,7 @@ Extensions:
   CoreConfig: 'Core module. It’s just annotation'
   ModuleLoader: 'Core module. It’s just annotation'
   iniParser: 'default enabled — see core-config.yaml'
+  PostProcessor: enabled
+  ComponentHandler: enabled
   DataExtend: enabled
   Utilities: enabled

@@ -1,4 +1,3 @@
-const { loadComponent } = require('./src/serverside/scripts/ComponentHandling.js');
 const crypto = require('crypto');
 
 require('dotenv').config();
