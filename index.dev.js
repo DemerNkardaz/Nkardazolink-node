@@ -177,7 +177,7 @@ app.use(async (req, res, next) => {
     const isTLDDisabled = !serverConfig.routes.useThirdLevelDomains && req.url.split('/')[1].substring(0, 2);
     if (isTLDEnabled || isTLDDisabled) {
       const getTLD = req.hostname.split('.')[0].split('https://').join('').split('http://').join('');
-      req.ThirdLevelDomain = serverConfig.routes.useThirdLevelDomains ? getTLD : req.url.split('/')[1].substring(0, 2) || null;
+      req.urlLanguageRequest = serverConfig.routes.useThirdLevelDomains ? getTLD : req.url.split('/')[1].substring(0, 2) || null;
     }
     next();
   } catch (error) {
@@ -205,8 +205,6 @@ app.use(async (req, res, next) => {
 
 app.get('/', async (request, response, next) => {
   try {
-    console.log(serverConfig);
-    console.log(`Request ${request.ThirdLevelDomain}`)
     console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 💠 > [SERVER] :: Latest modify date is [${new Date(await getLastModifiedInFolders()).toLocaleString()}]\x1b[39m`);
 
     const session = { sessionID: request.cookies.sessionID, settings: {}, platform: request.useragent.source };
@@ -253,7 +251,7 @@ app.get('/', async (request, response, next) => {
     //console.log(await sessionManager.readSession(session.sessionID));
     const isUserLang = metaDataResponse.userSession && metaDataResponse.userSession.savedSettings && metaDataResponse.userSession.savedSettings.lang && metaDataResponse.userSession.savedSettings.lang;
     const isLangUrlMode = metaDataResponse.urlModes && serverConfig.language.supported.includes(metaDataResponse.urlModes.lang) && metaDataResponse.urlModes.lang;
-    const isLangTLD = request.ThirdLevelDomain && serverConfig.language.supported.includes(request.ThirdLevelDomain) && request.ThirdLevelDomain;
+    const isLangTLD = request.urlLanguageRequest && serverConfig.language.supported.includes(request.urlLanguageRequest) && request.urlLanguageRequest;
     const isNavigatorLang = serverConfig.language.supported.includes(request.headers['accept-language'].substring(0, 2)) && request.headers['accept-language'].substring(0, 2);
     
     metaDataResponse.renderLanguage = isLangTLD ? isLangTLD : isLangUrlMode ? isLangUrlMode : isUserLang ? isUserLang : isNavigatorLang || 'en';
@@ -292,7 +290,7 @@ app.get('/', async (request, response, next) => {
 
 
 app.get('/:lang?/wiki', async (request, response, next) => {
-  console.log(request.ThirdLevelDomain);
+  console.log(request.urlLanguageRequest);
   try {
     const localedMainPages = {
       ru: 'wiki/Заглавная_Страница',
@@ -305,7 +303,7 @@ app.get('/:lang?/wiki', async (request, response, next) => {
     }
     const isTLDEnabled = serverConfig.routes.useThirdLevelDomains && request.hostname.split('.').length > 2;
     const isTLDDisabled = !serverConfig.routes.useThirdLevelDomains && request.url.split('/')[1].substring(0, 2);
-    const redirectUrl = isTLDEnabled ? `${request.protocol}://${request.get('host')}/${localedMainPages[request.ThirdLevelDomain]}` : `${request.ThirdLevelDomain ? `${request.ThirdLevelDomain}/${localedMainPages[request.ThirdLevelDomain]}` : 'wiki/Заглавная_Страница'}`;
+    const redirectUrl = isTLDEnabled ? `${request.protocol}://${request.get('host')}/${localedMainPages[request.urlLanguageRequest]}` : `${request.urlLanguageRequest ? `${request.urlLanguageRequest}/${localedMainPages[request.urlLanguageRequest]}` : 'wiki/Заглавная_Страница'}`;
     response.redirect(redirectUrl);
   } catch (error) {
     console.error(error);

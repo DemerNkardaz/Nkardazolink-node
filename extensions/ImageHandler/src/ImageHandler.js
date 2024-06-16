@@ -94,6 +94,7 @@ class ImageHandler {
       saturation: request.query.saturation ? parseFloat(request.query.saturation) : null,
       hue: request.query.hue ? parseFloat(request.query.hue) : null,
     });
+
     Object.keys(this).forEach(key => {
       if (key.toLowerCase().includes('background') && this[key] !== null) {
         const [r, g, b, alpha] = chroma(this[key]).rgba();
@@ -115,9 +116,11 @@ class ImageHandler {
         dataBase.get('SELECT * FROM sharedFiles WHERE FileName = ? AND FileType = ?', [this.imageFileName, 'Image'], async (err, row) => {
           if (err) return reject(err);
           if (!row) return resolve(`${this.filePath || this.imageFileName} Image Not Found`);
+
           const imagePath = row.FileLink.startsWith('https://') ? row.FileLink : path.join(this.sourcePath, row.FileLink);
           try {
             row.FileInfo = row.FileInfo ? JSON.parse(row.FileInfo) : {};
+
             const result = await this.#readAndHandleImage(imagePath, row);
             resolve(result);
           } catch (error) {
@@ -140,19 +143,23 @@ class ImageHandler {
   async #readAndHandleImage(imagePath, dataBaseInfo = null) {
     let imageBuffer;
     let remoteMetaData = null;
+
     try {
       if (!imagePath.startsWith('https://')) imageBuffer = await fs.readFile(imagePath);
       else {
         const remoteMeta = await axios.head(imagePath);
+
         remoteMetaData = {
           mimeType: remoteMeta.headers['content-type'],
           size: remoteMeta.headers['content-length'] / 1024 / 1024 + ' MB',
           mtime: new Date(remoteMeta.headers['last-modified']).toISOString(),
           atime: new Date(remoteMeta.headers['date']).toISOString(),
         }
+
         const remoteImage = await axios.get(imagePath, { responseType: 'arraybuffer' });
         const metaData = await sharp(remoteImage.data).metadata();
         Object.assign(remoteMetaData, metaData);
+
         //!console.log(JSON.stringify(remoteMetaData));
         imageBuffer = Buffer.from(remoteImage.data);
       }
@@ -166,10 +173,12 @@ class ImageHandler {
     const isCacheExists = await this.#checkCache();
     let sourceMeta = !imagePath.startsWith('https://') ? await fs.stat(imagePath) : remoteMetaData;
     const isSourceImageChanged = isCacheExists?.fileInfo && sourceMeta.mtime > isCacheExists?.fileInfo?.mtime;
+
     if (isCacheExists && !isSourceImageChanged) {
       try {
         //console.info(`Line of cached, loaded from cache: ${imagePath}`);
-        if (this.infoOnly === true) return {dataBaseInfo: dataBaseInfo || null, cached: true, remoteMetaData: remoteMetaData || null, fileInfo: isCacheExists.fileInfo };
+        if (this.infoOnly === true) return { dataBaseInfo: dataBaseInfo || null, cached: true, remoteMetaData: remoteMetaData || null, fileInfo: isCacheExists.fileInfo };
+        
         return { mimeType: isCacheExists.mimeType || 'application/octet-stream', imageBuffer: isCacheExists.imageBuffer, dataBaseInfo: dataBaseInfo || null, cached: true, fileInfo: isCacheExists.fileInfo || null, remoteMetaData: remoteMetaData || null };
       } catch (error) {
         return `Error: ${error.message}`;
@@ -185,8 +194,10 @@ class ImageHandler {
 
       if (mimeType.startsWith('image/')) {
         let metadata;
+
         if (mimeType !== 'image/svg+xml') {
           metadata = await sharp(imageBuffer).metadata();
+
           if (this.size) {
             const maxDimension = Math.max(metadata.width, metadata.height);
             const finalSize = this.size ? Math.min(this.size, maxDimension) : null;
@@ -197,8 +208,8 @@ class ImageHandler {
           } else if (this.wh) {
             const maxWidth = Math.min(this.wh[0], metadata.width);
             const maxHeight = Math.min(this.wh[1], metadata.height);
-            imageBuffer = await sharp(imageBuffer).resize(maxWidth, maxHeight, { withoutEnlargement: true, fit: this.fit || 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
 
+            imageBuffer = await sharp(imageBuffer).resize(maxWidth, maxHeight, { withoutEnlargement: true, fit: this.fit || 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
           }
           if (this.rotate) {
             imageBuffer = await sharp(imageBuffer).rotate(this.rotate, { background: this.rotateBackground || { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
@@ -246,6 +257,7 @@ class ImageHandler {
           if (this.brightness) options.brightness = this.brightness;
           if (this.saturation) options.saturation = this.saturation;
           if (this.hue) options.hue = this.hue;
+
           imageBuffer = await sharp(imageBuffer).modulate(options).gamma(this.gamma[0], this.gamma[1]).toBuffer();
         }
 
@@ -254,9 +266,9 @@ class ImageHandler {
           this.disableCache !== true && await this.#saveToCache(imageBuffer, cachedName);
         }
 
-
         const fileInfo = await sharp(imageBuffer).metadata();
         fileInfo.icc && delete fileInfo.icc;
+
         return { imageBuffer, mimeType, dataBaseInfo, fileInfo, remoteMetaData };
       } else {
         return `File is not an image: ${imagePath}`;
@@ -298,6 +310,7 @@ class ImageHandler {
         
     watermak = await sharp(watermak).toFormat('png').resize((this.watermarkScale * 100) || null, (this.watermarkScale * 100) || null, { fit: 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
     imageBuffer = await sharp(imageBuffer).composite([{ input: watermak, gravity: gravity, blend: 'overlay' }]).toBuffer();
+
     return imageBuffer;
   }
 
@@ -308,6 +321,7 @@ class ImageHandler {
     for (const file of files) {
       if (file.startsWith(this.cacheKey)) {
         const mimeTypePart = file.split('-')[1];
+
         for (const type of fileMimes) {
           if (mimeTypePart === this.#generateCacheKey(type)) {
             const mimeType = `image/${type}`;
@@ -316,12 +330,14 @@ class ImageHandler {
             try {
               const cachedBuffer = await fs.readFile(filePath);
               let fileInfo;
+
               await new Promise(async (resolve, reject) => {
                 const fileStat = await fs.stat(filePath);
                 const fileMetadata = await sharp(cachedBuffer).metadata();
                 fileInfo = await [fileStat, fileMetadata].mergeObjects();
                 resolve(fileInfo);
               });
+
               setTimeout(async () => {
                 const now = new Date();
                 await fs.utimes(filePath, now, now);
@@ -342,6 +358,7 @@ class ImageHandler {
   
   async #saveToCache(imageBuffer, cachadName) {
     const cachePath = path.join(this.cacheDir, cachadName);
+
     try {
       await fs.writeFile(cachePath, imageBuffer);
       await this.#manageCacheSize();
@@ -353,9 +370,11 @@ class ImageHandler {
 
   async #manageCacheSize() {
     const maxCacheSize = 1 * 1024 * 1024 * 1024;
+
     try {
       const files = await fs.readdir(this.cacheDir);
       let totalSize = 0;
+
       const fileSizes = await Promise.all(
         files.map(async (file) => {
           const filePath = path.join(this.cacheDir, file);
@@ -380,11 +399,9 @@ class ImageHandler {
     }
   }
 
-
-
-
   async #convertImage(imageBuffer) {
     let convertedImageBuffer, mimeType;
+
     switch (this.toFormat.toLowerCase()) {
       case 'webp':
         convertedImageBuffer = await sharp(imageBuffer).webp({ quality: this.quality || 75 }).toBuffer();
@@ -402,6 +419,7 @@ class ImageHandler {
         convertedImageBuffer = await sharp(imageBuffer).png().toBuffer();
         mimeType = 'image/png';
         break;
+      case 'jpeg':
       case 'jpg':
         convertedImageBuffer = await sharp(imageBuffer).jpeg({ quality: this.quality || 75 }).toBuffer();
         mimeType = 'image/jpeg';
@@ -414,6 +432,7 @@ class ImageHandler {
       default:
         return `Unsupported format: ${this.toFormat}`;
     }
+
     return { convertedImageBuffer, mimeType };
   }
 
@@ -426,9 +445,11 @@ class ImageHandler {
     const viewBox = svgElement.getAttribute('viewBox');
     const width = svgElement.getAttribute('width');
     const height = svgElement.getAttribute('height');
+
     if (width && height) {
       return { width: parseFloat(width), height: parseFloat(height) }
     }
+
     if (viewBox) {
       const [minX, minY, viewBoxWidth, viewBoxHeight] = viewBox.split(' ').map(Number);
       return { width: viewBoxWidth, height: viewBoxHeight }
@@ -447,6 +468,7 @@ class ImageHandler {
 
       if (width && height) {
         const aspectRatio = parseFloat(width) / parseFloat(height);
+
         if (parseFloat(width) >= parseFloat(height)) {
           svgElement.setAttribute('width', size);
           svgElement.setAttribute('height', Math.round(size / aspectRatio));
@@ -456,6 +478,7 @@ class ImageHandler {
         }
       } else {
         const viewBox = svgElement.getAttribute('viewBox');
+
         if (viewBox) {
           const [minX, minY, viewBoxWidth, viewBoxHeight] = viewBox.split(' ').map(Number);
           const aspectRatio = viewBoxWidth / viewBoxHeight;
@@ -469,7 +492,9 @@ class ImageHandler {
           }
         }
       }
+
       const xmlSerializer = new XMLSerializer();
+
       return xmlSerializer.serializeToString(svgElement);
     } else {
       return imageBuffer;

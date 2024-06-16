@@ -34,7 +34,8 @@ const handlingExtensions = ['.js', '.html', '.scss', '.css'];
         const destinationPath = path.join(destinationDir, entry.name);
 
         if (path.extname(sourcePath) === '.js') {
-          const fileContent = await fs.readFile(sourcePath, 'utf8');
+          let fileContent = await fs.readFile(sourcePath, 'utf8');
+          fileContent = fileContent.replace(/path\.join\(__dirname,\s*'\.\.',\s*'\.\.',\s*'\.\.'\)/g, "path.join(__dirname, '..', '..')");
           const minified = await terser.minify(fileContent, {
             compress: true,
             mangle: true,
