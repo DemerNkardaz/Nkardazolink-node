@@ -3,6 +3,7 @@ node_modules/
 app/
 source/
 cache/
+nginx/html/
 .vercel
 index.js
 extensions/*/*
