@@ -30,5 +30,5 @@
 # .*ooooooooooooooaaaaaaaaaaaaaaaakoaaaaaaaaaaaaaaaaaa#aaaaaaaaaaaaaaarnununuuwjz[][[0[[cfmooaaaaaaaaaaaaaaaaaaaaaaW .bbb
 
 User-agent: *
-Sitemap: http://undefined:undefined/sitemap.index.xml.gz
-Sitemap: http://undefined:undefined/sitemap.index.xml
+Sitemap: http://localhost:3000/sitemap.index.xml.gz
+Sitemap: http://localhost:3000/sitemap.index.xml

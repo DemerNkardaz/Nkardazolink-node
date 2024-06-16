@@ -13,3 +13,5 @@ bin/
 static/site.maps/*.xml
 static/site.maps/*.xml.gz
 .env
+*.crt
+*.key
