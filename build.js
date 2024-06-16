@@ -94,8 +94,6 @@ function generateErrorPagesNGINX() {
   });
 }
 
-
-
 async function build() {
   try {
     await writeFileAsync(path.join(__PROJECT_DIR__, 'bin', 'nginx-start.cmd'),
@@ -130,6 +128,7 @@ async function build() {
 const BUILING_PROMISE = new Promise((resolve, reject) => {
   try {
     (async () => {
+      if (runArguments.includes('nginxErrors')) generateErrorPagesNGINX();
       if (runArguments.includes('start')) await checkForIndex(__PROJECT_DIR__);
       if (!runArguments.includes('index_rebuild')) await build();
       if (runArguments.includes('index') || runArguments.includes('index_rebuild')) await index(__PROJECT_DIR__);
