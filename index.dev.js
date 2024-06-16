@@ -589,7 +589,7 @@ const options = {
     await Promise.all([
       new Promise((resolve, reject) => {
         server.listen(serverConfig.server.HTTPSPort, () => {
-          console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: HTTPS enabled | PORT : ${serverConfig.server.HTTPSPort}\x1b[39m`);
+          console.log(`\x1b[35m[${new Date().toLocaleString().  replace(',', '')}] :: 🟪 > [SERVER] :: HTTPS enabled | PORT : ${serverConfig.server.HTTPSPort}\x1b[39m`);
           resolve();
         });
       }),
