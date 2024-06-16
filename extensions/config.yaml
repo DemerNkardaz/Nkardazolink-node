@@ -1,6 +1,2 @@
 Extensions:
   ImageHandler: enabled
-
-
-ImageHandler:
-  Import: ImageHandler, ImageCacheCleaner
