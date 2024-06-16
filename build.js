@@ -9,6 +9,7 @@ const writeFileAsync = promisify(fs.writeFile);
 const readFileAsync = promisify(fs.readFile);
 const crypto = require('crypto');
 const { copyFilesAndMinify, createManifest, index, checkForIndex, buildExtensions } = require('./server.workers/server/building.files.js');
+global.__PROJECT_DIR__ = path.join(__dirname, '.');
 global.serverConfig = ini.parse(path.join(__PROJECT_DIR__, 'server.ini'));
 
 const runArguments = process.argv.slice(2);

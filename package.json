@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node run-script.js start",
-    "dev": "node run-script.js dev",
-    "index_rebuild": "node run-script.js index_rebuild",
-    "build": "node run-script.js build"
+    "start": "node ./server.workers/server/run-script.js start",
+    "dev": "node ./server.workers/server/run-script.js dev",
+    "index_rebuild": "node ./server.workers/server/run-script.js index_rebuild",
+    "build": "node ./server.workers/server/run-script.js build"
   },
   "keywords": [],
   "author": "",

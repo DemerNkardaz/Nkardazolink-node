@@ -2,7 +2,8 @@ const { loadComponent } = require('./src/serverside/scripts/ComponentHandling.js
 const crypto = require('crypto');
 
 require('dotenv').config();
-require('./core-config').config().init();
+require('./modules/CoreConfig/CoreConfig').config().init();
+global.__PROJECT_DIR__ = path.join(__dirname, '.');
 
 const serverINI = path.join(__PROJECT_DIR__, 'server.ini');
 ini.parse(serverINI, 'serverConfig');
@@ -32,7 +33,7 @@ app.use(sessions({
   saveUninitialized: true,
   cookie: { secure: true }
 }));
-
+/*
 const knexDB = knex({
   client: 'mysql2',
   connection: {
@@ -45,7 +46,7 @@ const knexDB = knex({
     max: 10
   },
   useNullAsDefault: true
-});
+});*/
 
 
 new ImageCacheCleaner();

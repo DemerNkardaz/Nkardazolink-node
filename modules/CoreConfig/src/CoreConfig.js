@@ -3,22 +3,35 @@ const yaml = require('js-yaml');
 const path = require('path');
 const config = (file) => {
   let methods = {};
-  const configFile = yaml.load(fs.readFileSync(`./${file || 'core-config'}.yaml`, 'utf8'));
+  const projectDirectory = path.join(__dirname, '..', '..');
+  const configPath = path.join(projectDirectory, `${file || 'core-config'}.yaml`);
+  const configFile = yaml.load(fs.readFileSync(configPath, 'utf8'));
   methods.handle = (dependency, isNotRequire) => {
     let key = Object.keys(dependency)[0];
     let value = dependency[key];
+    key = key.startsWith('./') ? path.join(projectDirectory, key) : key;
+    console.log(key);
+
     if (!isNotRequire) {
       if (value.startsWith('{') && value.endsWith('}')) {
         value = value.substring(1, value.length - 1);
-        if (value.includes(', '))
-          value = value.split(', '),
-          value.forEach(dep => eval(`global.${dep} = require('${key}').${dep}`));
-        else
-          eval(`global.${value} = require('${key}').${value}`);
-      } else
+        let imports = value.split(',').map(v => v.trim());
+        let moduleExports = require(key);
+
+        imports.forEach(variable => {
+          if (moduleExports.hasOwnProperty(variable)) {
+            global[variable] = moduleExports[variable];
+          } else {
+            console.error(`Variable '${variable}' not found in module '${key}'.`);
+          }
+        });
+
+      } else {
         global[value] = require(key);
+      }
+    } else {
+      global[key] = eval(value);
     }
-    else global[key] = eval(value);
   };
 
   methods.init = (args) => {

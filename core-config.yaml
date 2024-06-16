@@ -38,14 +38,12 @@ IndexDependencies:
   - serialize-javascript: 'jsSerialize'
   - body-parser: 'bodyParser'
   - jsdom: '{ JSDOM }'
-BuildingDependencies:
-  - ./server.workers/server/sitemap.gen.js: '{ generateSitemaps }'
 ProjectDependencies:
   - ./modules/iniParser/iniParser.js: '{ ini }'
   - ./app/hooks/StringHandling.js: '{ StringHandling }'
-  - ./app/hooks/LocalisationHandling.js: '{ localise }'
+  - ./app/hooks/LocalisationHandling.js: 'localise'
   - ./app/scripts/PostProcessor.js: '{ PostProcessor }'
-  - ./app/scripts/ComponentHandling.js: '{ PagePrerender, loadComponent }'
+  - ./app/scripts/ComponentHandling.js: '{ loadComponent }'
   - ./app/scripts/DataBaseHandling.js: '{ dbHandle }'
   - ./app/scripts/SessionManagement.js: '{ SessionManager }'
 AppFuncs:
@@ -58,7 +56,6 @@ AppFuncs:
   - fileStat: 'promisify(fs.stat)'
 AppVariables: 
   - Vars
-  - __PROJECT_DIR__: 'path.resolve(__dirname)'
   - __NK__:
       url: []
       skins:

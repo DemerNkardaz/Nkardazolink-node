@@ -1,8 +1,9 @@
 const { execSync } = require('child_process');
 const yaml = require('js-yaml');
 const fs = require('fs');
-
-const config = yaml.load(fs.readFileSync('scripts.yml', 'utf8'));
+const path = require('path');
+const yamlPath = path.join(__dirname, '..', '..', 'scripts.yml');
+const config = yaml.load(fs.readFileSync(yamlPath, 'utf8'));
 
 const command = process.argv[2];
 if (command && command in config) {
