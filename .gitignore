@@ -15,3 +15,5 @@ static/site.maps/*.xml.gz
 .env
 *.crt
 *.key
+out.log
+error.log

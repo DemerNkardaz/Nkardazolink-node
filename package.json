@@ -4,6 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "cluster_start": "pm2 start pm2.config.js --env production",
+    "cluster_kill": "pm2 kill #kills all pm2 workers",
+    "cluster_reload": "pm2 reload alld",
+    "cluster_restart": "pm2 restart all",
+    "cluster_list": "pm2 list",
+    "cluster_monitor": "pm2 monit",
     "start": "node ./server.workers/server/run-script.js start",
     "dev": "node ./server.workers/server/run-script.js dev",
     "index_rebuild": "node ./server.workers/server/run-script.js index_rebuild",
