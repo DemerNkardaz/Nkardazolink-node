@@ -34,7 +34,6 @@ async function build() {
     await writeFileAsync(path.join(__PROJECT_DIR__, 'bin', 'lighthouse-analyzer-http.cmd'), `lighthouse http://${process.env.HOST}:${process.env.PORT} --output-path=./lighthouse_report.html`, 'utf-8');
     await writeFileAsync(path.join(__PROJECT_DIR__, 'bin', 'lighthouse-analyzer-https.cmd'), `lighthouse https://${process.env.HOST} --output-path=./lighthouse_report.html`, 'utf-8');
     await writeFileAsync(path.join(__PROJECT_DIR__, 'bin', 'install-ltunnel-n-lhouse-via-npm-globally.cmd'), `npm install -g localtunnel lighthouse`, 'utf-8');
-    await writeFileAsync(path.join(__PROJECT_DIR__, 'static/token.txt'), generateMuchTokens(), 'utf-8');
     await buildExtensions(path.join(__PROJECT_DIR__, 'extensions'));
     await buildExtensions(path.join(__PROJECT_DIR__, 'modules'));
     await copyFilesAndMinify(path.join(__PROJECT_DIR__, 'src/clientside'), path.join(__PROJECT_DIR__, 'static/public'));

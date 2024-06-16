@@ -2,10 +2,6 @@ Renderers:
   - ejs: 'ejs'
   - pug: 'pug'
   - remarkable: '{ Remarkable }'
-  - remarkable/linkify: '{ linkify }'
-Remarkable-settings:
-  - Vars
-  - markdown: 'new Remarkable({ html: true }).use(linkify)'
 IndexDependencies:
   - https: 'https'
   - http-proxy-middleware: '{ createProxyMiddleware }'

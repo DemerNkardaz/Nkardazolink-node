@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 
 require('dotenv').config();
-require('./modules/CoreConfig/src/CoreConfig').config().init();
+require('./modules/CoreConfig/CoreConfig').config().init();
 global.__PROJECT_DIR__ = path.join(__dirname, '.');
 
 const serverINI = path.join(__PROJECT_DIR__, 'server.ini');
@@ -106,41 +106,6 @@ sharedAssetsDB.run(`CREATE TABLE IF NOT EXISTS sharedFiles (rowID INTEGER PRIMAR
     console.error('Error inserting test image:', error);
   }
 })();*/
-markdown.core.ruler.enable(['abbr']);
-markdown.inline.ruler.enable(['ins', 'mark','footnote_inline', 'sub', 'sup']);
-markdown.block.ruler.enable(['footnote', 'deflist']);
-
-markdown.renderFile = async function (filePath, data) {
-  const fileContent = await readFileAsync(filePath, 'utf8');
-  const parsedContent = fileContent
-    .replace(/```js\s\%([\s\S]*?)```/g, (match, code) => {
-      try {
-        const boundFunction = new Function('data', code).bind(null, data);
-        return boundFunction();
-      } catch (err) {
-        console.log(err);
-        return match;
-      }
-    })
-    .replace(/\${((?!{[^{]*}).*?)}/g, (match, code) => {
-      const varLink = code.match(/\.[\s\S]*?\)/g) ?
-        code.replace(/\.[\s\S]*?\)/g, '').split('.').map(key => `[\"${key}\"]`).join('')
-        : !code.includes('(') ? code.split('.').map(key => `[\"${key}\"]`).join('') : code;
-      const varMethods = code.match(/(\.\w+\(.*?\))/g) ? code.match(/(\.\w+\(.*?\))/g).join('') : '';
-      try {
-        return new Function('data', `return data${varLink}${varMethods}`)(data);
-      } catch (err) {
-        try {
-          return new Function('data', `return ${code}`)(data)
-          } catch (err) {
-          console.log(err);
-          return `<span title="${err}" style="cursor: help">${match}</span>`;
-        }
-      }
-    });
-  return await markdown.render(parsedContent);
-};
-
 
 
 app.use(

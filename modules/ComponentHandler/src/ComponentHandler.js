@@ -69,4 +69,4 @@ Promise.prototype.PostProcessor = async function (data) {
   }
 };
 
-module.exports = { loadComponent, markdown, PostProcessor };
+module.exports = { loadComponent, markdown };
