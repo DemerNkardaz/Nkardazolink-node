@@ -63,7 +63,7 @@ class ImageCacheCleaner {
 }
 
 class ImageHandler {
-  constructor(sourcePath, request, disableCache = false, infoOnly = false) {
+  constructor(sourcePath, request, enabledCache = true, infoOnly = false) {
     Object.assign(this, {
       infoOnly: infoOnly,
       sourcePath: sourcePath,
@@ -85,7 +85,7 @@ class ImageHandler {
       watermarkScale: request.query.ws || null,
       postMark: request.query.wpost ? Boolean(request.query.wpost) : null,
       cacheKey: this.#generateCacheKey(request.url),
-      disableCache: disableCache,
+      enabledCache: enabledCache,
       rotate: request.query.rotate ? parseInt(request.query.rotate) : null,
       postRotate: request.query.protate ? parseInt(request.query.protate) : null,
       rotateBackground: request.query.rbg || null,
@@ -261,9 +261,9 @@ class ImageHandler {
           imageBuffer = await sharp(imageBuffer).modulate(options).gamma(this.gamma[0], this.gamma[1]).toBuffer();
         }
 
-        if (this.staticUrl.includes('?') && imageBuffer.length <= 1 * 1024 * 1024) {
+        if (this.staticUrl.includes('?') && imageBuffer.length <= serverConfig.cache.maxCachedImageSize) {
           const cachedName = `${this.cacheKey}-${this.#generateCacheKey(mimeType.slice(6))}`;
-          this.disableCache !== true && await this.#saveToCache(imageBuffer, cachedName);
+          this.enabledCache === true && await this.#saveToCache(imageBuffer, cachedName);
         }
 
         const fileInfo = await sharp(imageBuffer).metadata();

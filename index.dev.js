@@ -318,7 +318,7 @@ app.get('/shared/models/:3dModelName', async (request, response, next) => {
 
 app.get('/shared/images/nocache/:imageFileName', async (request, response, next) => {
   try {
-    const handler = new ImageHandler(__PROJECT_DIR__, request, true);
+    const handler = new ImageHandler(__PROJECT_DIR__, request, enabledCache = false);
     const handledResult = await handler.getImage(sharedAssetsDB);
 
     if (typeof handledResult === 'string') {
@@ -378,7 +378,7 @@ app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
       if (serverConfig.allowedFileTypes.images.includes(getExtension)) {
         const language = await request.headers['accept-language'].substring(0, 2);
         request.params.imageFileName = FileName;
-        const imageHandler = new ImageHandler(__PROJECT_DIR__, request, false, true);
+        const imageHandler = new ImageHandler(__PROJECT_DIR__, request, serverConfig.cache.enabled, true);
         const handledResult = await imageHandler.getImage(sharedAssetsDB);
       
         if (typeof handledResult === 'string') {
@@ -489,7 +489,7 @@ app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
 app.get('/shared/images/:imageFileName', async (request, response, next) => {
 
   try {
-    const handler = new ImageHandler(__PROJECT_DIR__, request);
+    const handler = new ImageHandler(__PROJECT_DIR__, request, serverConfig.cache.enabled);
     const handledResult = await handler.getImage(sharedAssetsDB);
 
     if (typeof handledResult === 'string') {
@@ -510,7 +510,7 @@ app.get('/shared/images/:imageFileName', async (request, response, next) => {
 
 app.get('/local/images/*', async (request, response, next) => {
   try {
-    const handler = new ImageHandler(path.join(__PROJECT_DIR__, 'static/public/resource/images'), request);
+    const handler = new ImageHandler(path.join(__PROJECT_DIR__, 'static/public/resource/images'), request, serverConfig.cache.enabled);
     const handledResult = await handler.getImage();
 
     if (typeof handledResult === 'string') {
@@ -584,18 +584,18 @@ const options = {
 (async () => {
   try {
     const server = https.createServer(options, app);
-    const expressServer = app.listen(process.env.PORT);
+    const expressServer = app.listen(serverConfig.server.HTTPPort);
     
     await Promise.all([
       new Promise((resolve, reject) => {
-        server.listen(process.env.PORT_HTTPS, () => {
-          console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: HTTPS enabled | PORT : ${process.env.PORT_HTTPS}\x1b[39m`);
+        server.listen(serverConfig.server.HTTPSPort, () => {
+          console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: HTTPS enabled | PORT : ${serverConfig.server.HTTPSPort}\x1b[39m`);
           resolve();
         });
       }),
       new Promise((resolve, reject) => {
         expressServer.on('listening', () => {
-          console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: HTTP enabled | PORT : ${process.env.PORT}\x1b[39m`);
+          console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: HTTP enabled | PORT : ${serverConfig.server.HTTPPort}\x1b[39m`);
           resolve();
         });
       })
