@@ -225,7 +225,7 @@ app.get('/', async (request, response, next) => {
     }
     if (session.sessionID) {
       //console.log(session);
-      await sessionManager.writeSessionToSQL(session.sessionID, session.settings);
+      //await sessionManager.writeSessionToSQL(session.sessionID, session.settings);
       //console.log(await sessionManager.readSessionFromSQL(session.sessionID))
       //console.log(await sessionManager.getSettingsFromSQL(session.sessionID, 'savedSettings.lang'))
       //await sessionManager.writeSession(session.sessionID, session.settings);

@@ -10,7 +10,6 @@ const config = (file) => {
     let key = Object.keys(dependency)[0];
     let value = dependency[key];
     key = key.startsWith('./') ? path.join(projectDirectory, key) : key;
-    console.log(key);
 
     if (!isNotRequire) {
       if (value.startsWith('{') && value.endsWith('}')) {
