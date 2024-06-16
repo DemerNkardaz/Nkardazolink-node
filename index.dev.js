@@ -1,13 +1,15 @@
 const { loadComponent } = require('./src/serverside/scripts/ComponentHandling.js');
 const crypto = require('crypto');
+
 require('dotenv').config();
-require('./nk.config.js').config().init();
-require('./modules/modules').config().init(srcMode = true);
-require('./extensions/extensions').config().init(srcMode = true);
+require('./core-config').config().init();
 
 const serverINI = path.join(__PROJECT_DIR__, 'server.ini');
 ini.parse(serverINI, 'serverConfig');
 ini.watch(serverINI, 'serverConfig');
+
+require('./modules/modules').config().init(srcMode = serverConfig.modules.useSrc);
+require('./extensions/extensions').config().init(srcMode = serverConfig.modules.useSrc);
 
 console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Server started\x1b[39m`);
 app.use(liveSassCompiler);

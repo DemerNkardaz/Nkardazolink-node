@@ -12,7 +12,6 @@ const config = (file) => {
           const imports = configFile[key].Import.replace(/\s/g, '').split(',');
           const requirePath = path.join(extFolder, key, srcMode ? 'src' : '', `${key}.js`);
           const module = require(requirePath);
-          
           imports.forEach(variable => {
             global[variable] = module[variable];
           });

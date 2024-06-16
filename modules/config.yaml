@@ -1,13 +1,10 @@
 Extensions:
   DataExtend: enabled
-  iniParser: enabled
+  iniParser: 'default enabled — see core-config.yaml'
   Utilities: enabled
 
 DataExtend:
   Import: DataExtend
-
-iniParser:
-  Import: ini
 
 Utilities:
   Import: mergeObjects, varToYaml, getLastModifiedInFolders, parseUrl, urlSpaceToUnderscore, liveSassCompiler

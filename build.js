@@ -1,5 +1,5 @@
 require('dotenv').config();
-require('./nk.config.js').config().init(['AppVariables']);
+require('./core-config').config().init(['AppVariables']);
 const { ini } = require('./modules/iniParser/src/iniParser.js');
 const { execSync } = require('child_process');
 const fs = require('fs-extra');

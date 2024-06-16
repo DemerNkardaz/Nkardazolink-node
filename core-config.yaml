@@ -2,7 +2,7 @@ Renderers:
   - ejs: 'ejs'
   - pug: 'pug'
   - remarkable: '{ Remarkable }'
-  - remarkable/linkify: '{ linkify  }'
+  - remarkable/linkify: '{ linkify }'
 Remarkable-settings:
   - Vars
   - markdown: 'new Remarkable({ html: true }).use(linkify)'
@@ -41,6 +41,7 @@ IndexDependencies:
 BuildingDependencies:
   - ./server.workers/server/sitemap.gen.js: '{ generateSitemaps }'
 ProjectDependencies:
+  - ./modules/iniParser/iniParser.js: '{ ini }'
   - ./app/hooks/StringHandling.js: '{ StringHandling }'
   - ./app/hooks/LocalisationHandling.js: '{ localise }'
   - ./app/scripts/PostProcessor.js: '{ PostProcessor }'
