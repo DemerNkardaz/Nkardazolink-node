@@ -15,7 +15,7 @@ const config = (file) => {
     let key = Object.keys(dependency)[0];
     let value = dependency[key];
     key = key.startsWith('./') ? path.join(projectDirectory, key) : key;
-    console.log(key);
+    //console.log(key);
 
     if (!isNotRequire) {
       if (value.startsWith('{') && value.endsWith('}')) {
@@ -44,7 +44,7 @@ const config = (file) => {
 
   methods.watch = (args) => {
     chokidar.watch(configPath).on('change', async () => {
-      console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟧 > [CONFIG] :: Configuration file ${configPath.split('\\').pop()} has been changed\x1b[39m`);
+      console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟧 > [CONFIG] :: Configuration file [${configPath.split('\\').pop()}] has been changed\x1b[39m`);
     
       try {
         previousInit.forEach(variable => global[variable] && delete global[variable]);
