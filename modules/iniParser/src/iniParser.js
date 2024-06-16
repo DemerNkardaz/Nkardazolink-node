@@ -23,7 +23,11 @@ const parseLines = (data) => {
   const lines = data.split('\n');
   let currentSection = null;
   let splitBy = ',';
-  lines.forEach((line) => { line.startsWith('splitBy') && (splitBy = line.split('=')[1].trim()) });;
+  let bracketCommands = false;
+  lines.forEach((line) => {
+    line.startsWith('splitBy') && (splitBy = line.split('=')[1].trim())
+    line.startsWith('bracketCommands') && (bracketCommands = line.split('=')[1].trim() === 'true')
+  });
   const parsedData = {};
   try {
     lines.forEach((line) => {
@@ -42,7 +46,9 @@ const parseLines = (data) => {
         if (/^\d+(K|M|G|T)$/i.test(value)) { value = parseSize(value); }
         else if (value.toLowerCase() === 'true') { value = true; }
         else if (value.toLowerCase() === 'false') { value = false; }
-        else if (value.includes(splitBy)) { value = value.split(splitBy).map(ext => ext.trim()); }
+        else if (bracketCommands && value.startsWith('${') && value.endsWith('}'))
+          { value = new Function(`return ${value.slice(2, -1)}`)(); }
+        else if (value.includes(splitBy) && value.length > 1) { value = value.split(splitBy).map(ext => ext.trim()); }
         else { value = value; }
 
         parsedData[currentSection][key] = value;
