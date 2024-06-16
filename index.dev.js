@@ -160,10 +160,21 @@ dataArray.push({ source: `./assets/locale/asset.common.yaml`, as: `locale.common
 dataArray.push({ source: `./assets/locale/asset.templates.yaml`, as: `locale.templates` });
 dataArray.push({ source: `./assets/locale/misc.yaml`, as: `locale` });
 
-
-DataExtend(dataArray, __PROJECT_DIR__)
+function loadLocales() {
+  DataExtend(dataArray, __PROJECT_DIR__)
     .then(() => console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [DATA-EXTEND] :: Extension of data completed\x1b[39m`))
     .catch(err => console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > [DATA-EXTEND] :: Error extending data: ${err.message}`));
+}; loadLocales();
+
+chokidar.watch('./assets/locale/**/*', {
+    ignored: /(^|[\/\\])\../,
+    persistent: true
+}).on('change', path => {
+  console.log(`\x1b[33m[${new Date().toLocaleString().replace(',', '')}] :: 🟨 > [DATA-EXTEND] :: [${path}] changed\x1b[39m`);
+  loadLocales();
+});
+
+
 
 app.use((request, response, next) => {
   response.setHeader("X-Content-Type-Options", "nosniff");
