@@ -1,16 +1,18 @@
 const fs = require('fs');
 const yaml = require('js-yaml');
 const path = require('path');
-const extFolder = path.join(__dirname);
-const config = (file) => {
+const config = (moduleSource, file) => {
+  const modulePath = path.join(__dirname, '..', '..', moduleSource);
+  const moduleConfigPath = path.join(path.join(__dirname, '..', '..'), moduleSource, `${file || 'config'}.yaml`);
+  console.log(modulePath);
   let methods = {};
-  const configFile = yaml.load(fs.readFileSync(`${extFolder}/${file || 'config'}.yaml`, 'utf8'));
+  const configFile = yaml.load(fs.readFileSync(moduleConfigPath, 'utf8'));
   methods.init = (srcMode = false) => {
     for (const [key, value] of Object.entries(configFile['Extensions'])) {
       if (value === 'enabled' || value === true) {
         try {
           const imports = configFile[key].Import.replace(/\s/g, '').split(',');
-          const requirePath = path.join(extFolder, key, srcMode ? 'src' : '', `${key}.js`);
+          const requirePath = path.join(modulePath, key, srcMode ? 'src' : '', `${key}.js`);
           const module = require(requirePath);
           imports.forEach(variable => {
             global[variable] = module[variable];

@@ -8,8 +8,8 @@ const serverINI = path.join(__PROJECT_DIR__, 'server.ini');
 ini.parse(serverINI, 'serverConfig');
 ini.watch(serverINI, 'serverConfig');
 
-require('./modules/modules').config().init(srcMode = serverConfig.modules.useSrc);
-require('./extensions/extensions').config().init(srcMode = serverConfig.modules.useSrc);
+require('./modules/ModuleLoader/ModuleLoader').config('modules').init(srcMode = serverConfig.modules.useSrc);
+require('./modules/ModuleLoader/ModuleLoader').config('extensions').init(srcMode = serverConfig.modules.useSrc);
 
 console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Server started\x1b[39m`);
 app.use(liveSassCompiler);
