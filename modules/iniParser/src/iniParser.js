@@ -27,8 +27,10 @@ const ini = {
           value = true;
         } else if (value.toLowerCase() === 'false') {
           value = false;
-        } else {
+        } else if (value.includes(',')) {
           value = value.split(',').map(ext => ext.trim());
+        } else {
+          value = value; // Оставляем значение как строку
         }
 
         parsedData[currentSection][key] = value;

@@ -8,8 +8,8 @@ const serverINI = path.join(__PROJECT_DIR__, 'server.ini');
 ini.parse(serverINI, 'serverConfig');
 ini.watch(serverINI, 'serverConfig');
 
-require('./modules/ModuleLoader/ModuleLoader').config('modules').init(srcMode = serverConfig.modules.useSrc);
-require('./modules/ModuleLoader/ModuleLoader').config('extensions').init(srcMode = serverConfig.modules.useSrc);
+require('./modules/ModuleLoader/ModuleLoader').config(serverConfig.modules.modulesFolder).init(srcMode = serverConfig.modules.useSrc);
+require('./modules/ModuleLoader/ModuleLoader').config(serverConfig.modules.extensionsFolder).init(srcMode = serverConfig.modules.useSrc);
 
 console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Server started\x1b[39m`);
 app.use(liveSassCompiler);
@@ -397,8 +397,8 @@ app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
     if (/^\/(File|Файл):/.test(decodedUrl)) {
       const FileName = decodedUrl.replace(/^\/(File|Файл):/, '').replace(/\?.*$/, '');
       const Arguments = request.url.includes('?') ? request.url.replace(/^[^?]*\?/, '?') : '';
-      const getExtension = `.${FileName.split('.').pop()}`;
-    
+      const getExtension = path.extname(request.url.split('?')[0]);
+
       if (serverConfig.allowedFileTypes.images.includes(getExtension)) {
         const language = await request.headers['accept-language'].substring(0, 2);
         request.params.imageFileName = FileName;
