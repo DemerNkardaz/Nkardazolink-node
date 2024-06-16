@@ -122,4 +122,74 @@ const liveSassCompiler = (req, res, next) => {
   }
 }
 
-module.exports = { mergeObjects, varToYaml, getLastModifiedInFolders, parseUrl, urlSpaceToUnderscore, liveSassCompiler };
+function parseToInterval(intervalStr) {
+  const match = intervalStr.match(/^(\d+)([shdwmy])$/);
+  if (!match) {
+    throw new Error('Invalid interval string. Valid examples: "1h", "7d", "2w", "9m", "10y"');
+  }
+  const value = parseInt(match[1], 10);
+  const unit = match[2];
+
+  switch (unit) {
+    case 's':
+      return value * 1000;
+    case 'h':
+      return value * 60 * 60 * 1000;
+    case 'd':
+      return value * 24 * 60 * 60 * 1000;
+    case 'w':
+      return value * 7 * 24 * 60 * 60 * 1000;
+    case 'm':
+      return value * 30 * 24 * 60 * 60 * 1000;
+    case 'y':
+      return value * 365 * 24 * 60 * 60 * 1000;
+    default:
+      throw new Error('Invalid interval unit. Valid units: "h", "d", "w", "m", "y"');
+  }
+}
+
+function parseToDays(intervalStr) {
+  const match = intervalStr.match(/^(\d+)([shdwmy])$/);
+  if (!match) {
+    throw new Error('Неверная строка интервала. Примеры верных значений: "1h", "7d", "2w", "9m", "10y"');
+  }
+  const value = parseInt(match[1], 10);
+  const unit = match[2];
+
+  switch (unit) {
+    case 's':
+      return value / (24 * 60 * 60 * 1000);
+    case 'h':
+      return value / (60 * 60 * 1000);
+    case 'd':
+      return value;
+    case 'w':
+      return value * 7;
+    case 'm':
+      return value * 30;
+    case 'y':
+      return value * 365;
+    default:
+      throw new Error('Неверная единица интервала. Допустимые единицы: "h", "d", "w", "m", "y"');
+  }
+}
+
+
+const parseSize = (sizeString) => {
+  sizeString = sizeString.toUpperCase();
+  if (sizeString.endsWith('K')) {
+    return parseInt(sizeString.slice(0, -1)) * 1024;
+  } else if (sizeString.endsWith('M')) {
+    return parseInt(sizeString.slice(0, -1)) * 1024 * 1024;
+  } else if (sizeString.endsWith('G')) {
+    return parseInt(sizeString.slice(0, -1)) * 1024 * 1024 * 1024;
+  } else if (sizeString.endsWith('T')) {
+    return parseInt(sizeString.slice(0, -1)) * 1024 * 1024 * 1024 * 1024;
+  }
+  return parseInt(sizeString);
+}
+
+module.exports = {
+  mergeObjects, varToYaml, getLastModifiedInFolders, parseUrl, urlSpaceToUnderscore, liveSassCompiler, parseToInterval,
+  parseToDays, parseSize
+};

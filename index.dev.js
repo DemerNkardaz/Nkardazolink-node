@@ -48,7 +48,7 @@ const knexDB = knex({
 });*/
 
 
-new ImageCacheCleaner();
+new ImageCacheCleaner(serverConfig.cache.cacheCleaningFrequency);
 
 const usersDataBase = new sqlite3.Database(path.join(__PROJECT_DIR__, 'static/data_base/users.db'));
 usersDataBase.run(`CREATE TABLE IF NOT EXISTS users (rowID INTEGER PRIMARY KEY, userID TEXT, userName TEXT, userLink TEXT, login TEXT, password TEXT, email TEXT, sessionID TEXT, settings JSON, authorize JSON)`);

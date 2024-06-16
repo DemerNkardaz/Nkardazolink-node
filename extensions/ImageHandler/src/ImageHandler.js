@@ -9,42 +9,34 @@ const { DOMParser, XMLSerializer } = require('xmldom');
 
 
 class ImageCacheCleaner {
-  constructor(intervalStr) {
+  constructor() {
+    this.frequency = serverConfig.cache.cacheCleaningFrequency || '7d';
+    this.cacheMaxAge = serverConfig.cache.maxCacheAge || '7d';
     this.cacheDir = path.join(__PROJECT_DIR__, 'cache/images');
-    this.interval = this.#parseInterval(intervalStr || '7d');
-    console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 💠 > [IMAGE HANDLER] :: Cache cleaner initialized and checking [cache/images] every ${intervalStr || '7d'}\x1b[39m`);
-    setInterval(() => this.#removeOutdatedCache(), this.interval);
+    this.serverINI = path.join(__PROJECT_DIR__, 'server.ini');
+    console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 💠 > [IMAGE HANDLER] :: Cache cleaner initialized and checking [cache/images] every ${serverConfig.cache.cacheCleaningFrequency || '7d'}\x1b[39m`);
+    this.cacheCleanInterval = setInterval(() => this.#removeOutdatedCache(), parseToInterval(this.frequency));
+    chokidar.watch(this.serverINI).on('change', () => {
+      setTimeout(() => {
+        if (this.frequency !== serverConfig.cache.cacheCleaningFrequency) {
+          console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 💠 > [IMAGE HANDLER] :: Cache cleaner frequency changed from ${this.frequency} to ${serverConfig.cache.cacheCleaningFrequency}\x1b[39m`);
+          this.frequency = serverConfig.cache.cacheCleaningFrequency;
+          clearInterval(this.cacheCleanInterval);
+          this.cacheCleanInterval = setInterval(() => this.#removeOutdatedCache(), parseToInterval(this.frequency));
+        }
+        if (this.cacheMaxAge !== serverConfig.cache.maxCacheAge) {
+          console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 💠 > [IMAGE HANDLER] :: Cache max age changed from ${this.cacheMaxAge} to ${serverConfig.cache.maxCacheAge}\x1b[39m`);
+          this.cacheMaxAge = serverConfig.cache.maxCacheAge;
+        }
+      }, 1200);
+    });
+
   }
 
-  #parseInterval(intervalStr) {
-    const match = intervalStr.match(/^(\d+)([shdwmy])$/);
-    if (!match) {
-      throw new Error('Invalid interval string. Valid examples: "1h", "7d", "2w", "9m", "10y"');
-    }
-    const value = parseInt(match[1], 10);
-    const unit = match[2];
-
-    switch (unit) {
-      case 's':
-        return value * 1000;
-      case 'h':
-        return value * 60 * 60 * 1000;
-      case 'd':
-        return value * 24 * 60 * 60 * 1000;
-      case 'w':
-        return value * 7 * 24 * 60 * 60 * 1000;
-      case 'm':
-        return value * 30 * 24 * 60 * 60 * 1000;
-      case 'y':
-        return value * 365 * 24 * 60 * 60 * 1000;
-      default:
-        throw new Error('Invalid interval unit. Valid units: "h", "d", "w", "m", "y"');
-    }
-  }
 
   async #removeOutdatedCache() {
     const oneWeekAgo = new Date();
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - parseToDays(this.cacheMaxAge));
 
     try {
       const files = await fs.readdir(this.cacheDir);
@@ -369,8 +361,8 @@ class ImageHandler {
 
 
   async #manageCacheSize() {
-    const maxCacheSize = 1 * 1024 * 1024 * 1024;
-
+    const maxCacheSize = serverConfig.cache.maxImagesCache;
+    
     try {
       const files = await fs.readdir(this.cacheDir);
       let totalSize = 0;
