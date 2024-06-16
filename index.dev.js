@@ -2,7 +2,7 @@ const { loadComponent } = require('./src/serverside/scripts/ComponentHandling.js
 const crypto = require('crypto');
 
 require('dotenv').config();
-require('./modules/CoreConfig/CoreConfig').config().init();
+require('./modules/CoreConfig/src/CoreConfig').config().init();
 global.__PROJECT_DIR__ = path.join(__dirname, '.');
 
 const serverINI = path.join(__PROJECT_DIR__, 'server.ini');

@@ -1,5 +1,5 @@
 require('dotenv').config();
-require('./modules/CoreConfig/CoreConfig').config().init(['AppVariables']);
+require('./modules/CoreConfig/src/CoreConfig').config().init(['AppVariables']);
 const { ini } = require('./modules/iniParser/src/iniParser.js');
 const { execSync } = require('child_process');
 const fs = require('fs-extra');

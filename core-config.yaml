@@ -11,6 +11,7 @@ IndexDependencies:
   - http-proxy-middleware: '{ createProxyMiddleware }'
   - compression: 'compression'
   - zlib: 'zlib'
+  - chokidar: 'chokidar'
   - fs: 'fs'
   - mysql2: 'mysql'
   - knex: 'knex'

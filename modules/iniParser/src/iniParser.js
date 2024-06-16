@@ -30,7 +30,7 @@ const ini = {
         } else if (value.includes(',')) {
           value = value.split(',').map(ext => ext.trim());
         } else {
-          value = value; // Оставляем значение как строку
+          value = value;
         }
 
         parsedData[currentSection][key] = value;
@@ -40,10 +40,10 @@ const ini = {
     else return parsedData;
   },
   watch(file, variable) {
-    chokidar.watch(file).on('change', () => {
-      const data = ini.parse(file);
+    chokidar.watch(file).on('change', async () => {
+      const data = await ini.parse(file);
       global[variable] = data;
-      console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟧 > [INI] :: Configuration file ${file.split('/').pop()} has been changed\x1b[39m`);
+      console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟧 > [INI] :: Configuration file ${file.split('\\').pop()} has been changed\x1b[39m`);
     });
   }
 }
