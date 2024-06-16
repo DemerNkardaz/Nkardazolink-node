@@ -31,6 +31,20 @@ app.use(sessions({
   cookie: { secure: true }
 }));
 
+const knexDB = knex({
+  client: 'mysql2',
+  connection: {
+    host: 'localhost',
+    user: 'admin',
+    password: 'root',
+  },
+  pool: {
+    min: 0,
+    max: 10
+  },
+  useNullAsDefault: true
+});
+
 
 new ImageCacheCleaner();
 
@@ -159,10 +173,9 @@ app.use((request, response, next) => {
 
 app.use(async (req, res, next) => {
   try {
-    if (
-      serverConfig.routes.useThirdLevelDomains && req.hostname.split('.').length > 2 ||
-      !serverConfig.routes.useThirdLevelDomains && req.url.split('/')[1].substring(0, 2)
-    ) {
+    const isTLDEnabled = serverConfig.routes.useThirdLevelDomains && req.hostname.split('.').length > 2;
+    const isTLDDisabled = !serverConfig.routes.useThirdLevelDomains && req.url.split('/')[1].substring(0, 2);
+    if (isTLDEnabled || isTLDDisabled) {
       const getTLD = req.hostname.split('.')[0].split('https://').join('').split('http://').join('');
       req.ThirdLevelDomain = serverConfig.routes.useThirdLevelDomains ? getTLD : req.url.split('/')[1].substring(0, 2) || null;
     }
@@ -279,9 +292,21 @@ app.get('/', async (request, response, next) => {
 
 
 app.get('/:lang?/wiki', async (request, response, next) => {
+  console.log(request.ThirdLevelDomain);
   try {
-
-    response.send('Future WIKI Section')
+    const localedMainPages = {
+      ru: 'wiki/Заглавная_Страница',
+      en: 'wiki/Main_Page',
+      ja: 'wiki/メインページ',
+      zh: 'wiki/主页',
+      ko: 'wiki/메인페이지',
+      vi: 'wiki/Trang_chủ',
+      ro: 'wiki/Pagină_principală',
+    }
+    const isTLDEnabled = serverConfig.routes.useThirdLevelDomains && request.hostname.split('.').length > 2;
+    const isTLDDisabled = !serverConfig.routes.useThirdLevelDomains && request.url.split('/')[1].substring(0, 2);
+    const redirectUrl = isTLDEnabled ? `${request.protocol}://${request.get('host')}/${localedMainPages[request.ThirdLevelDomain]}` : `${request.ThirdLevelDomain ? `${request.ThirdLevelDomain}/${localedMainPages[request.ThirdLevelDomain]}` : 'wiki/Заглавная_Страница'}`;
+    response.redirect(redirectUrl);
   } catch (error) {
     console.error(error);
     next(error);
@@ -289,6 +314,12 @@ app.get('/:lang?/wiki', async (request, response, next) => {
 });
 
 app.get('/:lang?/wiki/:page', async (request, response, next) => {
+  /*
+  ? Создать «Разделы» — страницы с категориями и статьями общей тематики, например Раздел:Нихонсимагуни или Раздел:Магия
+  ? Создать «Категории» — обычный элемент википедии, котрый содержит перечень статей, входящих в эти самые категории.
+
+
+  */
   try {
   
     response.send(`Вики-страница “${request.params.page}”`)

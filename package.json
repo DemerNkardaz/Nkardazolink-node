@@ -40,6 +40,7 @@
     "jsdom": "^24.1.0",
     "jsonpath": "^1.1.1",
     "jszip": "^3.10.1",
+    "knex": "^3.1.0",
     "libxmljs": "^1.0.11",
     "markdown-it-sub": "^2.0.0",
     "mime-types": "^2.1.35",
