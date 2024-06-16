@@ -6,3 +6,4 @@ Extensions:
   ComponentHandler: enabled
   DataExtend: enabled
   Utilities: enabled
+  WikiMarkup: enabled
