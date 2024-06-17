@@ -155,13 +155,14 @@ http {
   }
 
   server {
-    listen 80;
+    listen ${serverConfig.server.HTTPPort};
     server_name ${serverConfig.server.host};
     return 301 https://$server_name$request_uri;
   }
 
   server {
     listen 8080 ssl;
+    http2 on;
     server_name ${serverConfig.server.host};
 
     ssl_certificate "${sourceDir}/nkardaz.io.crt";
@@ -186,6 +187,7 @@ http {
 
   server {
     listen ${serverConfig.NGINX.HTTPSPort} ssl;
+    http2 on;
     server_name ${serverConfig.server.host};
 
     ssl_certificate "${sourceDir}/nkardaz.io.crt";
@@ -202,6 +204,8 @@ http {
       proxy_set_header Host $host;
       proxy_cache_bypass $http_upgrade;
 
+      proxy_set_header detected-user-device $detected_device;
+
       add_header X-Content-Type-Options 'nosniff';
       add_header X-Request-Detected-Device $detected_device;
       add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
@@ -212,7 +216,7 @@ http {
       add_header X-Request-ID $request_id;
       add_header X-Request-Time $request_time;
 
-      proxy_pass https://nodeWikiApplication;
+      proxy_pass https://nodeWikiApplication/;
       proxy_read_timeout 15;
       proxy_connect_timeout 3;
       
