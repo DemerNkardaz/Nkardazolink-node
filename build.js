@@ -94,7 +94,7 @@ function generateErrorPagesNGINX() {
 }
 
 const cmbScripts = {
-  'nginx-start': '@echo off\n' + 'cd /d C:\\nginx\n' + 'start nginx',
+  'nginx-php-cgi-start': '@echo off\n' + 'cd /d C:\\nginx\n' + 'start nginx\n' + `php-cgi -b 127.0.0.1:9000 -c ${path.join(__PROJECT_DIR__, 'tools', 'php.ini')}`,
   'nginx-reload': '@echo off\n' + 'cd /d C:\\nginx\n' + 'nginx -s reload',
   'nginx-kill': '@echo off\n' + 'cd /d C:\\nginx\n' + 'nginx -s stop',
   'localtunnel-run': `lt --port ${serverConfig.server.HTTPPort} --subdomain ${serverConfig.server.localTunnel}`,
@@ -102,8 +102,53 @@ const cmbScripts = {
   'lighthouse-analyzer-https': `lighthouse https://${serverConfig.server.host}:${serverConfig.server.HTTPSPort} --output-path=./lighthouse_report.html`,
   'lighthouse-analyzer-nginx': `lighthouse https://${serverConfig.server.host}:${serverConfig.NGINX.HTTPSPort} --output-path=./lighthouse_report.html`,
   'install-ltunnel-n-lhouse-via-npm-globally': 'npm install -g localtunnel lighthouse',
-  'php-cgi-port9000-run': 'php-cgi -b 127.0.0.1:9000',
 }
+
+const phpIni = 
+'[PHP]\n' +
+'engine = On\n' +
+'short_open_tag = Off\n' +
+'precision = 14\n' +
+'output_buffering = 4096\n' +
+'implicit_flush = Off\n' +
+'serialize_precision = -1\n' +
+'zend.enable_gc = On\n' +
+'zend.exception_ignore_args = On\n' +
+'zend.exception_string_param_max_len = 0\n' +
+'expose_php = On\n' +
+'max_execution_time = 30\n' +
+'max_input_time = 60\n' +
+'memory_limit = 128M\n' +
+'display_errors = Off\n' +
+'display_startup_errors = Off\n' +
+'log_errors = Off\n' +
+'post_max_size = 8M\n' +
+'default_mimetype = "text/html"\n' +
+'default_charset = "UTF-8"\n' +
+'enable_dl = Off\n' +
+'cgi.fix_pathinfo=1\n' +
+'file_uploads = On\n' +
+'upload_max_filesize = 2M\n' +
+'max_file_uploads = 20\n' +
+'default_socket_timeout = 60\n\n' +
+
+`extension_dir = "${process.env.PHP}\\ext"\n` +
+'extension=php_curl.dll\n' +
+'extension=mysqli\n' +
+'extension=php_openssl.dll\n\n' +
+
+'[CLI Server]\n' +
+'cli_server.color = On\n\n' +
+
+'[MySQLi]\n' +
+'mysqli.max_persistent = -1\n' +
+'mysqli.allow_persistent = On\n' +
+'mysqli.max_links = -1\n' +
+'mysqli.default_port = 3306\n' +
+'mysqli.default_socket =\n' +
+'mysqli.default_host =\n' +
+'mysqli.default_user =\n' +
+'mysqli.default_pw =';
 
 async function build() {
   try {
@@ -111,6 +156,7 @@ async function build() {
       const filePath = path.join(__PROJECT_DIR__, 'bin', `${scriptName}.cmd`);
       await writeFileAsync(filePath, scriptContent, 'utf-8');
     }
+    await writeFileAsync(path.join(__PROJECT_DIR__, 'Tools', `php.ini`), phpIni, 'utf-8');
     await buildExtensions(path.join(__PROJECT_DIR__, 'extensions'));
     await buildExtensions(path.join(__PROJECT_DIR__, 'modules'));
     await copyFilesAndMinify(path.join(__PROJECT_DIR__, 'src/clientside'), path.join(__PROJECT_DIR__, 'static/public'));
