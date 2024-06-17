@@ -142,7 +142,6 @@ chokidar.watch('./assets/locale/**/*', {
 
 
 app.use((request, response, next) => {
-  response.setHeader("X-Content-Type-Options", "nosniff");
   response.setHeader('Content-Type', 'text/html; charset=utf-8');
   next();
 });
@@ -151,6 +150,7 @@ app.use((request, response, next) => {
 
 app.use(async (req, res, next) => {
   try {
+    req.userDevice  = req.useragent.isDesktop ? 'Desktop' : (req.useragent.isMobile || req.useragent.isMobileNative) ? 'Mobile' : req.useragent.isTablet ? 'Tablet' : 'Unknown';
     const isTLDEnabled = serverConfig.routes.useThirdLevelDomains && req.hostname.split('.').length > 2;
     const isTLDDisabled = !serverConfig.routes.useThirdLevelDomains && req.url.split('/')[1].substring(0, 2);
     if (isTLDEnabled || isTLDDisabled) {
