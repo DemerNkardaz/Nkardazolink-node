@@ -6,7 +6,8 @@ require('../../modules/CoreConfig/src/CoreConfig').config().init(['AppVariables'
 const __PROJECT_DIR__ = path.join(__dirname, '..', '..');
 const serverConfig = ini.parse(path.join(__PROJECT_DIR__, 'server.ini'));
 const currentFolderPath = path.join(__dirname);
-const dir = __PROJECT_DIR__.replace(/\\/g, '/');
+const dir = currentFolderPath.replace(/\\/g, '/');
+const sourceDir = __PROJECT_DIR__.replace(/\\/g, '/');
 
 const errorCodes = [
   400, 401, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416,
@@ -32,7 +33,7 @@ events {
 http {
   include mime.types;
   default_type application/octet-stream;
-  proxy_cache_path temp/proxy_cache levels=1:2 keys_zone=my_cache:10m max_size=1g inactive=60m use_temp_path=off;
+  ${serverConfig.NGINX.proxyCache ? `proxy_cache_path temp/proxy_cache levels=1:2 keys_zone=my_cache:10m max_size=1g inactive=60m use_temp_path=off;` : ''}
 
   limit_req_zone $binary_remote_addr zone=mylimit:10m rate=5000r/m;
   limit_req_status 429;
@@ -95,7 +96,7 @@ http {
 
   upstream nodejs_app {
     ip_hash;
-    server nkardaz.io:8443;
+    server ${serverConfig.server.host}:${serverConfig.server.HTTPSPort};
   }
 
   server {
@@ -108,10 +109,10 @@ http {
     listen 8080 ssl;
     server_name localhost;
 
-    ssl_certificate "${dir}/nkardaz.io.crt";
-    ssl_certificate_key "${dir}/nkardaz.io.key";
+    ssl_certificate "${sourceDir}/nkardaz.io.crt";
+    ssl_certificate_key "${sourceDir}/nkardaz.io.key";
 
-    root ${dir}/tools/phpMyAdmin;
+    root ${sourceDir}/tools/phpMyAdmin;
     index index.php;
 
     location / {
@@ -129,11 +130,11 @@ http {
   }
 
   server {
-    listen 443 ssl;
+    listen ${serverConfig.NGINX.HTTPSPort} ssl;
     server_name nkardaz.io;
 
-    ssl_certificate "${dir}/nkardaz.io.crt";
-    ssl_certificate_key "${dir}/nkardaz.io.key";
+    ssl_certificate "${sourceDir}/nkardaz.io.crt";
+    ssl_certificate_key "${sourceDir}/nkardaz.io.key";
 
     access_log logs/host.access.log main;
 
@@ -159,16 +160,17 @@ http {
       proxy_pass https://nodejs_app;
       proxy_read_timeout 15;
       proxy_connect_timeout 3;
-
-      #proxy_cache my_cache;
-      #proxy_cache_key "$scheme$request_method$host$request_uri";
-      #proxy_cache_valid 200 302 10m;
-      #proxy_cache_valid 404 1m;
-      #proxy_cache_revalidate on;
-      #proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
-      #proxy_cache_lock on;
-      #proxy_cache_min_uses 5;
-      #proxy_cache_background_update on;
+      
+      ${serverConfig.NGINX.proxyCache ? `
+      proxy_cache my_cache;
+      proxy_cache_key "$scheme$request_method$host$request_uri";
+      proxy_cache_valid 200 302 10m;
+      proxy_cache_valid 404 1m;
+      proxy_cache_revalidate on;
+      proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
+      proxy_cache_lock on;
+      proxy_cache_min_uses 5;
+      proxy_cache_background_update on;` : ''}
 
       proxy_buffer_size 128k;
       proxy_buffers 4 256k;
@@ -190,6 +192,6 @@ ${errorPagesConfig}
 }
 `;
 
-const createNginxConfig = async () => await writeFileAsync(path.join(currentFolderPath, 'test.conf'), nginxConfig, 'utf-8');
+const createNginxConfig = async () => await writeFileAsync(path.join(currentFolderPath, 'test.conf'), nginxConfig.split('\n').filter(line => line.trim()).join('\n'), 'utf-8');
 
 module.exports = { createNginxConfig };
