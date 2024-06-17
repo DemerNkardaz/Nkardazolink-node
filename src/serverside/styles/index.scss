@@ -13,9 +13,11 @@ $base-line-height: 1.45em;
 
 button, input {font-family: inherit;}
 html, body {
-  font-size: $base-font-size;
+  font: {
+    size: $base-font-size;
+    family: $font-default;
+  }
   line-height: $base-line-height;
-  font-family: $font-default;
   margin: 0;
   padding: 0;
   scroll-behavior: smooth;

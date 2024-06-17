@@ -94,17 +94,23 @@ function generateErrorPagesNGINX() {
   });
 }
 
+const cmbScripts = {
+  'nginx-start': '@echo off\n' + 'cd /d C:\\nginx\n' + 'start nginx',
+  'nginx-reload': '@echo off\n' + 'cd /d C:\\nginx\n' + 'nginx -s reload',
+  'nginx-kill': '@echo off\n' + 'cd /d C:\\nginx\n' + 'nginx -s stop',
+  'localtunnel-run': `lt --port ${process.env.PORT} --subdomain ${process.env.LOCAL_TUNNEL}`,
+  'lighthouse-analyzer-http': `lighthouse http://${process.env.HOST}:${process.env.PORT} --output-path=./lighthouse_report.html`,
+  'lighthouse-analyzer-https': `lighthouse https://${process.env.HOST}:${process.env.PORT} --output-path=./lighthouse_report.html`,
+  'install-ltunnel-n-lhouse-via-npm-globally': 'npm install -g localtunnel lighthouse',
+  'php-cgi-port9000-run': 'php-cgi -b 127.0.0.1:9000',
+}
+
 async function build() {
   try {
-    await writeFileAsync(path.join(__PROJECT_DIR__, 'bin', 'nginx-start.cmd'),
-      '@echo off\n' + 'cd /d C:\\nginx\n' + 'start nginx', 'utf-8');
-    await writeFileAsync(
-      path.join(__PROJECT_DIR__, 'bin', 'nginx-kill.cmd'),
-      '@echo off\n' + 'cd /d C:\\nginx\n' + 'nginx -s stop', 'utf-8');
-    await writeFileAsync(path.join(__PROJECT_DIR__, 'bin', 'localtunnel-run.cmd'), `lt --port ${process.env.PORT} --subdomain ${process.env.LOCAL_TUNNEL}`, 'utf-8');
-    await writeFileAsync(path.join(__PROJECT_DIR__, 'bin', 'lighthouse-analyzer-http.cmd'), `lighthouse http://${process.env.HOST}:${process.env.PORT} --output-path=./lighthouse_report.html`, 'utf-8');
-    await writeFileAsync(path.join(__PROJECT_DIR__, 'bin', 'lighthouse-analyzer-https.cmd'), `lighthouse https://${process.env.HOST} --output-path=./lighthouse_report.html`, 'utf-8');
-    await writeFileAsync(path.join(__PROJECT_DIR__, 'bin', 'install-ltunnel-n-lhouse-via-npm-globally.cmd'), `npm install -g localtunnel lighthouse`, 'utf-8');
+    for (const [scriptName, scriptContent] of Object.entries(cmbScripts)) {
+      const filePath = path.join(__PROJECT_DIR__, 'bin', `${scriptName}.cmd`);
+      await writeFileAsync(filePath, scriptContent, 'utf-8');
+    }
     await buildExtensions(path.join(__PROJECT_DIR__, 'extensions'));
     await buildExtensions(path.join(__PROJECT_DIR__, 'modules'));
     await copyFilesAndMinify(path.join(__PROJECT_DIR__, 'src/clientside'), path.join(__PROJECT_DIR__, 'static/public'));
