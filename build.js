@@ -106,7 +106,8 @@ async function build() {
     const createManifestPromises = await serverConfig.language.supported.map(lang => createManifest(__PROJECT_DIR__, lang, manifestTemplate.getManifest()));
     await Promise.all(createManifestPromises)
       .then(() => console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [BUILDER] :: All manifests created successfully\x1b[39m`)).catch(error => console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > Error during build: ${error.message}`));
-    require('./server.workers/server/sitemap.gen.js').generateSiteMaps(__PROJECT_DIR__);
+    await require('./server.workers/server/sitemap.gen.js').generateSiteMaps(__PROJECT_DIR__);
+    await require('./Modules/GenerateConfigs/GenerateConfigs').init();
   } catch (error) {
     console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > Error during build: ${error.message}`);
   }
@@ -115,7 +116,6 @@ async function build() {
 const BUILING_PROMISE = new Promise((resolve, reject) => {
   try {
     (async () => {
-      require('./Modules/GenerateConfigs/GenerateConfigs');
       if (runArguments.includes('start')) await checkForIndex(__PROJECT_DIR__);
       if (!runArguments.includes('index_rebuild')) await build();
       if (runArguments.includes('index') || runArguments.includes('index_rebuild')) await index(__PROJECT_DIR__);

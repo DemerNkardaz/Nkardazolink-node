@@ -40,7 +40,7 @@ const nginxErrors = {
   511: ['511 – Network Authentication Required', 'The client needs to authenticate to gain network access.'],
 };
 
-function generateErrorPages() {
+const generateErrorPages = async() => {
   Object.keys(nginxErrors).forEach(errorCode => {
     const errorHeader = nginxErrors[errorCode][0];
     const errorText = nginxErrors[errorCode][1];
@@ -131,7 +131,7 @@ http {
   gzip on;
   gzip_min_length 100;
   gzip_comp_level 4;
-  gzip_types text/plain text/css text/xml text/javascript text/x-js text/x-json text/x-script text/x-component text/x-markdown application/json application/javascript application/x-javascript application/ecmascript application/xml application/xml+rss application/rss+xml application/atom+xml application/xhtml+xml application/x-font-ttf application/font-woff application/x-font-opentype application/vnd.ms-fontobject application/x-web-app-manifest+json application/vnd.api+json application/ld+json application/pdf application/x-shockwave-flash image/svg+xml image/x-icon image/vnd.microsoft.icon font/ttf font/woff font/woff2 font/opentype font/eot;
+  gzip_types text/plain text/css text/xml text/javascript text/x-js text/x-json text/x-script text/x-component text/x-markdown application/json application/javascript application/x-javascript application/ecmascript application/xml application/xml+rss application/rss+xml application/atom+xml application/xhtml+xml application/x-web-app-manifest+json application/vnd.api+json application/ld+json application/pdf image/svg+xml;
   gzip_vary on;
   gzip_proxied any;
   gzip_http_version 1.1;
@@ -247,6 +247,8 @@ ${errorPagesConfig}
 }
 `;
 
-const createNginxConfig = async () => await writeFileAsync(path.join(__PROJECT_DIR__, 'Tools', 'nginx', 'nginx.conf'), nginxConfig.split('\n').filter(line => line.trim()).join('\n'), 'utf-8');
+const createNginxConfig = async () => {
+  await writeFileAsync(path.join(__PROJECT_DIR__, 'Tools', 'nginx', 'nginx.conf'), nginxConfig.split('\n').filter(line => line.trim()).join('\n'), 'utf-8');
+}
 
 module.exports = { createNginxConfig, generateErrorPages };
