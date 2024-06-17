@@ -97,7 +97,6 @@ http {
   access_log logs/access.log main;
 
   sendfile on;
-  keepalive_timeout 65;
 
   map $http_user_agent $detected_device {
     default "Unknown";
@@ -130,13 +129,25 @@ http {
   }
 
   gzip on;
-  gzip_comp_level 5;
+  gzip_min_length 100;
+  gzip_comp_level 4;
   gzip_types text/plain text/css text/xml text/javascript text/x-js text/x-json text/x-script text/x-component text/x-markdown application/json application/javascript application/x-javascript application/ecmascript application/xml application/xml+rss application/rss+xml application/atom+xml application/xhtml+xml application/x-font-ttf application/font-woff application/x-font-opentype application/vnd.ms-fontobject application/x-web-app-manifest+json application/vnd.api+json application/ld+json application/pdf application/x-shockwave-flash image/svg+xml image/x-icon image/vnd.microsoft.icon font/ttf font/woff font/woff2 font/opentype font/eot;
-  gzip_min_length 500;
   gzip_vary on;
   gzip_proxied any;
   gzip_http_version 1.1;
   gzip_buffers 32 4k;
+
+  client_body_buffer_size 32k;
+  client_header_buffer_size 1k;
+  client_max_body_size 12m;
+  large_client_header_buffers 2 1k;
+
+  client_body_timeout 12;
+  client_header_timeout 12;
+
+  keepalive_timeout 120;
+
+  send_timeout 10;
 
   upstream nodeWikiApplication {
     ip_hash;
