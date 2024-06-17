@@ -18,5 +18,5 @@ static/site.maps/*.xml.gz
 *.key
 out.log
 error.log
-Tools/phpMyAdmin/
+Tools/phpMyAdmin/*
 !Tools/phpMyAdmin/LICENSE
