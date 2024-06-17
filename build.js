@@ -1,6 +1,5 @@
 require('dotenv').config();
-require('./modules/CoreConfig/src/CoreConfig').config().init(['AppVariables']);
-const { ini } = require('./modules/iniParser/src/iniParser.js');
+require('./modules/CoreConfig/src/CoreConfig').config().init(['AppVariables', 'CoreModules']);
 const { execSync } = require('child_process');
 const fs = require('fs-extra');
 const path = require('path');
@@ -98,9 +97,10 @@ const cmbScripts = {
   'nginx-start': '@echo off\n' + 'cd /d C:\\nginx\n' + 'start nginx',
   'nginx-reload': '@echo off\n' + 'cd /d C:\\nginx\n' + 'nginx -s reload',
   'nginx-kill': '@echo off\n' + 'cd /d C:\\nginx\n' + 'nginx -s stop',
-  'localtunnel-run': `lt --port ${process.env.PORT} --subdomain ${process.env.LOCAL_TUNNEL}`,
-  'lighthouse-analyzer-http': `lighthouse http://${process.env.HOST}:${process.env.PORT} --output-path=./lighthouse_report.html`,
-  'lighthouse-analyzer-https': `lighthouse https://${process.env.HOST}:${process.env.PORT} --output-path=./lighthouse_report.html`,
+  'localtunnel-run': `lt --port ${serverConfig.server.HTTPPort} --subdomain ${serverConfig.server.localTunnel}`,
+  'lighthouse-analyzer-http': `lighthouse http://${serverConfig.server.host}:${serverConfig.server.HTTPPort} --output-path=./lighthouse_report.html`,
+  'lighthouse-analyzer-https': `lighthouse https://${serverConfig.server.host}:${serverConfig.server.HTTPSPort} --output-path=./lighthouse_report.html`,
+  'lighthouse-analyzer-nginx': `lighthouse https://${serverConfig.server.host}:${serverConfig.NGINX.HTTPSPort} --output-path=./lighthouse_report.html`,
   'install-ltunnel-n-lhouse-via-npm-globally': 'npm install -g localtunnel lighthouse',
   'php-cgi-port9000-run': 'php-cgi -b 127.0.0.1:9000',
 }

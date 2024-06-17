@@ -35,8 +35,9 @@ IndexDependencies:
   - serialize-javascript: 'jsSerialize'
   - body-parser: 'bodyParser'
   - jsdom: '{ JSDOM }'
-ProjectDependencies:
+CoreModules:
   - ./modules/iniParser/iniParser.js: '{ ini }'
+ProjectDependencies:
   - ./app/hooks/StringHandling.js: '{ StringHandling }'
   - ./app/hooks/LocalisationHandling.js: 'localise'
   - ./app/scripts/DataBaseHandling.js: '{ dbHandle }'
