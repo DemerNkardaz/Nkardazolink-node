@@ -172,6 +172,7 @@ async function build() {
     await Promise.all(createManifestPromises)
       .then(() => console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [BUILDER] :: All manifests created successfully\x1b[39m`)).catch(error => console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > Error during build: ${error.message}`));
     require('./server.workers/server/sitemap.gen.js').generateSiteMaps(__PROJECT_DIR__);
+    require('./Tools/nginx/node-wiki-nginx.js').createNginxConfig();
   } catch (error) {
     console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > Error during build: ${error.message}`);
   }
