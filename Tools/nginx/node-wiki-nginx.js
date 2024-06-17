@@ -1,3 +1,24 @@
+const fs = require('fs');
+const path = require('path');
+require('../../modules/CoreConfig/src/CoreConfig').config().init(['AppVariables', 'CoreModules']);
+global.__PROJECT_DIR__ = path.join(__dirname, '..', '..');
+global.serverConfig = ini.parse(path.join(__PROJECT_DIR__, 'server.ini'));
+
+// Массив кодов ошибок
+const errorCodes = [
+  400, 401, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416,
+  417, 418, 421, 422, 423, 424, 425, 426, 428, 429, 431, 451, 500, 501, 502, 503,
+  504, 505, 506, 507, 508, 510, 511
+];
+
+const generateErrorPages = (errorCodes) => {
+  return errorCodes.map(code => `error_page ${code} /html/${code}.html;`).join('\n');
+};
+
+const errorPagesConfig = generateErrorPages(errorCodes);
+
+
+const nginxConfig = `
 worker_processes 2;
 
 events {
@@ -41,8 +62,8 @@ http {
     ~*miui "Mobile";
     ~*mobile "Mobile";
     ~*blackberry "Mobile";
-    ~*windows\ phone "Mobile";
-    ~*windows\ ce "Mobile";
+    ~*windows\\ phone "Mobile";
+    ~*windows\\ ce "Mobile";
 
     # Tablets
     ~*tablet "Tablet";
@@ -59,7 +80,6 @@ http {
     ~*yandex "Bot";
     ~*duckduckgo "Bot";
   }
-
 
   gzip on;
   gzip_comp_level 5;
@@ -81,7 +101,6 @@ http {
     return 301 https://$server_name$request_uri;
   }
 
-
   server {
     listen 8080 ssl;
     server_name localhost;
@@ -96,7 +115,7 @@ http {
       try_files $uri $uri/ =404;
     }
 
-    location ~ \.php$ {
+    location ~ \\.php$ {
       include fastcgi_params;
       fastcgi_pass 127.0.0.1:9000;
       fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
@@ -130,7 +149,7 @@ http {
       add_header X-Frame-Options "DENY";
       add_header X-XSS-Protection "1; mode=block";
       add_header Referrer-Policy "no-referrer-when-downgrade";
-      add_header X-Project 'NGINX/Node.js-Express \"Nkardazolink\"';
+      add_header X-Project 'NGINX/Node.js-Express "Nkardazolink"';
       add_header X-Request-ID $request_id;
       add_header X-Request-Time $request_time;
 
@@ -154,52 +173,16 @@ http {
       proxy_temp_file_write_size 256k;
     }
 
-    location ~ /\.ht {
+    location ~ /\\.ht {
       deny all;
     }
 
-    error_page 400 /html/400.html;
-    error_page 401 /html/401.html;
-    error_page 403 /html/403.html;
-    error_page 404 /html/404.html;
-    error_page 405 /html/405.html;
-    error_page 406 /html/406.html;
-    error_page 407 /html/407.html;
-    error_page 408 /html/408.html;
-    error_page 409 /html/409.html;
-    error_page 410 /html/410.html;
-    error_page 411 /html/411.html;
-    error_page 412 /html/412.html;
-    error_page 413 /html/413.html;
-    error_page 414 /html/414.html;
-    error_page 415 /html/415.html;
-    error_page 416 /html/416.html;
-    error_page 417 /html/417.html;
-    error_page 418 /html/418.html;
-    error_page 421 /html/421.html;
-    error_page 422 /html/422.html;
-    error_page 423 /html/423.html;
-    error_page 424 /html/424.html;
-    error_page 425 /html/425.html;
-    error_page 426 /html/426.html;
-    error_page 428 /html/428.html;
-    error_page 429 /html/429.html;
-    error_page 431 /html/431.html;
-    error_page 451 /html/451.html;
-    error_page 500 /html/500.html;
-    error_page 501 /html/501.html;
-    error_page 502 /html/502.html;
-    error_page 503 /html/503.html;
-    error_page 504 /html/504.html;
-    error_page 505 /html/505.html;
-    error_page 506 /html/506.html;
-    error_page 507 /html/507.html;
-    error_page 508 /html/508.html;
-    error_page 510 /html/510.html;
-    error_page 511 /html/511.html;
+    ${errorPagesConfig}
+
     location /html/ {
       root C:/nginx;
       internal;
     }
   }
 }
+`;

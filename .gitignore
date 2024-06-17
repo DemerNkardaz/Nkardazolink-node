@@ -3,7 +3,6 @@ node_modules/
 app/
 source/
 cache/
-nginx/html/
 .vercel
 index.js
 extensions/*/*
@@ -20,3 +19,6 @@ out.log
 error.log
 Tools/phpMyAdmin/*
 !Tools/phpMyAdmin/LICENSE
+Tools/nginx/logs/
+Tools/nginx/temp/
+Tools/nginx/html/

@@ -78,12 +78,12 @@ function generateErrorPagesNGINX() {
     const errorText = nginxErrors[errorCode][1];
     const data = { errorHeader, errorText };
 
-    const html = ejs.renderFile('./nginx/errors.ejs', data, (err, str) => {
+    const html = ejs.renderFile('./Tools/nginx/errors.ejs', data, (err, str) => {
       if (err) {
         console.error('Error during NGINX error pages rendering:', err);
         return;
       }
-      const fileName = `./nginx/html/${errorCode}.html`;
+      const fileName = `./Tools/nginx/html/${errorCode}.html`;
       fs.writeFile(fileName, str, (err) => {
         if (err) {
           console.error(`Error during creating NGINX error page ${fileName}:`, err);
@@ -144,7 +144,7 @@ const phpIni =
 'mysqli.max_persistent = -1\n' +
 'mysqli.allow_persistent = On\n' +
 'mysqli.max_links = -1\n' +
-'mysqli.default_port = 3306\n' +
+`mysqli.default_port = ${serverConfig.dataBase.port}\n` +
 'mysqli.default_socket =\n' +
 'mysqli.default_host =\n' +
 'mysqli.default_user =\n' +
