@@ -101,13 +101,13 @@ http {
 
   server {
     listen 80;
-    server_name nkardaz.io;
+    server_name ${serverConfig.server.host};
     return 301 https://$server_name$request_uri;
   }
 
   server {
     listen 8080 ssl;
-    server_name localhost;
+    server_name ${serverConfig.server.host};
 
     ssl_certificate "${sourceDir}/nkardaz.io.crt";
     ssl_certificate_key "${sourceDir}/nkardaz.io.key";
@@ -131,7 +131,7 @@ http {
 
   server {
     listen ${serverConfig.NGINX.HTTPSPort} ssl;
-    server_name nkardaz.io;
+    server_name ${serverConfig.server.host};
 
     ssl_certificate "${sourceDir}/nkardaz.io.crt";
     ssl_certificate_key "${sourceDir}/nkardaz.io.key";
