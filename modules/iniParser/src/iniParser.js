@@ -24,11 +24,13 @@ const parseLines = (data) => {
   let currentSection = null;
   let splitBy = ',';
   let bracketCommands = false;
-  lines.forEach((line) => {
-    line.startsWith('splitBy') && (splitBy = line.split('=')[1].trim())
-    line.startsWith('bracketCommands') && (bracketCommands = line.split('=')[1].trim() === 'true')
-  });
   const parsedData = {};
+
+  lines.forEach((line) => {
+    line.startsWith('splitBy') && (splitBy = line.split('=')[1].trim());
+    line.startsWith('bracketCommands') && (bracketCommands = line.split('=')[1].trim() === 'true');
+  });
+
   try {
     lines.forEach((line) => {
       line = line.trim();
@@ -44,19 +46,38 @@ const parseLines = (data) => {
         let value = keyValue[1].trim();
 
         if (/^\d+(K|M|G|T)$/i.test(value)) { value = parseSize(value); }
+
         else if (value.toLowerCase() === 'true') { value = true; }
         else if (value.toLowerCase() === 'false') { value = false; }
-        else if (bracketCommands && value.startsWith('${') && value.endsWith('}'))
-          { value = new Function(`return ${value.slice(2, -1)}`)(); }
-        else if (value.includes(splitBy) && value.length > 1) { value = value.split(splitBy).map(ext => ext.trim()); }
-        else { value = value; }
 
-        parsedData[currentSection][key] = value;
+        else if (bracketCommands && value.startsWith('${') && value.endsWith('}')) {
+          value = new Function(`return ${value.slice(2, -1)}`)();
+        }
+        // Split by custom delimiter
+        else if (value.includes(splitBy) && value.length > 1) {
+          value = value.split(splitBy).map(ext => ext.trim());
+        }
+
+        if (key.includes('.')) {
+          const keys = key.split('.');
+          let nestedObj = parsedData[currentSection];
+          for (let i = 0; i < keys.length - 1; i++) {
+            const nestedKey = keys[i];
+            if (!nestedObj.hasOwnProperty(nestedKey)) {
+              nestedObj[nestedKey] = {};
+            }
+            nestedObj = nestedObj[nestedKey];
+          }
+          nestedObj[keys[keys.length - 1]] = value;
+        } else {
+          parsedData[currentSection][key] = value;
+        }
       }
     });
   } catch (error) {
     console.error(error);
   }
+
   return parsedData;
 }
 

@@ -67,7 +67,7 @@ const generateErrorsLists = () => {
 const errorPagesConfig = generateErrorsLists();
 
 const nginxConfig = `
-worker_processes 2;
+worker_processes ${serverConfig.NGINX[`${os}`].workerProcesses};
 
 events {
   worker_connections 8192;

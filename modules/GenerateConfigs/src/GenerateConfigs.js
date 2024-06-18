@@ -7,6 +7,10 @@ global.__PROJECT_DIR__ = path.join(__dirname, '..', '..', '..');
 global.serverConfig = ini.parse(path.join(__PROJECT_DIR__, 'server.ini'));
 global.sourceDir = __PROJECT_DIR__.replace(/\\/g, '/');
 global.ejs = require('ejs');
+global.os = require('os').platform();
+
+if (global.os.includes('win')) os = 'win'
+else if (global.os = 'darwin') os = 'macos'
 
 const { createNginxConfig, generateErrorPages } = require('./node-wiki-nginx');
 
