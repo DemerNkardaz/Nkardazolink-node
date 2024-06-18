@@ -87,10 +87,25 @@ const phpIni =
 
 async function build() {
   try {
-    for (const [scriptName, scriptContent] of Object.entries(cmbScripts)) {
-      const filePath = path.join(__PROJECT_DIR__, 'bin', `${scriptName}.cmd`);
-      await writeFileAsync(filePath, scriptContent, 'utf-8');
-    }
+    const bashPromise = new Promise((resolve, reject) => {
+      try {
+        !fs.existsSync('./bin') && fs.mkdirSync('./bin', { recursive: true });
+        resolve();
+      } catch (err) {
+        console.log(err);
+        reject();
+      }
+    });
+    bashPromise.then(async () => {
+      try {
+        for (const [scriptName, scriptContent] of Object.entries(cmbScripts)) {
+          const filePath = path.join(__PROJECT_DIR__, 'bin', `${scriptName}.cmd`);
+          await writeFileAsync(filePath, scriptContent, 'utf-8');
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    });
 
     const modulesPromise = new Promise(async (resolve, reject) => {
       try {

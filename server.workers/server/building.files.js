@@ -1,4 +1,4 @@
-require('../../modules/CoreConfig/CoreConfig').config().init(['AppVariables']);
+require('../../modules/CoreConfig/src/CoreConfig').config().init(['AppVariables']);
 const { execSync } = require('child_process');
 const fs = require('fs-extra');
 const path = require('path');

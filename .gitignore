@@ -9,6 +9,8 @@ extensions/*/*
 !extensions/*/src/
 modules/*/*
 !modules/*/src/
+!modules/CoreConfig/*
+!modules/iniParser/*
 bin/
 static/site.maps/*.xml
 static/site.maps/*.xml.gz
