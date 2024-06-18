@@ -64,7 +64,7 @@ const generateErrorPages = async() => {
 const generateErrorsLists = () => {
   return Object.keys(nginxErrors).map(errorCode => `    error_page ${errorCode} /html/${errorCode}.html;`).join('\n');
 };
-const errorPagesConfig = generateErrorsLists();
+const errorPagesConfig = serverConfig.NGINX.errorPages ? generateErrorsLists() : '';
 
 const nginxConfig = `
 worker_processes ${serverConfig.NGINX[`${os}`].workerProcesses};
@@ -243,16 +243,19 @@ http {
 
 ${errorPagesConfig}
 
+    ${serverConfig.NGINX.errorPages ? 
+    `
     location /html/ {
       root C:/nginx;
       internal;
     }
+    ` : ''}
   }
 }
 `;
 
 const createNginxConfig = async () => {
-  await writeFileAsync(path.join(__PROJECT_DIR__, 'Tools', 'nginx', 'nginx.conf'), nginxConfig.split('\n').filter(line => line.trim()).join('\n'), 'utf-8');
+  await writeFileAsync(serverConfig.NGINX.pathToSave, nginxConfig.split('\n').filter(line => line.trim()).join('\n'), 'utf-8');
 }
 
 module.exports = { createNginxConfig, generateErrorPages };

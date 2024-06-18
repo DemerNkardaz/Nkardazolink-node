@@ -91,9 +91,19 @@ async function build() {
       const filePath = path.join(__PROJECT_DIR__, 'bin', `${scriptName}.cmd`);
       await writeFileAsync(filePath, scriptContent, 'utf-8');
     }
-    await writeFileAsync(path.join(__PROJECT_DIR__, 'Tools', `php.ini`), phpIni, 'utf-8');
-    await buildExtensions(path.join(__PROJECT_DIR__, 'extensions'));
-    await buildExtensions(path.join(__PROJECT_DIR__, 'modules'));
+
+    const modulesPromise = new Promise(async (resolve, reject) => {
+      try {
+        await buildExtensions(path.join(__PROJECT_DIR__, 'extensions'));
+        await buildExtensions(path.join(__PROJECT_DIR__, 'modules'));
+        resolve();
+      } catch (err) {
+        console.log(err);
+        reject(err);
+      }
+    });
+
+
     await copyFilesAndMinify(path.join(__PROJECT_DIR__, 'src/clientside'), path.join(__PROJECT_DIR__, 'static/public'));
     await copyFilesAndMinify(path.join(__PROJECT_DIR__, 'src/serverside'), path.join(__PROJECT_DIR__, 'app'))
       .then(() => console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [BUILDER] :: Files copied and minified successfully\x1b[39m`))
@@ -105,11 +115,26 @@ async function build() {
     const manifestTemplate = new Manifest();
     const createManifestPromises = await serverConfig.language.supported.map(lang => createManifest(__PROJECT_DIR__, lang, manifestTemplate.getManifest()));
     await Promise.all(createManifestPromises)
-      .then(() => console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [BUILDER] :: All manifests created successfully\x1b[39m`)).catch(error => console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > Error during build: ${error.message}`));
+      .then(() => console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [BUILDER] :: All manifests created successfully\x1b[39m`))
+      .catch(error => {
+        console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > Error during build:`);
+        console.error(err);
+      });
+    
     await require('./server.workers/server/sitemap.gen.js').generateSiteMaps(__PROJECT_DIR__);
-    await require('./Modules/GenerateConfigs/GenerateConfigs').init();
-  } catch (error) {
-    console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > Error during build: ${error.message}`);
+
+    modulesPromise.then(async () => {
+      try {
+        await require('./Modules/GenerateConfigs/GenerateConfigs').init();
+        await writeFileAsync(path.join(__PROJECT_DIR__, 'Tools', `php.ini`), phpIni, 'utf-8');
+      } catch (err) {
+        console.error(err);
+      }
+    });
+
+  } catch (err) {
+    console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > Error during build:`);
+    console.error(err);
   }
 }
 

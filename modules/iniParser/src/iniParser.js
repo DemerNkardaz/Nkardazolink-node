@@ -2,6 +2,7 @@ const fs = require('fs');
 const { promisify } = require('util');
 const readFile = promisify(fs.readFile);
 const chokidar = require('chokidar');
+const path = require('path');
 
 let isProcessing = false;
 
@@ -45,6 +46,12 @@ const parseLines = (data) => {
         const key = keyValue[0].trim();
         let value = keyValue[1].trim();
 
+        if (value.startsWith('{this}')) {
+          let lastPath = value.split('{this}/')[1];
+          const projectDir = path.join(__dirname, '..', '..', '..');
+          value = path.join(projectDir, lastPath);
+        }
+
         if (/^\d+(K|M|G|T)$/i.test(value)) { value = parseSize(value); }
 
         else if (value.toLowerCase() === 'true') { value = true; }
@@ -53,7 +60,6 @@ const parseLines = (data) => {
         else if (bracketCommands && value.startsWith('${') && value.endsWith('}')) {
           value = new Function(`return ${value.slice(2, -1)}`)();
         }
-        // Split by custom delimiter
         else if (value.includes(splitBy) && value.length > 1) {
           value = value.split(splitBy).map(ext => ext.trim());
         }
