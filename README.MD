@@ -27,3 +27,17 @@ Subproject of my personal website…
 - **NGINX:** Configured for reverse-proxy with some limitations and additional headers.
 
 - **PHP:** Optional for using phpMyAdmin.
+
+## .ENV
+
+Future info block…
+
+## SERVER.INI
+
+This is your main configuration file for controlling the behavior of the NodeJS server and preferences for (re-)building.
+
+It includes options for ports, hosts, paths, limitations (e.g., allowed file types, caching options, supported languages), etc.
+
+## CORE-CONFIG.YAML
+
+Secondary-main configuration file that includes dependencies on NodeJS modules and global variables.
