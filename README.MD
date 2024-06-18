@@ -53,7 +53,7 @@ node-wiki-application/
 ├── app/ # This directory contains the built application from src/serverside/ files.
 │   └── …
 ├── assets/ # Contains static files that are not media, e.g., localization .yaml (or .json) files.
-│   └── locale/ # Default folder to store localization files.
+│   ├── locale/ # Default folder to store localization files.
 │   │   ├── asset.common.yaml
 │   │   ├── asset.templates.yaml
 │   │   ├── license.en.yaml
@@ -90,27 +90,35 @@ node-wiki-application/
 │   ├── fonts/
 │   ├── images/
 │   └── media/
+├── static/ # Contains some static files e.g., clientside JavaScript, sitemaps et.c.
+│   ├── public/
+│   │   ├── manifest/
+│   │   │   └── …
+│   │   └── script/
+│   │       └── …
+│   └── site.maps/
+│       └── …
 ├── src/ # Your development folder, where you can edit server/client logic and templates.
 │   ├── clientside/ # Folder containing logic used in the client browser.
-│   ├── └── …
+│   │   └── …
 │   ├── serverside/ # Folder containing logic used in NodeJS.
-│   ├── ├── components/ # Stores .ejs (.md or .pug if desired) component templates
-│   ├── ├── └── <component_name>.ejs
-│   ├── ├── document/ # Stores .ejs (.md or .pug if desired) head and body templates.
-│   ├── ├── └── <component_name>.ejs
-│   ├── ├── styles /
-│   ├── ├── ├── …/
-│   ├── ├── ├── index.scss # Required file.
-│   ├── ├── └── <style>.scss
-│   ├── ├── templates/ # Stores JavaScript templates, e.g., template for building web-manifests.
-│   ├── ├── └── manifest_template.js
+│   │   ├── components/ # Stores .ejs (.md or .pug if desired) component templates
+│   │   │   └── <component_name>.ejs
+│   │   ├── document/ # Stores .ejs (.md or .pug if desired) head and body templates.
+│   │   │   └── <component_name>.ejs
+│   │   ├── styles /
+│   │   │   ├── …/
+│   │   │   ├── index.scss # Required file.
+│   │   │   └── <style>.scss
+│   │   ├── templates/ # Stores JavaScript templates, e.g., template for building web-manifests.
+│   │   │   └── manifest_template.js
 │   │   ├── 404.pug
 │   │   ├── 500.pug
 │   └── └── layout.ejs # Mainframe file for generating HTML.
 ├── Tools/
 │   ├── nginx/
 │   │   ├── html/ # Collects error pages for nginx if this option is enabled in server.ini.
-│   ├── └── nginx.conf
+│   │   └── nginx.conf
 │   ├── phpMyAdmin?/
 │   └── php.ini # If you want yo use phpMyAdmin.
 ├── .env
