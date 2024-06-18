@@ -53,26 +53,26 @@ node-wiki-application/
 ├── app/ # This directory contains the built application from src/serverside/ files.
 │   └── …
 ├── assets/ # Contains static files that are not media, e.g., localization .yaml (or .json) files.
-│   ├── locale/ # Default folder to store localization files.
-│   │   ├── asset.common.yaml
-│   │   ├── asset.templates.yaml
-│   │   ├── license.en.yaml
-│   │   ├── license.ja.yaml
-│   │   ├── license.ko.yaml
-│   │   ├── license.mo.yaml
-│   │   ├── license.ro.yaml
-│   │   ├── license.ru.yaml
-│   │   ├── license.vi.yaml
-│   │   ├── license.zh.yaml
-│   │   ├── main.en.yaml
-│   │   ├── main.ja.yaml
-│   │   ├── main.ko.yaml
-│   │   ├── main.mo.yaml
-│   │   ├── main.ro.yaml
-│   │   ├── main.ru.yaml
-│   │   ├── main.vi.yaml
-│   │   ├── main.zh.yaml
-│   └── └── misc.yaml
+│   └── locale/ # Default folder to store localization files.
+│       ├── asset.common.yaml
+│       ├── asset.templates.yaml
+│       ├── license.en.yaml
+│       ├── license.ja.yaml
+│       ├── license.ko.yaml
+│       ├── license.mo.yaml
+│       ├── license.ro.yaml
+│       ├── license.ru.yaml
+│       ├── license.vi.yaml
+│       ├── license.zh.yaml
+│       ├── main.en.yaml
+│       ├── main.ja.yaml
+│       ├── main.ko.yaml
+│       ├── main.mo.yaml
+│       ├── main.ro.yaml
+│       ├── main.ru.yaml
+│       ├── main.vi.yaml
+│       ├── main.zh.yaml
+│       └── misc.yaml
 ├── bin/ # Contains binary/bash files, e.g., for starting nginx or other commands.
 ├── cache/
 │   └── …
@@ -101,20 +101,20 @@ node-wiki-application/
 ├── src/ # Your development folder, where you can edit server/client logic and templates.
 │   ├── clientside/ # Folder containing logic used in the client browser.
 │   │   └── …
-│   ├── serverside/ # Folder containing logic used in NodeJS.
-│   │   ├── components/ # Stores .ejs (.md or .pug if desired) component templates
-│   │   │   └── <component_name>.ejs
-│   │   ├── document/ # Stores .ejs (.md or .pug if desired) head and body templates.
-│   │   │   └── <component_name>.ejs
-│   │   ├── styles /
-│   │   │   ├── …/
-│   │   │   ├── index.scss # Required file.
-│   │   │   └── <style>.scss
-│   │   ├── templates/ # Stores JavaScript templates, e.g., template for building web-manifests.
-│   │   │   └── manifest_template.js
-│   │   ├── 404.pug
-│   │   ├── 500.pug
-│   └── └── layout.ejs # Mainframe file for generating HTML.
+│   └── serverside/ # Folder containing logic used in NodeJS.
+│       ├── components/ # Stores .ejs (.md or .pug if desired) component templates
+│       │   └── <component_name>.ejs
+│       ├── document/ # Stores .ejs (.md or .pug if desired) head and body templates.
+│       │   └── <component_name>.ejs
+│       ├── styles /
+│       │   ├── …/
+│       │   ├── index.scss # Required file.
+│       │   └── <style>.scss
+│       ├── templates/ # Stores JavaScript templates, e.g., template for building web-manifests.
+│       │   └── manifest_template.js
+│       ├── 404.pug
+│       ├── 500.pug
+│       └── layout.ejs # Mainframe file for generating HTML.
 ├── Tools/
 │   ├── nginx/
 │   │   ├── html/ # Collects error pages for nginx if this option is enabled in server.ini.
