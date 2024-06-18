@@ -40,24 +40,38 @@ const nginxErrors = {
   511: ['511 – Network Authentication Required', 'The client needs to authenticate to gain network access.'],
 };
 
-const generateErrorPages = async() => {
-  Object.keys(nginxErrors).forEach(errorCode => {
-    const errorHeader = nginxErrors[errorCode][0];
-    const errorText = nginxErrors[errorCode][1];
-    const data = { errorHeader, errorText };
+const generateErrorPages = async () => {
+  new Promise((resolve, reject) => {
+    try {
+      !fs.existsSync('./Tools/nginx/html') && fs.mkdirSync('./Tools/nginx/html', { recursive: true });
+      resolve();
+    } catch (err) {
+      console.log(err);
+      reject();
+    }
+  }).then(async () => {
+    try {
+      Object.keys(nginxErrors).forEach(errorCode => {
+        const errorHeader = nginxErrors[errorCode][0];
+        const errorText = nginxErrors[errorCode][1];
+        const data = { errorHeader, errorText };
 
-    const html = ejs.renderFile(path.join(__dirname, 'errors.ejs'), data, (err, str) => {
-      if (err) {
-        console.error('Error during NGINX error pages rendering:', err);
-        return;
-      }
-      const fileName = `./html/${errorCode}.html`;
-      fs.writeFile(path.join(__PROJECT_DIR__, 'Tools', 'nginx', fileName), str, (err) => {
-        if (err) {
-          console.error(`Error during creating NGINX error page ${fileName}:`, err);
-        }
+        const html = ejs.renderFile(path.join(__dirname, 'errors.ejs'), data, (err, str) => {
+          if (err) {
+            console.error('Error during NGINX error pages rendering:', err);
+            return;
+          }
+          const fileName = `./html/${errorCode}.html`;
+          fs.writeFile(path.join(__PROJECT_DIR__, 'Tools', 'nginx', fileName), str, (err) => {
+            if (err) {
+              console.error(`Error during creating NGINX error page ${fileName}:`, err);
+            }
+          });
+        });
       });
-    });
+    } catch (err) {
+      console.log(err);
+    }
   });
 }
 
