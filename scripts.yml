@@ -4,7 +4,7 @@ start:
 dev:
   - label: "Executing website in development mode"
     command: |
-      nodemon build.js watch index nginxErrors
+      nodemon build.js watch index
 index_rebuild:
   - label: "Rebuilding website index script"
     command: |
@@ -12,4 +12,4 @@ index_rebuild:
 build:
   - label: "Building website"
     command: |
-      node build.js index nginxErrors
+      node build.js index
