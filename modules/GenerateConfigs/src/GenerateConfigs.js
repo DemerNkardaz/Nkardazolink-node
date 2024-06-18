@@ -8,7 +8,7 @@ global.sourceDir = __PROJECT_DIR__.replace(/\\/g, '/');
 global.ejs = require('ejs');
 global.os = require('os').platform();
 
-if (global.os.includes('win')) os = 'win'
+if (global.os = 'win32') os = 'win'
 else if (global.os = 'darwin') os = 'macos'
 //console.log(serverConfig);
 
