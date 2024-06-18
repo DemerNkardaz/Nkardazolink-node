@@ -13,7 +13,9 @@ Subproject of my personal website…
 
 `NOTE:` Some node modules can be crashed on newest NodeJS versions.
 
+
 **About requirements**
+
 `Proccess Manager 2:` For cluster-spawn of application.
 
 `NGINX:` Configured for reverse-proxy, some limitations and headers additions.
