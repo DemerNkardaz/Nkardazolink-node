@@ -1,15 +1,16 @@
 const sharp = require('sharp');
 const path = require('path');
 const fs = require('fs').promises;
+const fsDef = require('fs');
 const mime = require('mime-types');
 const crypto = require('crypto');
 const axios = require('axios');
 const chroma = require('chroma-js');
 const { DOMParser, XMLSerializer } = require('xmldom');
 
-
 class ImageCacheCleaner {
   constructor() {
+    !fsDef.existsSync('./cache/images') && fsDef.mkdirSync('./cache/images', { recursive: true });
     this.frequency = serverConfig.cache.cacheCleaningFrequency || '7d';
     this.cacheMaxAge = serverConfig.cache.maxCacheAge || '7d';
     this.cacheDir = path.join(__PROJECT_DIR__, 'cache/images');
