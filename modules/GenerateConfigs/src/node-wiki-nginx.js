@@ -1,3 +1,4 @@
+// Test force git clone
 const nginxErrors = {
   400: ['400 – Bad Request', 'Your browser sent a request that this server could not understand.'],
   401: ['401 – Unauthorized', 'You are not authorized to view the page. Please log in or check your credentials.'],
@@ -260,7 +261,7 @@ ${errorPagesConfig}
     ${serverConfig.NGINX.errorPages ? 
     `
     location /html/ {
-      root C:/nginx;
+      root ./;
       internal;
     }
     ` : ''}

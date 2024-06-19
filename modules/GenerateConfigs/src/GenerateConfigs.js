@@ -8,8 +8,8 @@ global.sourceDir = __PROJECT_DIR__.replace(/\\/g, '/');
 global.ejs = require('ejs');
 global.os = require('os').platform();
 
-if (global.os = 'win32') os = 'win'
-else if (global.os = 'darwin') os = 'macos'
+if (os === 'win32') os = 'win'
+else if (os === 'darwin') os = 'macos'
 //console.log(serverConfig);
 
 const { createNginxConfig, generateErrorPages } = require('./node-wiki-nginx');
