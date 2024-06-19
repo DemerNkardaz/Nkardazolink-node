@@ -132,8 +132,8 @@ function loadLocales() {
 }; loadLocales();
 
 chokidar.watch('./assets/locale/**/*', {
-    ignored: /(^|[\/\\])\../,
-    persistent: true
+  ignored: /(^|[\/\\])\../,
+  persistent: true
 }).on('change', path => {
   console.log(`\x1b[33m[${new Date().toLocaleString().replace(',', '')}] :: 🟨 > [DATA-EXTEND] :: [${path}] changed\x1b[39m`);
   loadLocales();
@@ -150,7 +150,7 @@ app.use((request, response, next) => {
 
 app.use(async (req, res, next) => {
   try {
-    req.userDevice  = req.useragent.isDesktop ? 'Desktop' : (req.useragent.isMobile || req.useragent.isMobileNative) ? 'Mobile' : req.useragent.isTablet ? 'Tablet' : 'Unknown';
+    req.userDevice = req.useragent.isDesktop ? 'Desktop' : (req.useragent.isMobile || req.useragent.isMobileNative) ? 'Mobile' : req.useragent.isTablet ? 'Tablet' : 'Unknown';
     const isTLDEnabled = serverConfig.routes.useThirdLevelDomains && req.hostname.split('.').length > 2;
     const isTLDDisabled = !serverConfig.routes.useThirdLevelDomains && req.url.split('/')[1].substring(0, 2);
     if (isTLDEnabled || isTLDDisabled) {
@@ -183,6 +183,7 @@ app.use(async (req, res, next) => {
 
 app.get('/', async (request, response, next) => {
   console.log(request.headers['detected-user-device']);
+  console.log(require('os').platform());
   try {
     console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 💠 > [SERVER] :: Latest modify date is [${new Date(await getLastModifiedInFolders()).toLocaleString()}]\x1b[39m`);
 
@@ -232,7 +233,7 @@ app.get('/', async (request, response, next) => {
     const isLangUrlMode = metaDataResponse.urlModes && serverConfig.language.supported.includes(metaDataResponse.urlModes.lang) && metaDataResponse.urlModes.lang;
     const isLangTLD = request.urlLanguageRequest && serverConfig.language.supported.includes(request.urlLanguageRequest) && request.urlLanguageRequest;
     const isNavigatorLang = serverConfig.language.supported.includes(request.headers['accept-language'].substring(0, 2)) && request.headers['accept-language'].substring(0, 2);
-    
+
     metaDataResponse.renderLanguage = isLangTLD ? isLangTLD : isLangUrlMode ? isLangUrlMode : isUserLang ? isUserLang : isNavigatorLang || 'en';
 
     let webManifest = await readFileAsync(path.join(`${__PROJECT_DIR__}/static/public/manifest/manifest.${metaDataResponse.renderLanguage}.webmanifest`), 'utf8');
@@ -298,7 +299,7 @@ app.get('/:lang?/wiki/:page', async (request, response, next) => {
 
   */
   try {
-  
+
     response.send(`Вики-страница “${request.params.page}”`)
   } catch (error) {
     console.error(error);
@@ -329,7 +330,7 @@ app.get('/shared/images/nocache/:imageFileName', async (request, response, next)
     }
     else
       response.contentType(handledResult.mimeType);
-      response.send(handledResult.imageBuffer);
+    response.send(handledResult.imageBuffer);
   } catch (error) {
     console.error('Error processing image:', error);
     next(error);
@@ -381,7 +382,7 @@ app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
         request.params.imageFileName = FileName;
         const imageHandler = new ImageHandler(__PROJECT_DIR__, request, serverConfig.cache.enabled, true);
         const handledResult = await imageHandler.getImage(sharedAssetsDB);
-      
+
         if (typeof handledResult === 'string') {
           const error = new Error(handledResult.message);
           error.status = 404;
@@ -411,7 +412,7 @@ app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
         let metaResolution, metaFileSize, metaAccessTime, metaModifiedTime, metaCreateTime, metaSpace, metaHasAlpha, metaFormat, metaDensity, metaChannels;
         if (metaInfo) {
           metaResolution = `${metaInfo.width}x${metaInfo.height}` || null;
-          metaFileSize = metaInfo.size / 1024 / 1024 + ' МБ'; 
+          metaFileSize = metaInfo.size / 1024 / 1024 + ' МБ';
           metaAccessTime = metaInfo.atime;
           metaModifiedTime = metaInfo.mtime;
           metaCreateTime = metaInfo.ctime;
@@ -425,7 +426,7 @@ app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
         let fileResolution, fileSize, fileAccessTime, fileModifiedTime, fileCreateTime, fileSpace, fileHasAlpha, fileFormat, fileDensity, fileChannels;
         if (fileLoadedInfo) {
           fileResolution = `${fileLoadedInfo.width}x${fileLoadedInfo.height}` || null;
-          fileSize = fileLoadedInfo.size / 1024 / 1024 + ' МБ'; 
+          fileSize = fileLoadedInfo.size / 1024 / 1024 + ' МБ';
           fileAccessTime = fileLoadedInfo.atime;
           fileModifiedTime = fileLoadedInfo.mtime;
           fileCreateTime = fileLoadedInfo.ctime;
@@ -452,9 +453,9 @@ app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
           <p>Старое разрешение: ${metaInfo && metaResolution} ${Arguments && fileLoadedInfo && fileResolution ? `| Новое разрешение: ${fileResolution}` : ''}</p>
           <a href="/shared/images/${dbFileSource}${Arguments}" target="_blank"><img src="/shared/images/${dbFileSource}${Arguments}" alt="${dbTitle}"></a>
         `;
-        
+
       }
-      
+
       else if (dataExtensions.includes(getExtension)) {
         if (getExtension === 'xml') {
           try {
@@ -521,7 +522,7 @@ app.get('/local/images/*', async (request, response, next) => {
     }
     else
       response.contentType(handledResult.mimeType);
-      response.send(handledResult.imageBuffer);
+    response.send(handledResult.imageBuffer);
   } catch (error) {
     console.error('Error processing image:', error);
     next(error);
@@ -531,7 +532,7 @@ app.get('/local/images/*', async (request, response, next) => {
 app.post('/process-dom', (reqest, response) => {
   const { window } = new JSDOM();
   const $ = require('jquery')(window);
-  
+
   const { dom } = reqest.body;
   $('#content').append('<p>Added by server</p>');
   const processedDom = domInstance.window.document.documentElement.outerHTML;
@@ -586,11 +587,11 @@ const options = {
   try {
     const server = https.createServer(options, app);
     const expressServer = app.listen(serverConfig.server.HTTPPort);
-    
+
     await Promise.all([
       new Promise((resolve, reject) => {
         server.listen(serverConfig.server.HTTPSPort, () => {
-          console.log(`\x1b[35m[${new Date().toLocaleString().  replace(',', '')}] :: 🟪 > [SERVER] :: HTTPS enabled | PORT : ${serverConfig.server.HTTPSPort}\x1b[39m`);
+          console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: HTTPS enabled | PORT : ${serverConfig.server.HTTPSPort}\x1b[39m`);
           resolve();
         });
       }),
@@ -603,7 +604,7 @@ const options = {
     ]);
 
     console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [SERVER] :: Server started successfully\x1b[39m`);
-    
+
   } catch (error) {
     console.error(`\x1b[31m[${new Date().toLocaleString().replace(',', '')}] :: ⭕ > [SERVER] :: Server failed to start\x1b[39m`, error);
   }
