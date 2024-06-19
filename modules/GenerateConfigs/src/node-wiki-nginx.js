@@ -1,4 +1,5 @@
 // Test force git clone
+// TEST 2
 const nginxErrors = {
   400: ['400 – Bad Request', 'Your browser sent a request that this server could not understand.'],
   401: ['401 – Unauthorized', 'You are not authorized to view the page. Please log in or check your credentials.'],
