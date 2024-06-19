@@ -176,7 +176,7 @@ http {
 
   server {
     listen 8080 ssl;
-    http2 on;
+    http2 ${serverConfig.NGINX.HTTP2 ? 'on' : 'off'};
     server_name ${serverConfig.server.host};
 
     ssl_certificate "${sourceDir}/nkardaz.io.crt";
@@ -201,7 +201,7 @@ http {
 
   server {
     listen ${serverConfig.NGINX.HTTPSPort} ssl;
-    http2 on;
+    http2 ${serverConfig.NGINX.HTTP2 ? 'on' : 'off'};
     server_name ${serverConfig.server.host};
 
     ssl_certificate "${sourceDir}/nkardaz.io.crt";

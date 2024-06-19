@@ -8,7 +8,7 @@ Subproject of my personal website…
 | --------------------------------- | ------------- |
 | NodeJS                            | ^v21.6.1      |
 | Yarn                              | ^1.22.22      |
-| …or NPM (Node Package Manager)    | ^10.8.1       |
+| …or just NPM withut Yarn          | ^10.8.1       |
 | Git Bash (Optional)               | ^4.4.23       |
 | Process Manager 2 (Optional)      | ^5.4.0        |
 | NGINX (Optional)                  | ^1.27.0       |

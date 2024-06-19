@@ -140,7 +140,7 @@ async function build() {
 
     modulesPromise.then(async () => {
       try {
-        await require('./Modules/GenerateConfigs/GenerateConfigs').init();
+        await require('./modules/GenerateConfigs/GenerateConfigs').init();
         await writeFileAsync(path.join(__PROJECT_DIR__, 'Tools', `php.ini`), phpIni, 'utf-8');
       } catch (err) {
         console.error(err);
