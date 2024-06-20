@@ -78,7 +78,22 @@ const generateErrorPages = async () => {
 const generateErrorsLists = () => {
   return Object.keys(nginxErrors).map(errorCode => `    error_page ${errorCode} /html/${errorCode}.html;`).join('\n');
 };
+
 const errorPagesConfig = serverConfig.NGINX.errorPages ? generateErrorsLists() : '';
+
+const getUpstreams = () => {
+  const servers = Object.values(serverConfig.NGINX.upstream);
+  if (servers.length === 0) return '';
+
+  const result = servers.map((server, index) => {
+    if (index === 0) return `server ${server};`;
+    else return `    server ${server};`;
+  });
+
+  return result.join('\n');
+}
+
+const upstreamAdresses = serverConfig.NGINX.upstream ? getUpstreams() : null;
 
 const nginxConfig = `
 worker_processes ${serverConfig.NGINX[`${os}`].workerProcesses};
@@ -165,7 +180,8 @@ http {
 
   upstream nodeWikiApplication {
     ip_hash;
-    server ${serverConfig.server.host}:${serverConfig.server.HTTPSPort};
+    ${!serverConfig.NGINX.upstream ? `server ${serverConfig.server.host}:${serverConfig.server.HTTPSPort};` :
+    upstreamAdresses}
   }
 
   #server {
