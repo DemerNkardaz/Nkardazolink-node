@@ -3,6 +3,7 @@ const { promisify } = require('util');
 const readFile = promisify(fs.readFile);
 const chokidar = require('chokidar');
 const path = require('path');
+const mathjs = require('mathjs');
 
 let isProcessing = false;
 
@@ -51,11 +52,11 @@ const parseLines = (data) => {
           const projectDir = path.join(__dirname, '..', '..', '..');
           value = path.join(projectDir, lastPath);
         } else if (value.startsWith('{math}:')) {
-          let math = value.split('{math}:')[1].trim();
-          //value = 
+          let mathString = value.split('{math}:')[1].trim();
+          value = mathjs.evaluate(mathString);
         }
 
-        if (/^\d+(K|M|G|T)$/i.test(value)) { value = parseSize(value); }
+        else if (/^\d+(K|M|G|T)$/i.test(value)) { value = parseSize(value); }
 
         else if (value.toLowerCase() === 'true') { value = true; }
         else if (value.toLowerCase() === 'false') { value = false; }

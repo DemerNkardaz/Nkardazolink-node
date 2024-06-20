@@ -7,6 +7,7 @@ global.__PROJECT_DIR__ = path.join(__dirname, '.');
 const serverINI = path.join(__PROJECT_DIR__, 'server.ini');
 ini.parse(serverINI, 'serverConfig');
 ini.watch(serverINI, 'serverConfig');
+console.log(serverConfig);
 
 require('./modules/ModuleLoader/ModuleLoader').config(serverConfig.modules.modulesFolder).init(srcMode = serverConfig.modules.useSrc);
 require('./modules/ModuleLoader/ModuleLoader').config(serverConfig.modules.extensionsFolder).init(srcMode = serverConfig.modules.useSrc);
