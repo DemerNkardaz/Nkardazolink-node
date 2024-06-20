@@ -100,6 +100,8 @@ worker_processes ${serverConfig.NGINX[`${os}`].workerProcesses};
 
 events {
   worker_connections ${serverConfig.NGINX.workerConnections};
+  ${(os === 'linux' || os === 'macos') ? `worker_rlimit_nofile ${serverConfig.NGINX.workerRlimitNofile};` : ''};
+  ${os === 'linux' ? 'use epoll;' : ''}
   multi_accept ${serverConfig.NGINX.multiAccept};
 }
 
@@ -126,6 +128,8 @@ http {
   access_log logs/access.log main;
 
   sendfile on;
+
+  ${(os === 'linux' || os === 'macos') ? 'tcp_nopush on' : ''};
 
   map $http_user_agent $detected_device {
     default "Unknown";
