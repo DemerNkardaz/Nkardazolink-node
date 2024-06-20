@@ -110,21 +110,20 @@ app.use(
   }),
 );
 
-
-
-
 const dataArray = [];
-serverConfig.language.supported.forEach(lang => { dataArray.push({ source: `./assets/locale/main.${lang}.yaml`, as: `locale.${lang}` }) });
-dataArray.push({ source: `./assets/locale/asset.common.yaml`, as: `locale.common` });
-dataArray.push({ source: `./assets/locale/asset.templates.yaml`, as: `locale.templates` });
-dataArray.push({ source: `./assets/locale/misc.yaml`, as: `locale` });
+
+Object.values(serverConfig.locales).forEach(locale => {
+  if (locale.split('.').length === 3) 
+    serverConfig.language.supported.includes(locale.split('.')[1]) &&
+    dataArray.push({ source: `./assets/locale/${locale}`, as: `locale.${locale.split('.')[1]}` });
+  else if (locale.split('.').length === 2) dataArray.push({ source: `./assets/locale/${locale}`, as: `locale.${locale.split('.')[0]}` });
+});
 
 function loadLocales() {
   DataExtend(dataArray, __PROJECT_DIR__)
     .then(() => console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [DATA-EXTEND] :: Extension of data completed\x1b[39m`))
     .catch(err => console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > [DATA-EXTEND] :: Error extending data: ${err.message}`));
 }; loadLocales();
-
 chokidar.watch('./assets/locale/**/*', {
   ignored: /(^|[\/\\])\../,
   persistent: true
@@ -134,13 +133,13 @@ chokidar.watch('./assets/locale/**/*', {
 });
 
 
-
 app.use((request, response, next) => {
   response.setHeader('Content-Type', 'text/html; charset=utf-8');
   next();
 });
 
 
+//setInterval(() => console.log(Object.keys(serverConfig.locales)), 5000);
 
 app.use(async (req, res, next) => {
   try {
