@@ -168,11 +168,11 @@ http {
     server ${serverConfig.server.host}:${serverConfig.server.HTTPSPort};
   }
 
-  server {
-    listen ${serverConfig.server.HTTPPort};
-    server_name ${serverConfig.server.host};
-    return 301 https://$server_name$request_uri;
-  }
+  #server {
+  #  listen ${serverConfig.server.HTTPPort};
+  #  server_name ${serverConfig.server.host};
+  #  return 301 https://$server_name$request_uri;
+  #}
 
   server {
     listen 8080 ssl;
