@@ -177,6 +177,7 @@ app.use(async (req, res, next) => {
 
 app.get('/', async (request, response, next) => {
   console.log(request.headers['detected-user-device']);
+  console.log(request.headers['user-ip-address']);
   console.log(require('os').platform());
   try {
     console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 💠 > [SERVER] :: Latest modify date is [${new Date(await getLastModifiedInFolders()).toLocaleString()}]\x1b[39m`);

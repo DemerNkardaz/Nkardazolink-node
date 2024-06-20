@@ -243,9 +243,11 @@ http {
       proxy_set_header Upgrade $http_upgrade;
       proxy_set_header Connection 'upgrade';
       proxy_set_header Host $host;
+
       proxy_cache_bypass $http_upgrade;
 
       proxy_set_header detected-user-device $detected_device;
+      proxy_set_header user-ip-address $remote_addr;
 
       add_header X-Content-Type-Options 'nosniff';
       add_header X-Request-Detected-Device $detected_device;
