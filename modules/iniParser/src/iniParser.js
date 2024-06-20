@@ -50,6 +50,9 @@ const parseLines = (data) => {
           let lastPath = value.split('{this}/')[1];
           const projectDir = path.join(__dirname, '..', '..', '..');
           value = path.join(projectDir, lastPath);
+        } else if (value.startsWith('{math}:')) {
+          let math = value.split('{math}:')[1].trim();
+          //value = 
         }
 
         if (/^\d+(K|M|G|T)$/i.test(value)) { value = parseSize(value); }

@@ -26,12 +26,7 @@ app.use(express.json());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__PROJECT_DIR__, 'app'));
 app.set('trust proxy', 1) // trust first proxy
-app.use(sessions({
-  secret: 'session-rscrt',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: true }
-}));
+
 /*
 const knexDB = knex({
   client: 'mysql2',

@@ -1,0 +1,2 @@
+npm install axios sharp chroma-js mathjs argon2 body-parser chokidar compression fs-extra xmldom sqlite3 knex cookie-parser cors dotenv ejs express express-useragent http-proxy-middleware https js-yaml jsonpath jsdom xmlbuilder mime-types multer mysql2 nodemailer pug remarkable sass serialize-javascript socket.io
+npm install --save-dev @babel/core @babel/cli @babel/preset-env html-minifier nodemon terser

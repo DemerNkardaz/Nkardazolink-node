@@ -99,8 +99,8 @@ const nginxConfig = `
 worker_processes ${serverConfig.NGINX[`${os}`].workerProcesses};
 
 events {
-  worker_connections 8192;
-  multi_accept on;
+  worker_connections ${serverConfig.NGINX.workerConnections};
+  multi_accept ${serverConfig.NGINX.multiAccept};
 }
 
 http {
@@ -108,11 +108,11 @@ http {
   default_type application/octet-stream;
   ${serverConfig.NGINX.proxyCache ? `proxy_cache_path temp/proxy_cache levels=1:2 keys_zone=my_cache:10m max_size=1g inactive=60m use_temp_path=off;` : ''}
 
-  limit_req_zone $binary_remote_addr zone=mylimit:10m rate=5000r/m;
+  limit_req_zone $binary_remote_addr zone=mylimit:10m rate=${serverConfig.NGINX.limits.requests};
   limit_req_status 429;
 
   limit_conn_zone $binary_remote_addr zone=conn_limit_per_ip:10m;
-  limit_conn conn_limit_per_ip 10;
+  limit_conn conn_limit_per_ip ${serverConfig.NGINX.limits.connectionsPerIP};
 
   fastcgi_buffer_size 16k;
   fastcgi_buffers 4 16k;
@@ -227,7 +227,7 @@ http {
 
     location / {
       proxy_http_version 1.1;
-      limit_req zone=mylimit burst=1000 delay=5;
+      limit_req zone=mylimit burst=${serverConfig.NGINX.limits.requestsBurst} delay=${serverConfig.NGINX.limits.requestsDelay};
 
       proxy_set_header Upgrade $http_upgrade;
       proxy_set_header Connection 'upgrade';
