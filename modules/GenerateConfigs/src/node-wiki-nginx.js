@@ -76,7 +76,11 @@ const generateErrorPages = async () => {
 }
 
 const generateErrorsLists = () => {
-  return Object.keys(nginxErrors).map(errorCode => `    error_page ${errorCode} /html/${errorCode}.html;`).join('\n');
+  const errors = Object.keys(nginxErrors).map((errorCode, index) => {
+    if (index === 0) return `error_page ${errorCode} /html/${errorCode}.html;`
+    else return `    error_page ${errorCode} /html/${errorCode}.html;`
+  });
+  return errors.join('\n');
 };
 
 const errorPagesConfig = serverConfig.NGINX.errorPages ? generateErrorsLists() : '';
@@ -275,7 +279,7 @@ http {
       deny all;
     }
 
-${errorPagesConfig}
+    ${errorPagesConfig}
 
     ${serverConfig.NGINX.errorPages ? 
     `

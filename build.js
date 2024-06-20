@@ -170,4 +170,5 @@ BUILING_PROMISE
     const exec = runArguments.includes('start') ? 'node' : (runArguments.includes('watch') ? 'nodemon' : null);
     const index = runArguments.includes('watch') ? 'index.dev.js': 'index.js';
     exec !== null && execSync(`${exec} ${index}`, { stdio: 'inherit' });
+    (!runArguments.includes('watch') && !runArguments.includes('start')) && process.exit();
   });
