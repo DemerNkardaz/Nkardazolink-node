@@ -110,20 +110,33 @@ app.use(
   }),
 );
 
+
 const dataArray = [];
 
 Object.values(serverConfig.locales).forEach(locale => {
   if (locale.split('.').length === 3) 
     serverConfig.language.supported.includes(locale.split('.')[1]) &&
     dataArray.push({ source: `./assets/locale/${locale}`, as: `locale.${locale.split('.')[1]}` });
-  else if (locale.split('.').length === 2) dataArray.push({ source: `./assets/locale/${locale}`, as: `locale.${locale.split('.')[0]}` });
+  else if (locale.split('.').length === 2) dataArray.push({ source: `./assets/locale/${locale}`, as: `locale` });
 });
 
 function loadLocales() {
-  DataExtend(dataArray, __PROJECT_DIR__)
-    .then(() => console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [DATA-EXTEND] :: Extension of data completed\x1b[39m`))
-    .catch(err => console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > [DATA-EXTEND] :: Error extending data: ${err.message}`));
+  new Promise(async (resolve, reject) => {
+    try {
+      await new DataExtend(dataArray, __PROJECT_DIR__);
+      resolve();
+    } catch (error) {
+      reject(error);
+    }
+  })
+    .then(() => {
+      console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [DATA-EXTEND] :: Extension of data completed\x1b[39m`);
+    })
+    .catch(err => {
+      console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > [DATA-EXTEND] :: Error extending data: ${err.message}`);
+    });
 }; loadLocales();
+
 chokidar.watch('./assets/locale/**/*', {
   ignored: /(^|[\/\\])\../,
   persistent: true
@@ -586,6 +599,9 @@ const options = {
       new Promise((resolve, reject) => {
         server.listen(serverConfig.server.HTTPSPort, () => {
           console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: HTTPS enabled | PORT : ${serverConfig.server.HTTPSPort}\x1b[39m`);
+
+          if (process.env.PM2_HOME) server.on('request', (req, res) => res.setHeader('Project-cluster', 'Enabled'));
+
           resolve();
         });
       }),
@@ -603,7 +619,6 @@ const options = {
     console.error(`\x1b[31m[${new Date().toLocaleString().replace(',', '')}] :: ⭕ > [SERVER] :: Server failed to start\x1b[39m`, error);
   }
 })();
-
 
 
 

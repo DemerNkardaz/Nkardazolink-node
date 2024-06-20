@@ -13,7 +13,8 @@
     "start": "node ./server.workers/server/run-script.js start",
     "dev": "node ./server.workers/server/run-script.js dev",
     "index_rebuild": "node ./server.workers/server/run-script.js index_rebuild",
-    "build": "node ./server.workers/server/run-script.js build"
+    "build": "node ./server.workers/server/run-script.js build",
+    "build_watch": "node ./server.workers/server/run-script.js build_watch"
   },
   "keywords": [],
   "author": "",

@@ -13,6 +13,7 @@ else if (os === 'darwin') os = 'macos'
 //console.log(serverConfig);
 
 const { createNginxConfig, generateErrorPages } = require('./node-wiki-nginx');
+const { createPM2Config } = require('./process-manager-2');
 
 const init = async () => {
   try {
@@ -20,6 +21,10 @@ const init = async () => {
       await createNginxConfig();
       serverConfig.NGINX.errorPages && await generateErrorPages();
       console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [BUILDER] :: NGINX files updated succesfully\x1b[39m`);
+    }
+    if (serverConfig.pm2.enabled) {
+      createPM2Config();
+      console.log(`\x1b[32m[${new Date().toLocaleString().replace(',', '')}] :: 🟩 > [BUILDER] :: PM2 config updated succesfully\x1b[39m`);
     }
   } catch (err) {
     throw new Error(err);

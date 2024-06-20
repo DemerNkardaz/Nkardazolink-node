@@ -13,3 +13,7 @@ build:
   - label: "Building website"
     command: |
       node build.js index
+build_watch:
+  - label: "Watched rebuilder"
+    command: |
+      nodemon build.js index
