@@ -17,7 +17,7 @@ Subproject of my personal website…
 
 **About Requirements:**
 
-- **Yarn/NPM:** Yarn is used by default, but you can remove `yarn.lock` and initialize npm if desired. If using npm, you'll need to edit `getFixedSharp-RUN_SECONDARY_IF_WINDOWS.sh` (for Windows users) and `getNodeModules-RUN_FIRSTLY.sh` (containts just `yarn` command by default).
+- **NPM:** Used by default and not recommended to be changed. Before first build, run `npm install` in project directory or run `getNodeModules-RUN_FIRSTLY.sh` file.
 
 - **Git Bash:** Required to run `.sh` scripts. Alternatively, you can rename the extension of "starting scripts" to `.cmd` (for Windows users).
 
