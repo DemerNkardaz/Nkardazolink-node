@@ -30,7 +30,7 @@ H~2~O
 ```js %
   const date = new Date();
   const getDate = () => {
-    return `Текущая дата: ${date} ${data.$Header}<br>Текущий язык: <br>`;
+    return `Текущая дата: ${date}<br>Текущий язык: <br>`;
   }
   return getDate();
 ```
@@ -47,7 +47,6 @@ H~2~O
 ```js 
   return new Date().toISOString()
 ```
-${$Header}
 ${metaDataResponse.domainURL}
 
 

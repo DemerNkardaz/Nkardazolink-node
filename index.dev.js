@@ -7,7 +7,6 @@ global.__PROJECT_DIR__ = path.join(__dirname, '.');
 const serverINI = path.join(__PROJECT_DIR__, 'server.ini');
 ini.parse(serverINI, 'serverConfig');
 ini.watch(serverINI, 'serverConfig');
-
 require('./modules/ModuleLoader/ModuleLoader').config(serverConfig.modules.modulesFolder).init(srcMode = serverConfig.modules.useSrc);
 require('./modules/ModuleLoader/ModuleLoader').config(serverConfig.modules.extensionsFolder).init(srcMode = serverConfig.modules.useSrc);
 
@@ -238,7 +237,7 @@ app.get('/', async (request, response, next) => {
 
 
     let [$document, $component] = [
-      ['$Test=test.pug', '$Test2=test.md', '$HEAD=document/head', '$BODY=document/body'],
+      ['$Test=test.pug', '$Test2=test.md'],
       ['$Header']
     ]
     for (const names of $component) {

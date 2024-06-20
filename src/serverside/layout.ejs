@@ -1,1 +1,12 @@
-<!DOCTYPE html><html lang="<%= metaDataResponse.renderLanguage %>"><head><%- $HEAD %></head><body><%- $BODY %><br> ${Math.random()} {{ Nkardaz.copyright }}<br> <%- $Test %> <%- $Test2 %> </body></html>
+<!DOCTYPE html>
+<html lang="<%= metaDataResponse.renderLanguage %>">
+  <head>
+    <%- include('./document/head.ejs') %>
+  </head>
+  <body>
+    <%- include('./document/body.ejs') %>
+    <br> ${Math.random()} {{ Nkardaz.copyright }}<br>
+    <%- $Test %>
+    <%- $Test2 %>
+  </body>
+</html>

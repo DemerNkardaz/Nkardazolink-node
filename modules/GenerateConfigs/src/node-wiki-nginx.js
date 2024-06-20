@@ -101,15 +101,16 @@ const upstreamAdresses = serverConfig.NGINX.upstream ? getUpstreams() : null;
 
 const nginxConfig = `
 worker_processes ${serverConfig.NGINX[`${os}`].workerProcesses};
+${(os === 'linux' || os === 'macos') ? `worker_rlimit_nofile ${serverConfig.NGINX[`${os}`].workerRlimitNofile};` : ''}
 
 events {
   worker_connections ${serverConfig.NGINX.workerConnections};
-  ${(os === 'linux' || os === 'macos') ? `worker_rlimit_nofile ${serverConfig.NGINX.workerRlimitNofile};` : ''};
   ${os === 'linux' ? 'use epoll;' : ''}
   multi_accept ${serverConfig.NGINX.multiAccept};
 }
 
 http {
+  charset utf-8;
   include mime.types;
   default_type application/octet-stream;
   ${serverConfig.NGINX.proxyCache ? `proxy_cache_path temp/proxy_cache levels=1:2 keys_zone=my_cache:10m max_size=1g inactive=60m use_temp_path=off;` : ''}
@@ -134,6 +135,7 @@ http {
   sendfile on;
 
   ${(os === 'linux' || os === 'macos') ? 'tcp_nopush on' : ''};
+  ${(os === 'linux' || os === 'macos') ? 'tcp_nodelay off' : ''};
 
   map $http_user_agent $detected_device {
     default "Unknown";
@@ -166,13 +168,14 @@ http {
   }
 
   gzip on;
-  gzip_min_length 100;
-  gzip_comp_level 4;
+  gzip_min_length ${serverConfig.NGINX.gzip.minLength};
+  gzip_comp_level ${serverConfig.NGINX.gzip.level};
   gzip_types text/plain text/css text/xml text/javascript text/x-js text/x-json text/x-script text/x-component text/x-markdown application/json application/javascript application/x-javascript application/ecmascript application/xml application/xml+rss application/rss+xml application/atom+xml application/xhtml+xml application/x-web-app-manifest+json application/vnd.api+json application/ld+json application/pdf image/svg+xml;
   gzip_vary on;
   gzip_proxied any;
   gzip_http_version 1.1;
   gzip_buffers 32 4k;
+  gzip_disable "msie6";
 
   client_body_buffer_size 32k;
   client_header_buffer_size 1k;
@@ -250,7 +253,10 @@ http {
       add_header X-Frame-Options "DENY";
       add_header X-XSS-Protection "1; mode=block";
       add_header Referrer-Policy "no-referrer-when-downgrade";
-      add_header X-Project 'NGINX/Node.js-Express "Nkardazolink"';
+      add_header Project-name '${serverConfig.server.wiki.project}';
+      add_header Project-type '${serverConfig.server.wiki.type} ${serverConfig.server.wiki.version}';
+      add_header Project-core '${serverConfig.server.wiki.core}';
+      add_header Project-proxy 'Nginx $nginx_version';
       add_header X-Request-ID $request_id;
       add_header X-Request-Time $request_time;
 
