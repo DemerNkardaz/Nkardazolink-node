@@ -1,10 +1,15 @@
+<% 
+  const layoutData = {}
+  layoutData.pageUrl = `https://${request.hostname}${request.url}`;
+  layoutData.cannonicalUrl = `https://${request.hostname}${request.path}`;
+%>
 <!DOCTYPE html>
-<html lang="<%= metaDataResponse.renderLanguage %>">
+<html lang="<%= renderLanguage %>">
   <head>
-    <%- include('./document/head.ejs') %>
+    <%- include('./document/head.ejs', { ...layoutData }) %>
   </head>
   <body>
-    <%- include('./document/body.ejs') %>
+    <%- include('./document/body.ejs' { ...layoutData }) %>
     <br> ${Math.random()} {{ Nkardaz.copyright }}<br>
     <%- $Test %>
     <%- $Test2 %>

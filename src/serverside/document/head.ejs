@@ -6,33 +6,35 @@
     locale[navigatorLanguage].Meta_Pereferences.meta.desc[pageUrlMode],
     locale[navigatorLanguage].Meta_Pereferences.meta.image[pageUrlMode],
     locale[`${navigatorLanguage}`].Nkardaz.name,
-    urlModes && /(ipad|phone|android|mobile|pixel|miui|win)/i.test(userDevice.toLowerCase()) && /(kamon|banners|pattern)/i.test(urlModes.mode) ? ', orientation=landscape' : null
+    urlModes && ['mobile', 'tablet'].includes(request.headers['detected-user-device']) && /(kamon|banners|pattern)/i.test(urlModes.mode) ? ', orientation=landscape' : null
   ];
+
 %>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-  <meta name="referrer" content="no-referrer-when-downgrade" />
-  <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0<%= pageViewportMode %>" />
-  <meta name="renderer" content="webkit|ie-comp|ie-stand" />
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="referrer" content="no-referrer-when-downgrade">
+  <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0<%= pageViewportMode %>">
+  <meta name="renderer" content="webkit|ie-comp|ie-stand">
 
-  <meta name="date" content="2024-01-27T11:32:05Z" />
-  <meta name="subject" content="Art and design, writting, worldbuilding, lore, wiki" />
-  <meta name="theme-color" content="#333333" />
-  <meta name="rating" content="Mature" />
-  <meta name="format-detection" content="phone=no" />
+  <meta name="date" content="2024-01-27T11:32:05Z">
+  <meta name="subject" content="Art and design, writting, worldbuilding, lore, wiki">
+  <meta name="theme-color" content="#333333">
+  <meta name="rating" content="Mature">
+  <meta name="format-detection" content="phone=no">
 
-  <meta name="ICBM" content="47.0105, 28.8638" />
-  <meta name="geo.position" content="47.0105;28.8638" />
-  <meta name="geo.region" content="MD" />
-  <meta name="geo.placename" content="Chișinău" />
+  <meta name="ICBM" content="47.0105, 28.8638">
+  <meta name="geo.position" content="47.0105;28.8638">
+  <meta name="geo.region" content="MD">
+  <meta name="geo.placename" content="Chișinău">
 
   <base href="<%= domainURL %>/" />
+  <link rel="canonical" href="<%= cannonicalUrl %>">
 
 
   <!-- ***** OG:META *****-->
   <meta property="og:type" content="website">
   <meta property="og:title" content="<%= pageTitle %>" data-key="Meta_Pereferences.titles.<%= pageUrlMode %>">
-  <meta property="og:url" content="<%= fullURL %>">
+  <meta property="og:url" content="<%= pageUrl %>">
   <meta property="og:description" content="<%= pageDesription %>" data-key="Meta_Pereferences.meta.desc.<%= pageUrlMode %>">
   <meta property="og:image" content="<%= pageSeoImage %>" data-key="Meta_Pereferences.meta.image.<%= pageUrlMode %>">
   <meta property="og:locale" content="<%= renderLanguage %>">
@@ -40,11 +42,14 @@
   <!-- ????? TWITTER:META ????? -->
   <meta name="twitter:card" content="summary_large_image">
   <meta property="twitter:domain" content="<%= domainURL %>">
-  <meta property="twitter:url" content="<%= fullURL %>">
+  <meta property="twitter:url" content="<%= pageUrl %>">
   <meta name="twitter:title" content="<%= pageTitle %>" data-key="Meta_Pereferences.titles.<%= pageUrlMode %>">
   <meta name="twitter:description" content="<%= pageDesription %>" data-key="Meta_Pereferences.meta.desc.<%= pageUrlMode %>">
   <meta name="twitter:image" content="<%= pageSeoImage %>" data-key="Meta_Pereferences.meta.image.<%= pageUrlMode %>">
   <meta name="twitter:creator" content="@nkardaz">
+
+  <meta name="thumbnail" content="/local/images/svg/favicon.svg?s=512&to=webp">
+  <meta name="generator" content="<%= serverConfig.server.wiki.type %> <%= serverConfig.server.wiki.version %>">
 
   <meta http-equiv="Cache-Control" content="public">
   <meta name="mobile-web-app-capable" content="yes">
@@ -64,12 +69,12 @@
   %>
 
   <% desktopSizes.forEach(size => { %>
-    <link rel="icon" href="/local/images/svg/favicon.svg?to=png&r=<%= size %>" sizes="<%= size %>x<%= size %>" type="image/png">
-    <link rel="shortcut icon" href="/local/images/svg/favicon.svg?to=png&r=<%= size %>" sizes="<%= size %>x<%= size %>" type="image/png">
+  <link rel="icon" href="/local/images/svg/favicon.svg?to=png&r=<%= size %>" sizes="<%= size %>x<%= size %>" type="image/png">
+  <link rel="shortcut icon" href="/local/images/svg/favicon.svg?to=png&r=<%= size %>" sizes="<%= size %>x<%= size %>" type="image/png">
   <% }); %>
 
   <% iOSSizes.forEach(size => { %>
-    <link rel="apple-touch-icon" href="/local/images/svg/favicon.svg?to=png&p=12&r=<%= size %>" sizes="<%= size %>x<%= size %>">
+  <link rel="apple-touch-icon" href="/local/images/svg/favicon.svg?to=png&p=12&r=<%= size %>" sizes="<%= size %>x<%= size %>">
   <% }); %>
 
   <title data-key="Meta_Pereferences.titles.<%= pageUrlMode %>"><%= pageTitle %></title>

@@ -1,0 +1,16 @@
+common:
+  meta:
+    inf:
+      url:
+        default: https://demernkardaz.github.io/Nkardazolink/
+        kamon: https://demernkardaz.github.io/Nkardazolink?mode=kamon
+        banners: https://demernkardaz.github.io/Nkardazolink?mode=banners
+        pattern: https://demernkardaz.github.io/Nkardazolink?mode=pattern
+        cv2d: https://demernkardaz.github.io/Nkardazolink?mode=cv&select=2d
+        cv3d: https://demernkardaz.github.io/Nkardazolink?mode=cv&select=3d
+        webs: https://demernkardaz.github.io/Nkardazolink?mode=webs
+        mods: https://demernkardaz.github.io/Nkardazolink?mode=mods
+        license: https://demernkardaz.github.io/Nkardazolink?mode=license
+ru:
+  
+  

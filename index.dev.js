@@ -245,7 +245,7 @@ app.get('/', async (request, response, next) => {
 
     let webManifest = await readFileAsync(path.join(`${__PROJECT_DIR__}/static/public/manifest/manifest.${metaDataResponse.renderLanguage}.webmanifest`), 'utf8');
     webManifest = JSON.parse(webManifest);
-    const __COMPILED_DATA = { metaDataResponse, webManifest };
+    const __COMPILED_DATA = { metaDataResponse, webManifest, ...metaDataResponse };
 
 
 
