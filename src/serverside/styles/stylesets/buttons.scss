@@ -11,6 +11,21 @@
   transition: all .1s ease;
   z-index: 1;
   cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+
+  &-header-action {
+    border: none;
+    color: $color-gold-orange;
+    padding: 8px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+
+    &:hover {
+      color: $color-gold-orange;
+      background: $color-gold-orange-5f;
+    }
+  }
 
   &-circle-floating {
     width: 38px;

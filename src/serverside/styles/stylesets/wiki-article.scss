@@ -49,5 +49,32 @@
         size: 10.5pt;
       }
     }
+
+    &__title {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      height: 3rem;
+      align-items: center;
+      margin-block-start: 2rem;
+      & > h1 {
+        height: 100%;
+        align-content: center;
+      }
+    }
+    &__actions {
+      display: flex;
+      gap: 10px;
+      &>*:not(:last-child) {
+        position: relative;
+        &::after {
+          content: '';
+          position: absolute;
+          width: calc(100% + 10px);
+          height: 50%;
+          border-right: 1px solid $color-border-main;
+        }
+      }
+    }
   }
 }
