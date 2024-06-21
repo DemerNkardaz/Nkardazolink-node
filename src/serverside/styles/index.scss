@@ -42,7 +42,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: $font-headings;
   margin: 0;
 
-  @include font-size(2rem);
+  @include font-size(2.25rem);
   @at-root h1 {
     font-family: $font-h1;
   }

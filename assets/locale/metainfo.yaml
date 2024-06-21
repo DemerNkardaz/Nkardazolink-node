@@ -26,27 +26,32 @@ ru:
 
       app-name: Нкардазолинк
       app-name-ashihara: Асихара
+      wiki-title: Асихара Вики
 en:
   meta:
     inf:
       app-name: Nkardazolink
       app-name-ashihara: Ashihara
+      wiki-title: Ashihara Wiki
 
 ja:
   meta:
     inf:
       app-name: Nkardazolink
       app-name-ashihara: 芦原
+      wiki-title: 芦原のウィキ
 zh:
   meta:
     inf:
       app-name: Nkardazolink
       app-name-ashihara: 蘆原
+      wiki-title: 蘆原维基
 ko:
   meta:
     inf:
       app-name: Nkardazolink
       app-name-ashihara: 갈대밭
+      wiki-title: 갈대밭위키
 vi:
   meta:
     inf:

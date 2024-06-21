@@ -239,10 +239,14 @@ class ImageHandler {
         if (this.watermark && this.postMark === true && this.watermarkPos) imageBuffer = await this.#watermark(imageBuffer);
 
         if (this.background) {
-          const afterScaleMeta = await sharp(imageBuffer).metadata();
-          let backgroundImage = await sharp({ create: { width: afterScaleMeta.width, height: afterScaleMeta.height, channels: 4, background: this.background } }).webp().toBuffer();
+          if (mimeType !== 'image/svg+xml') {
+            const afterScaleMeta = await sharp(imageBuffer).metadata();
+            let backgroundImage = await sharp({ create: { width: afterScaleMeta.width, height: afterScaleMeta.height, channels: 4, background: this.background } }).webp().toBuffer();
 
-          imageBuffer = await sharp(backgroundImage).composite([{ input: imageBuffer }]).toBuffer();;
+            imageBuffer = await sharp(backgroundImage).composite([{ input: imageBuffer }]).toBuffer();
+          } else {
+            imageBuffer = Buffer.from(await this.#createSVGBackground(imageBuffer, this.background), 'utf8');
+          }
         }
 
         if (this.postRotate) {
@@ -502,6 +506,30 @@ class ImageHandler {
     }
   }
 
+  async #createSVGBackground(imageBuffer, backgroundColor) {
+    const svgString = imageBuffer.toString('utf-8');
+  
+    const domParser = new DOMParser();
+    const doc = domParser.parseFromString(svgString, 'image/svg+xml');
+    const svgElement = doc.documentElement;
+
+    const width = svgElement.getAttribute('width') || svgElement.viewBox.baseVal.width;
+    const height = svgElement.getAttribute('height') || svgElement.viewBox.baseVal.height;
+
+    const rect = doc.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('width', '100%');
+    rect.setAttribute('height', '100%');
+    rect.setAttribute('fill', `rgba(${backgroundColor.r},${backgroundColor.g},${backgroundColor.b},${backgroundColor.alpha})`);
+
+    svgElement.insertBefore(rect, svgElement.firstChild);
+
+    const xmlSerializer = new XMLSerializer();
+    const modifiedSvgString = xmlSerializer.serializeToString(svgElement);
+
+    return modifiedSvgString;
+  }
+
+
   async #applyPadding(imageBuffer, ) {
     const image = sharp(imageBuffer);
     const metadata = await image.metadata();
@@ -570,7 +598,6 @@ class ImageHandler {
         newHeight = Math.round(originalWidth / targetRatio);
       }
     } else {
-      // Если ratioFit не задан или задано некорректное значение
       return imageBuffer;
     }
 
