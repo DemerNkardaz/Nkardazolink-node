@@ -87,8 +87,11 @@ class ImageHandler {
       brightness: request.query.brightness ? parseFloat(request.query.brightness) : null,
       saturation: request.query.saturation ? parseFloat(request.query.saturation) : null,
       hue: request.query.hue ? parseFloat(request.query.hue) : null,
+      version: request.query.v ? request.query.v : null,
+      ratio: request.query.ratio ? request.query.ratio : null,
+      ratioFit: request.query.ratioFit ? request.query.ratioFit : null,
+      ratioShift: request.query.ratioShift ? request.query.ratioShift : null,
     });
-
     Object.keys(this).forEach(key => {
       if (key.toLowerCase().includes('background') && this[key] !== null) {
         const [r, g, b, alpha] = chroma(this[key]).rgba();
@@ -253,6 +256,10 @@ class ImageHandler {
           if (this.hue) options.hue = this.hue;
 
           imageBuffer = await sharp(imageBuffer).modulate(options).gamma(this.gamma[0], this.gamma[1]).toBuffer();
+        }
+
+        if (this.ratio) {
+          imageBuffer = await this.#applyRatio(imageBuffer);
         }
 
         if (this.staticUrl.includes('?') && imageBuffer.length <= serverConfig.cache.maxCachedImageSize) {
@@ -527,6 +534,48 @@ class ImageHandler {
         right: paddingSize,
         background: this.paddingBackground || { r: 0, g: 0, b: 0, alpha: 0 }
       })
+      .toBuffer();
+
+    return resizedImageBuffer;
+  }
+
+  async #applyRatio(imageBuffer) {
+    const [ratioWidth, ratioHeight] = this.ratio.split(':').map(Number);
+    if (!ratioWidth || !ratioHeight) return imageBuffer;
+
+    const image = sharp(imageBuffer);
+    const metadata = await image.metadata();
+    const originalWidth = metadata.width;
+    const originalHeight = metadata.height;
+
+    const targetRatio = ratioWidth / ratioHeight;
+    const currentRatio = originalWidth / originalHeight;
+
+    let newWidth, newHeight;
+
+    if (this.ratioFit === 'cover') {
+      if (targetRatio > currentRatio) {
+        newWidth = originalWidth;
+        newHeight = Math.round(originalWidth / targetRatio);
+      } else {
+        newWidth = Math.round(originalHeight * targetRatio);
+        newHeight = originalHeight;
+      }
+    } else if (this.ratioFit === 'contain') {
+      if (targetRatio > currentRatio) {
+        newWidth = Math.round(originalHeight * targetRatio);
+        newHeight = originalHeight;
+      } else {
+        newWidth = originalWidth;
+        newHeight = Math.round(originalWidth / targetRatio);
+      }
+    } else {
+      // Если ratioFit не задан или задано некорректное значение
+      return imageBuffer;
+    }
+
+    const resizedImageBuffer = await sharp(imageBuffer)
+      .resize(newWidth, newHeight, { fit: 'cover', position: 'center' })
       .toBuffer();
 
     return resizedImageBuffer;
