@@ -57,6 +57,7 @@ class ImageCacheCleaner {
 
 class ImageHandler {
   constructor(sourcePath, request, enabledCache = true, infoOnly = false) {
+    !fsDef.existsSync('./cache/images') && fsDef.mkdirSync('./cache/images', { recursive: true });
     Object.assign(this, {
       infoOnly: infoOnly,
       sourcePath: sourcePath,

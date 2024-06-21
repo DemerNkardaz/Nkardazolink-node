@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: "Asihara",
+      name: "Ashihara",
       script: "./index.js",
       instances: 5,
       max_memory_restart: "300M",

@@ -9,15 +9,12 @@ let isProcessing = false;
 
 const parseSize = (sizeString) => {
   sizeString = sizeString.toUpperCase();
-  if (sizeString.endsWith('K')) {
-    return parseInt(sizeString.slice(0, -1)) * 1024;
-  } else if (sizeString.endsWith('M')) {
-    return parseInt(sizeString.slice(0, -1)) * 1024 * 1024;
-  } else if (sizeString.endsWith('G')) {
-    return parseInt(sizeString.slice(0, -1)) * 1024 * 1024 * 1024;
-  } else if (sizeString.endsWith('T')) {
-    return parseInt(sizeString.slice(0, -1)) * 1024 * 1024 * 1024 * 1024;
-  }
+
+  if (sizeString.endsWith('K')) return parseInt(sizeString.slice(0, -1)) * 1024;
+  else if (sizeString.endsWith('M')) return parseInt(sizeString.slice(0, -1)) * 1024 * 1024;
+  else if (sizeString.endsWith('G')) return parseInt(sizeString.slice(0, -1)) * 1024 * 1024 * 1024;
+  else if (sizeString.endsWith('T')) return parseInt(sizeString.slice(0, -1)) * 1024 * 1024 * 1024 * 1024;
+  
   return parseInt(sizeString);
 }
 

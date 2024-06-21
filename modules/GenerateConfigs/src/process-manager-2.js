@@ -3,7 +3,7 @@ const os = require('os');
 const pm2Config = `{
   apps: [
     {
-      name: "Asihara",
+      name: "Ashihara",
       script: "./index.js",
       instances: ${serverConfig.pm2.rebuildOnChanges ? Math.max(1, Math.min(os.cpus().length - 1, serverConfig.pm2.maxInstances - 1)) : Math.min(os.cpus().length, serverConfig.pm2.maxInstances)},
       max_memory_restart: "300M",
