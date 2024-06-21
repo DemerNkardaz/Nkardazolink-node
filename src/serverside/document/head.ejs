@@ -12,7 +12,6 @@
 %>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="referrer" content="no-referrer-when-downgrade">
   <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0<%= orientationMode ?? '' %>">
   <meta name="renderer" content="webkit|ie-comp|ie-stand">
 
@@ -30,6 +29,9 @@
   <base href="<%= domainUrl %>/" />
   <link rel="canonical" href="<%= cannonicalUrl %>">
 
+  <meta name="referrer" content="origin">
+  <meta name="referrer" content="origin-when-cross-origin">
+  <meta name="referrer" content="no-referrer-when-downgrade">
 
   <!-- ***** OG:META *****-->
   <meta property="og:type" content="website">

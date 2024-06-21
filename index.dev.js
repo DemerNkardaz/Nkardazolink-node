@@ -117,7 +117,7 @@ Object.values(serverConfig.locales).forEach(locale => {
   if (locale.split('.').length === 3) {
     let isLanguageCode = locale.split('.')[1].length === 2 && serverConfig.language.supported.includes(locale.split('.')[1]);
     let isNonLanguage = locale.split('.')[1].length > 2;
-    
+
     if (isLanguageCode || isNonLanguage) {
       dataArray.push({ source: `./assets/locale/${locale}`, as: `locale.${locale.split('.')[1]}` });
     }
@@ -193,6 +193,7 @@ app.use(async (req, res, next) => {
 });
 
 app.get('/', async (request, response, next) => {
+  console.log(request.path);
   console.log(request.headers['detected-user-device']);
   console.log(request.headers['user-ip-address']);
   console.log(require('os').platform());
