@@ -5,7 +5,7 @@ const pm2Config = `{
     {
       name: "Asihara",
       script: "./index.js",
-      instances: ${Math.max(1, Math.min(os.cpus().length - 1, serverConfig.pm2.maxInstances - 1))},
+      instances: ${serverConfig.pm2.rebuildOnChanges ? Math.max(1, Math.min(os.cpus().length - 1, serverConfig.pm2.maxInstances - 1)) : Math.min(os.cpus().length, serverConfig.pm2.maxInstances)},
       max_memory_restart: "300M",
       watch: ['index.js', 'app'],
       env_production: {

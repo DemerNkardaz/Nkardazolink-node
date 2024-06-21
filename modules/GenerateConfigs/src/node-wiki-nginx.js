@@ -264,7 +264,7 @@ http {
 
       proxy_pass https://nodeWikiApplication/;
       proxy_read_timeout 15;
-      proxy_connect_timeout 3;
+      proxy_connect_timeout 10;
       
       ${serverConfig.NGINX.proxyCache ? `
       proxy_cache my_cache;
