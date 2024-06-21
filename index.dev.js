@@ -218,26 +218,8 @@ app.get('/', async (request, response, next) => {
 
     request.isHomePage = true;
 
-    const __COMPILED_DATA = { request };
 
-    let [$document, $component] = [
-      ['$Test=test.pug', '$Test2=test.md'],
-      ['$Header']
-    ]
-    for (const names of $component) {
-      let [variable, path] = names.includes('=') ? names.split('=') : [names, names.toLowerCase().replace('$', '')];
-
-      Array.isArray($component) && ($component = {});
-      $component[variable] = await loadComponent(path.includes('components') ? path : `components/${path}`, { ...__COMPILED_DATA });
-    }
-    for (const names of $document) {
-      let [variable, path] = names.split('=');
-
-      Array.isArray($document) && ($document = {});
-      $document[variable] = await loadComponent(path, { ...$component, ...__COMPILED_DATA })
-    }
-
-    const Builded = await loadComponent('layout', { ...$document, ...__COMPILED_DATA }).PostProcessor({ ...__COMPILED_DATA });
+    const Builded = await loadComponent('layout', { request }).PostProcessor({ request });
 
     response.send(Builded);
   } catch (error) {
@@ -278,7 +260,9 @@ app.get('/:lang?/wiki/:page', async (request, response, next) => {
   */
   try {
 
-    response.send(`Вики-страница “${request.params.page}”`)
+    const Builded = await loadComponent('layout', { request }).PostProcessor({ request });
+
+    response.send(Builded);
   } catch (error) {
     console.error(error);
     next(error);

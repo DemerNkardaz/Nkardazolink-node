@@ -1,4 +1,5 @@
 @import 'roots/fonts';
+@import 'roots/colors';
 $base-font-size: 12pt;
 $base-line-height: 1.45em;
 
@@ -15,9 +16,10 @@ button, input {font-family: inherit;}
 html, body {
   font: {
     size: $base-font-size;
-    family: $font-default;
+    family: $font-wiki;
   }
   line-height: $base-line-height;
+  height: 100%;
   margin: 0;
   padding: 0;
   scroll-behavior: smooth;
@@ -57,3 +59,34 @@ h1, h2, h3, h4, h5, h6 {
     @include font-size(1.00rem);
   }
 }
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var($color-gold-pale-semilight) var($shadow-22a29);
+
+  ::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var($color-gold-pale-semilight) var($shadow-22a29);
+  }
+
+  ::selection {
+    background-color: var($color-gold-dark);
+    color: var($text-fe);
+    text-shadow: 1px 1px 3px #000000;
+  }
+}
+
+
+body {
+  background: url('/shared/images/wallpaper.webp');
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center center;
+  background-size: cover;
+}
+
+
+@import 'stylesets/wiki';

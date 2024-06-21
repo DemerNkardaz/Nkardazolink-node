@@ -1,0 +1,30 @@
+
+
+.nw-root-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  background: #ffffff00;
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  &__header-block {
+    width: 100%;
+    height: 3.5rem;
+    background: #8a3df0a0;
+  }
+  &__main-block {
+    width: 100%;
+    height: auto;
+    min-height: 512px;
+  }
+  &__footer-block {
+    width: 100%;
+    height: 6rem;
+    background: #8a3df0a0;
+  }
+}
