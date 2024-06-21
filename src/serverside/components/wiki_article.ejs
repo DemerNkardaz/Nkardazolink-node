@@ -3,27 +3,46 @@
 %>
 <article class="nw-article-page">
   <div class="nw-article-controls">
-    <button class="material-symbols-rounded" type="button">fullscreen</button>
-    <button class="material-symbols-rounded" type="button">toc</button>
-    <button class="material-symbols-rounded" type="button">edit</button>
+    <button class="material-symbols-rounded" type="button" aria-label="Expand article block">fullscreen</button>
+    <button class="material-symbols-rounded" type="button" aria-label="Open table of contents">toc</button>
+    <button class="material-symbols-rounded" type="button" aria-lable="Edit article">edit</button>
   </div>
   <header class="nw-article-header">
     <section class="nw-article-header__categories">
       In: <a href="">somecat</a>
     </section>
-    <h1>Some header</h1>
+    <h1 id="article-header">Some header</h1>
   </header>
   <hr>
   <main class="nw-article-content">
-    <section class="nw-article-tabs">
-      <button class="nw-article-tabs__button" data-tab-target="first" type="button">First tab</button>
-      <button class="nw-article-tabs__button" data-tab-target="second" type="button">Second tab</button>
+    <section class="nw-article-tabs" role="tablist" aria-labelledby="article-header">
+      <button class="nw-article-tabs__button"
+              role="tab"
+              id="article-content"
+              aria-controls="article-content-panel"
+              aria-selected="true"
+              data-tab-index="0"
+              type="button"
+              aria-label="Open article content section">
+        First tab
+      </button>
+      <button class="nw-article-tabs__button"
+              role="tab"
+              id="article-gallery"
+              aria-controls="article-gallery-panel"
+              aria-selected="false"
+              data-tab-index="last"
+              type="button"
+              aria-label="Open article gallery">
+        Second tab
+      </button>
     </section>
-    <div class="nw-article-tab__content" data-tab="frist">
+
+    <div class="nw-article-tab__content" role="tabpanel" id="article-content-panel" aria-labelledby="tab-1">
       <p>Some text content</p>
     </div>
-    <div class="nw-article-tab__content" data-tab="second">
-      <p>Some text content</p>
+    <div class="nw-article-tab__content" role="tabpanel" id="article-gallery-panel" aria-labelledby="tab-1">
+      Some gallery template
     </div>
   </main>
   <footer class="nw-article-footer">
@@ -32,6 +51,30 @@
     </section>
     <section class="nw-article-footer__comments">
       Some database connection
+      <article class="nw-article-comment-instance" role="comment">
+        <header>
+          <img src="/shared/images/avatar.png" alt="" loading="lazy" decoding="async">
+          Commentator name
+        </header>
+        <main>
+          Comment content
+        </main>
+        <footer>
+          Some footer
+        </footer>
+      </article>
+      <article class="nw-article-comment-instance" role="comment">
+        <header>
+          <img src="/shared/images/avatar.png" alt="" loading="lazy" decoding="async">
+          Commentator name
+        </header>
+        <main>
+          Comment content
+        </main>
+        <footer>
+          Some footer
+        </footer>
+      </article>
     </section>
   </footer>
 </article>
