@@ -134,8 +134,8 @@ http {
 
   sendfile on;
 
-  ${(os === 'linux' || os === 'macos') ? 'tcp_nopush on' : ''};
-  ${(os === 'linux' || os === 'macos') ? 'tcp_nodelay off' : ''};
+  ${(os === 'linux' || os === 'macos') ? 'tcp_nopush on;' : ''}
+  ${(os === 'linux' || os === 'macos') ? 'tcp_nodelay off;' : ''}
 
   map $http_user_agent $detected_device {
     default "Unknown";

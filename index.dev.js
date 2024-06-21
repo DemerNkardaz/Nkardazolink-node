@@ -114,9 +114,14 @@ app.use(
 const dataArray = [];
 
 Object.values(serverConfig.locales).forEach(locale => {
-  if (locale.split('.').length === 3) 
-    serverConfig.language.supported.includes(locale.split('.')[1]) &&
-    dataArray.push({ source: `./assets/locale/${locale}`, as: `locale.${locale.split('.')[1]}` });
+  if (locale.split('.').length === 3) {
+    let isLanguageCode = locale.split('.')[1].length === 2 && serverConfig.language.supported.includes(locale.split('.')[1]);
+    let isNonLanguage = locale.split('.')[1].length > 2;
+    
+    if (isLanguageCode || isNonLanguage) {
+      dataArray.push({ source: `./assets/locale/${locale}`, as: `locale.${locale.split('.')[1]}` });
+    }
+  }
   else if (locale.split('.').length === 2) dataArray.push({ source: `./assets/locale/${locale}`, as: `locale` });
 });
 

@@ -1,5 +1,5 @@
 <% 
-  const { urlModes = null, userDevice, domainURL, fullURL, navigatorLanguage = 'ru', renderLanguage, userSession} = metaDataResponse;
+  const { urlModes = null, userDevice, navigatorLanguage = 'ru', renderLanguage, userSession} = metaDataResponse;
   const pageUrlMode = urlModes && `${urlModes.mode ? urlModes.mode : 'default'}${urlModes.select ? urlModes.select : ''}` || 'default';
   const [pageTitle, pageDesription, pageSeoImage, pageAuthor, pageViewportMode] = [
     locale[navigatorLanguage].Meta_Pereferences.titles[pageUrlMode],
@@ -13,7 +13,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="referrer" content="no-referrer-when-downgrade">
-  <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0<%= pageViewportMode %>">
+  <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0<%= orientationMode ?? '' %>">
   <meta name="renderer" content="webkit|ie-comp|ie-stand">
 
   <meta name="date" content="2024-01-27T11:32:05Z">
@@ -27,7 +27,7 @@
   <meta name="geo.region" content="MD">
   <meta name="geo.placename" content="Chișinău">
 
-  <base href="<%= domainURL %>/" />
+  <base href="<%= domainUrl %>/" />
   <link rel="canonical" href="<%= cannonicalUrl %>">
 
 
@@ -41,7 +41,7 @@
   
   <!-- ????? TWITTER:META ????? -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta property="twitter:domain" content="<%= domainURL %>">
+  <meta property="twitter:domain" content="<%= domainUrl %>">
   <meta property="twitter:url" content="<%= pageUrl %>">
   <meta name="twitter:title" content="<%= pageTitle %>" data-key="Meta_Pereferences.titles.<%= pageUrlMode %>">
   <meta name="twitter:description" content="<%= pageDesription %>" data-key="Meta_Pereferences.meta.desc.<%= pageUrlMode %>">

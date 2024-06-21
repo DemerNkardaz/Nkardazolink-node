@@ -1,15 +1,33 @@
 <% 
-  const layoutData = {}
-  layoutData.pageUrl = `https://${request.hostname}${request.url}`;
-  layoutData.cannonicalUrl = `https://${request.hostname}${request.path}`;
-%>
+  const layoutData = {};
+  layoutData.pageUrl = `${request.protocol}://${request.hostname}${request.url}`;
+  layoutData.cannonicalUrl = `${request.protocol}://${request.hostname}${request.path}`;
+  layoutData.domainUrl = `${request.protocol}://${request.hostname}`;
+
+  layoutData.queriedMode = request.query?.mode && VALID_MODES.includes(request.query.mode) ? request.query.mode : null;
+  layoutData.queriedSelect = request.query?.select && VALID_SELECT.includes(request.query.select) ? request.query.select : null;
+
+  layoutData.queriedLanguage = (
+    request.urlLanguageRequest ||
+    request.query?.lang ||
+    request.query?.userLang ||
+    (request.headers['accept-language'] && request.headers['accept-language'].substring(0, 2)) ||
+    null
+  );
+
+  if (!serverConfig.language.supported.includes(layoutData.queriedLanguage)) layoutData.queriedLanguage = serverConfig.language.default;
+
+
+
+  layoutData.orientationMode = ['mobile', 'tablet'].includes(request.headers['detected-user-device']) && /(kamon|banners|pattern)/i.test(layoutData.queriedMode) ? ', orientation=landscape' : null;
+%> 
 <!DOCTYPE html>
-<html lang="<%= renderLanguage %>">
+<html lang="<%= layoutData.queriedLanguage %>" data-query-mode="<%= layoutData.queriedMode ?? 'default' %>">
   <head>
     <%- include('./document/head.ejs', { ...layoutData }) %>
   </head>
   <body>
-    <%- include('./document/body.ejs' { ...layoutData }) %>
+    <%- include('./document/body.ejs', { ...layoutData }) %>
     <br> ${Math.random()} {{ Nkardaz.copyright }}<br>
     <%- $Test %>
     <%- $Test2 %>
