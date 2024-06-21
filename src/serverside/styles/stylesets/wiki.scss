@@ -76,10 +76,11 @@
       justify-content: center;
       grid-row: 1 / span 2;
       grid-column: 1;
-      height: 60px;
+      height: 100%;
       width: auto;
       border-radius: 50%;
       border: 2px solid #282828;
+      transition: all .5s cubic-bezier(1, -0.59, .93, 1.72);
       filter: drop-shadow(1px 1px 3px $shadow-22a64) drop-shadow(2px 1px 3px $shadow-22a29);
 
       & > img {
@@ -87,6 +88,10 @@
         object-fit: contain;
         height: 100%;
         width: auto;
+      }
+
+      &:hover {
+        rotate: -45deg;
       }
     }
 
