@@ -19,7 +19,6 @@ html, body {
     family: $font-wiki;
   }
   line-height: $base-line-height;
-  height: 100%;
   margin: 0;
   padding: 0;
   scroll-behavior: smooth;
@@ -62,31 +61,59 @@ h1, h2, h3, h4, h5, h6 {
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: var($color-gold-pale-semilight) var($shadow-22a29);
+  scrollbar-color: $color-gold-pale-semilight $shadow-22a29;
 
   ::-webkit-scrollbar {
     width: 5px;
   }
 
   ::-webkit-scrollbar-thumb {
-    background-color: var($color-gold-pale-semilight) var($shadow-22a29);
+    background-color: $color-gold-pale-semilight $shadow-22a29;
   }
 
   ::selection {
-    background-color: var($color-gold-dark);
-    color: var($text-fe);
+    background-color: $color-gold-dark;
+    color: $text-fe;
     text-shadow: 1px 1px 3px #000000;
   }
 }
 
+a {
+  text-decoration: none;
+  color: $color-gold-orange;
+
+  &.listButton {
+    color: $text-33;
+  }
+
+  &.listButton:hover,
+  &:hover {
+    color: $color-gold-hover;
+  }
+
+  &:focus,
+  &:active {
+    color: $color-gold-pale;
+  }
+}
+
+
+
 
 body {
+  position: relative;
+  display: flex;
+  height: auto;
+  min-height: 100dvh;
   background: url('/shared/images/wallpaper.webp');
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-position: center center;
   background-size: cover;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 
 @import 'stylesets/wiki';
+@import 'stylesets/wiki-article';

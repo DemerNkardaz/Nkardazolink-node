@@ -1,0 +1,9 @@
+@import '../roots/colors.scss';
+
+.nw-article-page {
+  grid-column: 2;
+  width: 100%;
+  background: $color-body-main;
+  padding: 25px 40px;
+
+}
