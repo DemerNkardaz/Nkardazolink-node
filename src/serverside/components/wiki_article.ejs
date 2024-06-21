@@ -5,11 +5,11 @@
   <div class="nw-article-controls">
     <button class="material-symbols-rounded" type="button" aria-label="Expand article block">fullscreen</button>
     <button class="material-symbols-rounded" type="button" aria-label="Open table of contents">toc</button>
-    <button class="material-symbols-rounded" type="button" aria-lable="Edit article">edit</button>
+    <button class="material-symbols-rounded" type="button" aria-label="Edit article">edit</button> <!-- Исправлено: aria-lable на aria-label -->
   </div>
   <header class="nw-article-header">
     <section class="nw-article-header__categories">
-      In: <a href="">somecat</a>
+      In: <a href="#">somecat</a>
     </section>
     <h1 id="article-header">Some header</h1>
   </header>
@@ -38,10 +38,10 @@
       </button>
     </section>
 
-    <div class="nw-article-tab__content" role="tabpanel" id="article-content-panel" aria-labelledby="tab-1">
+    <div class="nw-article-tab__content" role="tabpanel" id="article-content-panel" aria-labelledby="article-content">
       <p>Some text content</p>
     </div>
-    <div class="nw-article-tab__content" role="tabpanel" id="article-gallery-panel" aria-labelledby="tab-1">
+    <div class="nw-article-tab__content" role="tabpanel" id="article-gallery-panel" aria-labelledby="article-gallery">
       Some gallery template
     </div>
   </main>
@@ -53,26 +53,26 @@
       Some database connection
       <article class="nw-article-comment-instance" role="comment">
         <header>
-          <img src="/shared/images/avatar.png" alt="" loading="lazy" decoding="async">
-          Commentator name
+          <img src="/shared/images/avatar.png" alt="Commentator's avatar" loading="lazy" decoding="async">
+          <span>Commentator name</span>
         </header>
         <main>
-          Comment content
+          <p>Comment content</p>
         </main>
         <footer>
-          Some footer
+          <p>Some footer</p>
         </footer>
       </article>
       <article class="nw-article-comment-instance" role="comment">
         <header>
-          <img src="/shared/images/avatar.png" alt="" loading="lazy" decoding="async">
-          Commentator name
+          <img src="/shared/images/avatar.png" alt="Commentator's avatar" loading="lazy" decoding="async">
+          <span>Commentator name</span>
         </header>
         <main>
-          Comment content
+          <p>Comment content</p>
         </main>
         <footer>
-          Some footer
+          <p>Some footer</p>
         </footer>
       </article>
     </section>
