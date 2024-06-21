@@ -1,7 +1,7 @@
 @import 'roots/fonts';
 @import 'roots/colors';
-$base-font-size: 12pt;
-$base-line-height: 1.45em;
+$base-font-size: 10.5pt;
+$base-line-height: 1.5em;
 
 
 //! touch-action: none; БЛОКИРОВКА МОБИЛЬНОГО ТАЧА ДЛЯ БЛОКА С ЗУМОМ ИЗОБРАЖЕНИЙ
@@ -40,8 +40,10 @@ h1, h2, h3, h4, h5, h6 {
   font-family: $font-headings;
   margin: 0;
 
-  @include font-size(1.75rem);
-
+  @include font-size(2rem);
+  @at-root h1 {
+    font-family: $font-h1;
+  }
   @at-root h2 {
     @include font-size(1.60rem);
   }
