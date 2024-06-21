@@ -91,6 +91,7 @@ class ImageHandler {
       ratio: request.query.ratio ? request.query.ratio : null,
       ratioFit: request.query.ratioFit ? request.query.ratioFit : null,
       ratioShift: request.query.ratioShift ? request.query.ratioShift : null,
+      borderRadius: request.query.br ? request.query.br : null,
     });
     Object.keys(this).forEach(key => {
       if (key.toLowerCase().includes('background') && this[key] !== null) {
@@ -262,9 +263,46 @@ class ImageHandler {
           imageBuffer = await sharp(imageBuffer).modulate(options).gamma(this.gamma[0], this.gamma[1]).toBuffer();
         }
 
+        if (this.borderRadius) {
+          const borderRadiusValue = this.borderRadius.trim();
+          let radiusInPixels;
+
+          if (borderRadiusValue.endsWith('px')) {
+            radiusInPixels = parseInt(borderRadiusValue.slice(0, -2), 10);
+          } else if (borderRadiusValue.endsWith('perc')) {
+            const radiusPercent = parseFloat(borderRadiusValue.slice(0, -4));
+            const metadata = await sharp(imageBuffer).metadata();
+            const minDimension = Math.min(metadata.width, metadata.height);
+            radiusInPixels = Math.floor((radiusPercent / 100) * minDimension);
+          } else {
+            throw new Error(`Invalid borderRadius value: ${this.borderRadius}`);
+          }
+
+          const metadata = await sharp(imageBuffer).metadata();
+          const { width, height } = metadata;
+
+          const svgMask = `
+          <svg width="${width}" height="${height}">
+            <rect x="0" y="0" width="${width}" height="${height}" rx="${radiusInPixels}" ry="${radiusInPixels}" fill="#fff" />
+          </svg>
+          `;
+
+          const maskBuffer = Buffer.from(svgMask);
+
+
+          imageBuffer = await sharp(imageBuffer)
+            .composite([{
+              input: maskBuffer,
+              blend: 'dest-in'
+            }])
+            .toFormat(this.toFormat ?? 'webp', { quality: this.quality || 75 })
+            .toBuffer();
+        }
+
         if (this.ratio) {
           imageBuffer = await this.#applyRatio(imageBuffer);
         }
+
 
         if (this.staticUrl.includes('?') && imageBuffer.length <= serverConfig.cache.maxCachedImageSize) {
           const cachedName = `${this.cacheKey}-${this.#generateCacheKey(mimeType.slice(6))}`;
