@@ -115,14 +115,14 @@ http {
   default_type application/octet-stream;
   ${serverConfig.NGINX.proxyCache ? `proxy_cache_path temp/proxy_cache levels=1:2 keys_zone=my_cache:10m max_size=1g inactive=60m use_temp_path=off;` : ''}
 
-  limit_req_zone $binary_remote_addr zone=mylimit:10m rate=${serverConfig.NGINX.limits.requests};
+  limit_req_zone $binary_remote_addr zone=mylimit:5m rate=${serverConfig.NGINX.limits.requests};
   limit_req_status 429;
 
-  limit_conn_zone $binary_remote_addr zone=conn_limit_per_ip:10m;
+  limit_conn_zone $binary_remote_addr zone=conn_limit_per_ip:1m;
   limit_conn conn_limit_per_ip ${serverConfig.NGINX.limits.connectionsPerIP};
 
-  fastcgi_buffer_size 16k;
-  fastcgi_buffers 4 16k;
+  fastcgi_buffer_size 32k;
+  fastcgi_buffers 8 32k;
   fastcgi_read_timeout 300s;
   fastcgi_send_timeout 300s;
 
@@ -182,8 +182,8 @@ http {
   client_max_body_size 12m;
   large_client_header_buffers 2 1k;
 
-  client_body_timeout 12;
-  client_header_timeout 12;
+  client_body_timeout 60s;
+  client_header_timeout 60s;
 
   keepalive_timeout 120;
 
@@ -263,8 +263,8 @@ http {
       add_header X-Request-Time $request_time;
 
       proxy_pass https://nodeWikiApplication/;
-      proxy_read_timeout 15;
-      proxy_connect_timeout 10;
+      proxy_read_timeout 60s;
+      proxy_connect_timeout 30s;
       
       ${serverConfig.NGINX.proxyCache ? `
       proxy_cache my_cache;
