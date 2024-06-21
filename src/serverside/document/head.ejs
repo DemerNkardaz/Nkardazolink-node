@@ -30,6 +30,13 @@
   <meta name="referrer" content="origin-when-cross-origin">
   <meta name="referrer" content="no-referrer-when-downgrade">
 
+
+  <% serverConfig.language.supported.forEach(language => { 
+    let appName = locale[language].meta.inf['app-name-ashihara'];
+  %>
+  <meta name="application-name" lang="<%= language %>" content="<%= appName %>">
+  <% }); %>
+
   <!-- ***** OG:META *****-->
   <meta property="og:type" content="website">
   <meta property="og:title" content="<%= pageTitle %>" data-key="Meta_Pereferences.titles.<%= queriedMode %>">
@@ -93,3 +100,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="use-credentials">
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link rel="preconnect" href="https://www.google-analytics.com" crossorigin="use-credentials">
+
+  <link rel="alternate" hreflang="x-default" href="<%= `${request.protocol}://${request.hostname}${request.url}` %>">
+  <% request.isHomePage && serverConfig.language.supported.forEach(language => { 
+    let url = `${request.protocol}://${language.split('-')[0]}.${request.hostname}${request.url}`;
+    if (language === 'en') language = 'en-US';
+    else if (language === 'ru') language = 'ru-RU';
+    else if (language === 'ja') language = 'ja-JP';
+    else if (language === 'zh') language = 'zh-CN';
+    else if (language === 'ko') language = 'ko-KR';
+    else if (language === 'vi') language = 'vi-VN';
+    else if (language === 'ro') language = 'ro-RO';
+    %>
+  <link rel="alternate" hreflang="<%= language %>" href="<%= url %>">
+  <% }); %>

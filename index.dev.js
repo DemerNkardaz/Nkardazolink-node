@@ -216,6 +216,8 @@ app.get('/', async (request, response, next) => {
       }
     }
 
+    request.isHomePage = true;
+
     const __COMPILED_DATA = { request };
 
     let [$document, $component] = [

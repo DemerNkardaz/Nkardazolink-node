@@ -1,16 +1,68 @@
 common:
   meta:
     inf:
-      url:
-        default: https://demernkardaz.github.io/Nkardazolink/
-        kamon: https://demernkardaz.github.io/Nkardazolink?mode=kamon
-        banners: https://demernkardaz.github.io/Nkardazolink?mode=banners
-        pattern: https://demernkardaz.github.io/Nkardazolink?mode=pattern
-        cv2d: https://demernkardaz.github.io/Nkardazolink?mode=cv&select=2d
-        cv3d: https://demernkardaz.github.io/Nkardazolink?mode=cv&select=3d
-        webs: https://demernkardaz.github.io/Nkardazolink?mode=webs
-        mods: https://demernkardaz.github.io/Nkardazolink?mode=mods
-        license: https://demernkardaz.github.io/Nkardazolink?mode=license
+
 ru:
-  
-  
+  meta:
+    inf:
+      title-default: Демер Нкардаз・2D・3D・Писательство・Вёрстка
+      title-kamon: Мон-дзōсё | Галерея Монсё・Царства Шагора・Демер Нкардаз
+      title-banners: Сасимоно Тэнранкай | Выставка Штандартов
+      title-pattern: Моньё-тэнтō | Галерея Узора
+      title-cv2d: Демер Нкардаз・2D-Художник
+      title-cv3d: Демер Нкардаз・3D-Художник
+      title-webs: Веб-проекты | Галерея Ресурсов
+      title-mods: Моды | Галерея
+      title-license: Контентная лицензия [DN—License]
+      
+      desc-default: "🧊 Портфолио и ссылки на контент-ресурсы: я писатель в жанре фэнтези, автор вселенной «Царства Шагора», Hard-Surface моделер, художник и верстальщик."
+      desc-kamon: Коллекция восточных гербов фэнтезийной вселенной «Царства Шагора»
+      desc-banners: Коллекция штандартов японских кланов вселенной «Царства Шагора»
+      desc-pattern: Коллекция восточных орнаментов
+      desc-cv2d: CV Демера Нкардаза, художника в области 2D
+      desc-cv3d: CV Демера Нкардаза, художника в области 3D
+
+      image-default: https://demernkardaz.github.io/Nkardazolink/resource/images/seo/img.png
+
+      app-name: Нкардазолинк
+      app-name-ashihara: Асихара
+en:
+  meta:
+    inf:
+      app-name: Nkardazolink
+      app-name-ashihara: Ashihara
+
+ja:
+  meta:
+    inf:
+      app-name: Nkardazolink
+      app-name-ashihara: 芦原
+zh:
+  meta:
+    inf:
+      app-name: Nkardazolink
+      app-name-ashihara: 蘆原
+ko:
+  meta:
+    inf:
+      app-name: Nkardazolink
+      app-name-ashihara: 갈대밭
+vi:
+  meta:
+    inf:
+      app-name: Nkardazolink
+      app-name-ashihara: Cánh đồng sậy
+ro:
+  meta:
+    inf:
+      app-name: Nkardazolink
+      app-name-ashihara: Ashihara
+mo:
+  meta:
+    inf:
+      app-name: Nkardazolink
+      app-name-ashihara: Ashihara
+
+
+
+
