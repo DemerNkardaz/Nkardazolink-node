@@ -1,12 +1,9 @@
 <% 
-  const { urlModes = null, userDevice, navigatorLanguage = 'ru', renderLanguage, userSession} = metaDataResponse;
-  const pageUrlMode = urlModes && `${urlModes.mode ? urlModes.mode : 'default'}${urlModes.select ? urlModes.select : ''}` || 'default';
-  const [pageTitle, pageDesription, pageSeoImage, pageAuthor, pageViewportMode] = [
-    locale[navigatorLanguage].Meta_Pereferences.titles[pageUrlMode],
-    locale[navigatorLanguage].Meta_Pereferences.meta.desc[pageUrlMode],
-    locale[navigatorLanguage].Meta_Pereferences.meta.image[pageUrlMode],
-    locale[`${navigatorLanguage}`].Nkardaz.name,
-    urlModes && ['mobile', 'tablet'].includes(request.headers['detected-user-device']) && /(kamon|banners|pattern)/i.test(urlModes.mode) ? ', orientation=landscape' : null
+  const [pageTitle, pageDesription, pageSeoImage, pageAuthor] = [
+    locale[queriedLanguage].Meta_Pereferences.titles[queriedMode],
+    locale[queriedLanguage].Meta_Pereferences.meta.desc[queriedMode],
+    locale[queriedLanguage].Meta_Pereferences.meta.image[queriedMode],
+    locale[queriedLanguage].Nkardaz.name
   ];
 
 %>
@@ -35,19 +32,19 @@
 
   <!-- ***** OG:META *****-->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="<%= pageTitle %>" data-key="Meta_Pereferences.titles.<%= pageUrlMode %>">
+  <meta property="og:title" content="<%= pageTitle %>" data-key="Meta_Pereferences.titles.<%= queriedMode %>">
   <meta property="og:url" content="<%= pageUrl %>">
-  <meta property="og:description" content="<%= pageDesription %>" data-key="Meta_Pereferences.meta.desc.<%= pageUrlMode %>">
-  <meta property="og:image" content="<%= pageSeoImage %>" data-key="Meta_Pereferences.meta.image.<%= pageUrlMode %>">
-  <meta property="og:locale" content="<%= renderLanguage %>">
+  <meta property="og:description" content="<%= pageDesription %>" data-key="Meta_Pereferences.meta.desc.<%= queriedMode %>">
+  <meta property="og:image" content="<%= pageSeoImage %>" data-key="Meta_Pereferences.meta.image.<%= queriedMode %>">
+  <meta property="og:locale" content="<%= queriedLanguage %>">
   
   <!-- ????? TWITTER:META ????? -->
   <meta name="twitter:card" content="summary_large_image">
   <meta property="twitter:domain" content="<%= domainUrl %>">
   <meta property="twitter:url" content="<%= pageUrl %>">
-  <meta name="twitter:title" content="<%= pageTitle %>" data-key="Meta_Pereferences.titles.<%= pageUrlMode %>">
-  <meta name="twitter:description" content="<%= pageDesription %>" data-key="Meta_Pereferences.meta.desc.<%= pageUrlMode %>">
-  <meta name="twitter:image" content="<%= pageSeoImage %>" data-key="Meta_Pereferences.meta.image.<%= pageUrlMode %>">
+  <meta name="twitter:title" content="<%= pageTitle %>" data-key="Meta_Pereferences.titles.<%= queriedMode %>">
+  <meta name="twitter:description" content="<%= pageDesription %>" data-key="Meta_Pereferences.meta.desc.<%= queriedMode %>">
+  <meta name="twitter:image" content="<%= pageSeoImage %>" data-key="Meta_Pereferences.meta.image.<%= queriedMode %>">
   <meta name="twitter:creator" content="@nkardaz">
 
   <meta name="thumbnail" content="/local/images/svg/favicon.svg?s=512&to=webp">
@@ -62,8 +59,8 @@
   <meta name="msapplication-config" content="/manifest/browserconfig.xml">
   <meta name="msapplication-TileImage" content="/local/images/svg/favicon.svg?to=png&r=256">
   <meta name="msapplication-TileColor" content="#333333">
-  <meta name="msapplication-task" content="name=<%= webManifest.shortcuts[0].name %>;action-uri=<%= webManifest.shortcuts[0].url %>;icon-uri=<%= webManifest.shortcuts[0].icons[1].src %>"/>
-  <meta name="msapplication-task" content="name=<%= webManifest.shortcuts[1].name %>;action-uri=<%= webManifest.shortcuts[1].url %>;icon-uri=<%= webManifest.shortcuts[1].icons[1].src %>"/>
+  <meta name="msapplication-task" content="name=<%= webmanifest.shortcuts[0].name %>;action-uri=<%= webmanifest.shortcuts[0].url %>;icon-uri=<%= webmanifest.shortcuts[0].icons[1].src %>"/>
+  <meta name="msapplication-task" content="name=<%= webmanifest.shortcuts[1].name %>;action-uri=<%= webmanifest.shortcuts[1].url %>;icon-uri=<%= webmanifest.shortcuts[1].icons[1].src %>"/>
 
   <% 
     const desktopSizes = [16, 32, 64, 128, 256, 512];
@@ -79,16 +76,16 @@
   <link rel="apple-touch-icon" href="/local/images/svg/favicon.svg?to=png&p=12&r=<%= size %>" sizes="<%= size %>x<%= size %>">
   <% }); %>
 
-  <title data-key="Meta_Pereferences.titles.<%= pageUrlMode %>"><%= pageTitle %></title>
+  <title data-key="Meta_Pereferences.titles.<%= queriedMode %>"><%= pageTitle %></title>
   <link rel="license" href="?mode=license">
   <link rel="me" href="https://vk.com/id273533538">
   <meta name="author" content="<%= pageAuthor %>">
-  <meta content="<%= pageDesription %>" name="description" data-key="Meta_Pereferences.meta.desc.<%= pageUrlMode %>">
-  <link rel="manifest" href="/manifest/manifest.<%= renderLanguage %>.webmanifest">
+  <meta content="<%= pageDesription %>" name="description" data-key="Meta_Pereferences.meta.desc.<%= queriedMode %>">
+  <link rel="manifest" href="/manifest/manifest.<%= queriedLanguage %>.webmanifest">
 
   <script type="module" src="/script/index.client.js"></script>
   <link rel="stylesheet" href="/index.css" />
-  <link rel="stylesheet" href="/skins/<%= (userSession && userSession.savedSettings && userSession.savedSettings.skin) ? userSession.savedSettings.skin : 'byakujou' %>.css" />
+  <link rel="stylesheet" href="/skins/byakujou.css" />
 
   <meta name="robots" content="index, follow">
   <meta name="revisit-after" content="7 days">

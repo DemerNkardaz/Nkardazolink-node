@@ -193,6 +193,8 @@ app.use(async (req, res, next) => {
 });
 
 app.get('/', async (request, response, next) => {
+  request.query?.mode && !VALID_MODES.includes(request.query?.mode) && response.redirect('/');
+  
   console.log(request.path);
   console.log(request.headers['detected-user-device']);
   console.log(request.headers['user-ip-address']);
@@ -213,47 +215,8 @@ app.get('/', async (request, response, next) => {
         }
       }
     }
-    if (session.sessionID) {
-      //console.log(session);
-      //await sessionManager.writeSessionToSQL(session.sessionID, session.settings);
-      //console.log(await sessionManager.readSessionFromSQL(session.sessionID))
-      //console.log(await sessionManager.getSettingsFromSQL(session.sessionID, 'savedSettings.lang'))
-      //await sessionManager.writeSession(session.sessionID, session.settings);
-      //await sessionManager.registration(session.sessionID, 'Nkardaz', '123', 'example@gmail.com', session.platform);
-      //console.log(await sessionManager.readSession(session.sessionID));
-      //await sessionManager.readSession(session.sessionID);
-    }
-    const metaDataResponse = {
-      userSession: null,
-      request: request,
-      userURL: request.url,
-      fullURL: `${request.protocol}://${request.get('host')}${request.url}`,
-      domainURL: `${request.protocol}://${request.get('host')}`,
-      userDevice: os.platform(),
-      urlModes: await parseUrl(request),
-    };
-    if (metaDataResponse.urlModes !== null) {
-      if (
-        metaDataResponse.urlModes.mode && !VALID_MODES.includes(metaDataResponse.urlModes.mode) ||
-        metaDataResponse.urlModes.select && !VALID_SELECTED.includes(metaDataResponse.urlModes.select)
-      ) {
-        response.redirect('/');
-        return;
-      }
-    }
-    //console.log(await sessionManager.readSession(session.sessionID));
-    const isUserLang = metaDataResponse.userSession && metaDataResponse.userSession.savedSettings && metaDataResponse.userSession.savedSettings.lang && metaDataResponse.userSession.savedSettings.lang;
-    const isLangUrlMode = metaDataResponse.urlModes && serverConfig.language.supported.includes(metaDataResponse.urlModes.lang) && metaDataResponse.urlModes.lang;
-    const isLangTLD = request.urlLanguageRequest && serverConfig.language.supported.includes(request.urlLanguageRequest) && request.urlLanguageRequest;
-    const isNavigatorLang = serverConfig.language.supported.includes(request.headers['accept-language'].substring(0, 2)) && request.headers['accept-language'].substring(0, 2);
 
-    metaDataResponse.renderLanguage = isLangTLD ? isLangTLD : isLangUrlMode ? isLangUrlMode : isUserLang ? isUserLang : isNavigatorLang || 'en';
-
-    let webManifest = await readFileAsync(path.join(`${__PROJECT_DIR__}/static/public/manifest/manifest.${metaDataResponse.renderLanguage}.webmanifest`), 'utf8');
-    webManifest = JSON.parse(webManifest);
-    const __COMPILED_DATA = { metaDataResponse, webManifest, ...metaDataResponse };
-
-
+    const __COMPILED_DATA = { request };
 
     let [$document, $component] = [
       ['$Test=test.pug', '$Test2=test.md'],

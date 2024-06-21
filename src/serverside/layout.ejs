@@ -20,6 +20,8 @@
 
 
   layoutData.orientationMode = ['mobile', 'tablet'].includes(request.headers['detected-user-device']) && /(kamon|banners|pattern)/i.test(layoutData.queriedMode) ? ', orientation=landscape' : null;
+
+  layoutData.webmanifest = JSON.parse(fs.readFileSync(path.join(`${__PROJECT_DIR__}/static/public/manifest/manifest.${layoutData.queriedLanguage}.webmanifest`), 'utf8'));
 %> 
 <!DOCTYPE html>
 <html lang="<%= layoutData.queriedLanguage %>" data-queried-mode="<%= layoutData.queriedMode ?? 'default' %>">

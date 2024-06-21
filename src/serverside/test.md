@@ -47,7 +47,6 @@ H~2~O
 ```js 
   return new Date().toISOString()
 ```
-${metaDataResponse.domainURL}
 
 
 
