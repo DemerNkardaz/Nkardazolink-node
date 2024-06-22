@@ -80,6 +80,7 @@
       width: auto;
       border-radius: 50%;
       border: 2px solid #282828;
+      background: #282828;
       transition: all .5s cubic-bezier(1, -0.59, .93, 1.72);
       filter: drop-shadow(1px 1px 3px $shadow-22a64) drop-shadow(2px 1px 3px $shadow-22a29);
 
@@ -88,6 +89,7 @@
         object-fit: contain;
         height: 100%;
         width: auto;
+        color: transparent;
       }
 
       &:hover {
@@ -114,4 +116,13 @@
       height: 100%;
     }
   }
+}
+
+.nw-quote {
+  padding-inline: 38px 48px;
+  padding-block: 12px;
+  margin-inline: 0;
+  border-left: 4px solid $color-quote-border;
+  background: $color-quote-main;
+  font-style: italic;
 }

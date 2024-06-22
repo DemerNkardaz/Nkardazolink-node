@@ -1,18 +1,18 @@
 <% 
 
 %>
-<header class="nw-root-container__header-block">
-  <section class="nw-fandom-header">
-    <a href="<%= domainUrl %>" class="nw-logo" target="_blank">
-      <img  src="<%= serverConfig.server.wiki.logo %>?s=2048&to=png&bg=282828" alt="Ashihara fantasy wiki" srcset="<%= serverConfig.server.wiki.logo %>?bg=<%= serverConfig.server.wiki.logoBackground.split('#')[1] %>" decoding="async" loading="eager" width="70" height="70">
-    </a>
-    <div class="nw-fandom-header__title">
-      <a href="<%= domainUrl %>" target="_blank" class="nw-link-title"><%= locale[queriedLanguage].meta.inf['wiki-title'] %></a>
-    </div>
-    <nav class="nw-fandom-header__navigation">
-      <ul>
-        <li>Option</li>
-      </ul>
-    </nav>
-  </section>
-</header>
+      <header class="nw-root-container__header-block" role="banner">
+        <section class="nw-fandom-header">
+          <a href="<%= domainUrl %>" class="nw-logo" target="_blank">
+            <img  src="<%= serverConfig.server.wiki.logo %>?s=2048&to=png&bg=282828" alt="Ashihara fantasy wiki" srcset="<%= serverConfig.server.wiki.logo %>?bg=<%= serverConfig.server.wiki.logoBackground.split('#')[1] %>" decoding="async" loading="eager" width="70" height="70">
+          </a>
+          <div class="nw-fandom-header__title">
+            <a id="fandom-title" href="<%= domainUrl %>" target="_blank" class="nw-link-title"><%= locale[queriedLanguage].meta.inf['wiki-title'] %></a>
+          </div>
+          <nav class="nw-fandom-header__navigation">
+            <ul>
+              <li>Option</li>
+            </ul>
+          </nav>
+        </section>
+      </header>

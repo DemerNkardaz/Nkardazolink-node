@@ -2,18 +2,13 @@
 
 %>
 <article class="nw-article-page">
-  <div class="nw-article-controls__wrapper">
-    <div class="nw-article-controls">
-      <button class="material-symbols-rounded btn btn-circle-floating" data-action="expand-article" type="button" aria-label="Expand article block" data-icon="fullscreen">fullscreen</button>
-      <button class="material-symbols-rounded btn btn-circle-floating" type="button" aria-label="Open table of contents" data-icon="toc">toc</button>
-      <button class="material-symbols-rounded btn btn-circle-floating" type="button" aria-label="Edit article" data-icon="edit">edit</button>
-      <button class="material-symbols-rounded btn btn-circle-floating" type="button" aria-label="Edit article" data-icon="translate">translate</button>
-    </div>
-  </div>
+  <%- include('./wiki_article_controls.ejs') %>
   <header class="nw-article-header">
+
     <section class="nw-article-header__categories">
       в: <a href="#">Нагаока (Род)</a>, <a href="#">Личности Ōйнадзумы</a>, <a href="#">Пять регентов Инадзума-но Иватомо</a>
     </section>
+
     <section class="nw-article-header__title">
       <h1 id="article-header">Нагаока Хэйидзи Ёсинобу</h1>
       <div class="nw-article-header__actions">
@@ -21,9 +16,15 @@
         <div class="material-symbols-linear btn btn-header-action" type="button" aria-label="Edit article" data-icon="more_vert">more_vert</div>
       </div>
     </section>
+
+    <blockquote class="nw-quote">
+      Какая-то цитата персонажа.
+    </blockquote>
+
   </header>
-  <main class="nw-article-content">
-    <section class="nw-article-tabs" role="tablist" aria-labelledby="article-header">
+  <section class="nw-article-content" aria-labelledby="article-header">
+
+    <section class="nw-article-tabs" role="tablist">
       <button class="nw-article-tabs__button"
               role="tab"
               id="article-content"
@@ -58,37 +59,24 @@
     <div class="nw-article-tab__content" role="tabpanel" id="article-gallery-panel" aria-labelledby="article-gallery">
       Some gallery template
     </div>
-  </main>
+
+  </section>
+
   <footer class="nw-article-footer">
+
+    <section class="nw-article-interactions">
+      <button class="material-symbols-rounded btn" type="button" aria-label="Edit article" data-icon="favorite">favorite</button>
+    </section>
+
     <section class="nw-article-footer__info">
       <p>Some info</p>
     </section>
+
     <section class="nw-article-footer__comments">
       Some database connection
-      <article class="nw-article-comment-instance" role="comment">
-        <header>
-          <img src="/shared/images/avatar.png" alt="Commentator's avatar" loading="lazy" decoding="async">
-          <span>Commentator name</span>
-        </header>
-        <main>
-          <p>Comment content</p>
-        </main>
-        <footer>
-          <p>Some footer</p>
-        </footer>
-      </article>
-      <article class="nw-article-comment-instance" role="comment">
-        <header>
-          <img src="/shared/images/avatar.png" alt="Commentator's avatar" loading="lazy" decoding="async">
-          <span>Commentator name</span>
-        </header>
-        <main>
-          <p>Comment content</p>
-        </main>
-        <footer>
-          <p>Some footer</p>
-        </footer>
-      </article>
+      <%- include('./wiki_commentary.ejs') %>
+      <%- include('./wiki_commentary.ejs') %>
     </section>
+
   </footer>
 </article>
