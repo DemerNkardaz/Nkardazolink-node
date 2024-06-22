@@ -1,5 +1,3 @@
-const htmlMinifier = require('html-minifier');
-
 const htmlMinifyOptions = {
   removeAttributeQuotes: true,
   collapseWhitespace: true,

@@ -11,12 +11,16 @@ require('./modules/ModuleLoader/ModuleLoader').config(serverConfig.modules.modul
 require('./modules/ModuleLoader/ModuleLoader').config(serverConfig.modules.extensionsFolder).init(srcMode = serverConfig.modules.useSrc);
 
 console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Server started\x1b[39m`);
-app.use(liveSassCompiler);
+//app.use(liveSassCompiler);
 app.use(urlSpaceToUnderscore);
 app.use(compression());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__PROJECT_DIR__, 'assets')));
 app.use(express.static(path.join(__PROJECT_DIR__, 'static/public')));
+app.use(express.static(path.join(__PROJECT_DIR__, 'static/public/styles')));
+app.use(express.static(path.join(__PROJECT_DIR__, 'static/public/script')));
+app.use(express.static(path.join(__PROJECT_DIR__, 'static/public/manifest')));
+app.use(express.static(path.join(__PROJECT_DIR__, 'static/public/resource')));
 app.use(express.static(path.join(__PROJECT_DIR__, 'static/site.maps')));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());

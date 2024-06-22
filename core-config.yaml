@@ -12,6 +12,7 @@ IndexDependencies:
   - mysql2: 'mysql'
   - knex: 'knex'
   - js-yaml: 'yaml'
+  - html-minifier: 'htmlMinifier'
   - util: '{ promisify }'
   - path: 'path'
   - express: 'express'

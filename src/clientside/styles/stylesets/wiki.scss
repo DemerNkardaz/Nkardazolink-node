@@ -128,11 +128,7 @@
   border-left: 4px solid $color-quote-border;
   background: $color-quote-main;
   font-style: italic;
-
-  & > p {
-    margin: 0;
-    
-  }
+  
   &__text {
     position: relative;
 
