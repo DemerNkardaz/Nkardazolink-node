@@ -214,8 +214,14 @@ async function transferUncategorized(sourceDir, destinationDir) {
 
 async function transferSingleFile(sourceDir, destinationDir, fileTypes) {
   if (fileTypes.includes(path.extname(sourceDir))) {
-    await fs.copy(sourceDir, destinationDir);
-    console.log(`[${new Date().toLocaleString().replace(',', '')}] :: ⬜ > [BUILDER] [TRANSFER] % “${destinationDir}” transfered successfully!`);
+    if (path.extname(sourceDir) === '.scss' && serverConfig.styles.fileSet.includes(sourceDir.split('/').pop().split('.')[0])) {
+      const result = sass.compile(sourceDir, { style: 'compressed' });
+      await fs.writeFile(destinationDir.replace('.scss', '.css'), result.css.toString());
+      console.log(`\x1b[34m[${new Date().toLocaleString().replace(',', '')}] :: 🟦 > [BUILDER] [STYLE] % “${destinationDir.replace('.scss', '.css')}” compiled successfully!\x1b[39m`);
+    } else {
+      await fs.copy(sourceDir, destinationDir);
+      console.log(`[${new Date().toLocaleString().replace(',', '')}] :: ⬜ > [BUILDER] [TRANSFER] % “${destinationDir}” transfered successfully!`);
+    }
   }
 }
 

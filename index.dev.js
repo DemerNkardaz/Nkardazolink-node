@@ -3,8 +3,6 @@ const crypto = require('crypto');
 require('dotenv').config();
 require('./modules/CoreConfig/CoreConfig').config().init();
 global.__PROJECT_DIR__ = path.join(__dirname, '.');
-const __SERVER_SOURCE__ = path.join(__PROJECT_DIR__, 'src/serverside');
-const __APP_DIR__ = path.join(__PROJECT_DIR__, 'app');
 
 const serverINI = path.join(__PROJECT_DIR__, 'server.ini');
 ini.parse(serverINI, 'serverConfig');
@@ -159,8 +157,9 @@ chokidar.watch('./assets/locale/**/*', {
 
 
 
-
-chokidar.watch('src/**/*.ejs', {
+const styleSource = path.join(__PROJECT_DIR__, 'src/clientside/styles');
+const styleDestination = path.join(__PROJECT_DIR__, 'static/public/styles');
+chokidar.watch('src/**/*.{ejs,scss}', {
   ignored: /(^|[\/\\])\../,
   persistent: true,
   awaitWriteFinish: {
@@ -168,10 +167,14 @@ chokidar.watch('src/**/*.ejs', {
     pollInterval: 100
   }
 }).on('change', path => {
-  const { transferSingleFile } = require('./server.workers/server/building.files');
-  transferSingleFile(path, path.replace('src\\serverside', 'app'), ['.ejs']);
-
-  console.log(`[${new Date().toLocaleString().replace(',', '')}] :: ⬜ > [EJS] [TEMPLATE] ? “${path}” has been changed.`);
+  const { transferSingleFile, compileSCSS } = require('./server.workers/server/building.files');
+  if (path.split('.').pop() === 'ejs') {
+    transferSingleFile(path, path.replace('src\\serverside', 'app'), ['.ejs']);
+    console.log(`[${new Date().toLocaleString().replace(',', '')}] :: ⬜ > [EJS] [TEMPLATE] ? “${path}” has been changed.`);
+  } else if (path.split('.').pop() === 'scss') {
+    compileSCSS(styleSource, styleDestination);
+    console.log(`\x1b[34m[${new Date().toLocaleString().replace(',', '')}] :: 🟦 > [SCSS] [STYLE] ? “${path}” has been changed.\x1b[39m`);
+  }
 });
 
 

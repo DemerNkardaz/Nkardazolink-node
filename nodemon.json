@@ -1,5 +1,5 @@
 {
   "watch": ["*.*", "extensions/*/src/", "modules/*/src/"],
-  "ext": "md,js,json,pug,yaml,yml,css,sass,scss,htm,html,xml,xhtml,php,jsonnet,ts,tsx,jsx,vue,asp,aspx,rb,py,pl,jade,haml,coffe,dart",
-  "ignore": ["static/*", "app/*", "index.js", "test/*", "extensions/*/*.*", "extensions/*.*", "modules/*/*.*", "bin/*", "*.yaml", "nginx/html/*", "pm2.config.js", "*.ejs"]
+  "ext": "md,js,json,pug,yaml,yml,htm,html,xml,xhtml,php,jsonnet,ts,tsx,jsx,vue,asp,aspx,rb,py,pl,jade,haml,coffe,dart",
+  "ignore": ["static/*", "app/*", "index.js", "test/*", "extensions/*/*.*", "extensions/*.*", "modules/*/*.*", "bin/*", "*.yaml", "nginx/html/*", "pm2.config.js", "*.ejs", "*.scss", "*.css"]
 }
