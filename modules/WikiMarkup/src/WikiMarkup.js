@@ -75,38 +75,14 @@ const marks = {
 
       return `<a href="${href}"${classSegment ?? ''} title="${alt}"><img src="${src}" srcset="${srcSet}" alt="${alt}" decoding="async" loading="lazy"${attribSegment ?? ''}></a>`;
     }],
-
   linksLabeled: [/\[\[([^[\]]*?(?:\[[^[\]]]*?\][^[\]]*?)*?)\|([^[\]]*?(?:\[[^[\]]]*?\][^[\]]*?)*?)\]\]/g,
     (match, p1, p2) => `<a href="/wiki/${sp2undr(p1)}" title="${p2}">${p2}</a>`],
   links: [/\[\[([^[\]]*(?:\[[^[\]]*\][^[\]]*)*)\]\]/g,
     (match, p1) => `<a href="/wiki/${sp2undr(p1)}" title="${p1}">${p1}</a>`],
 
-  // ? INVALID RULES
-  // TODO: FIX IT
-  bulletList: [/(^|\n)(\*+)\s(.*?)(?=\n|$)/g, (match, p1, p2, p3) => {
-    let level = p2.length;
-    return `${p1}<ul>${'<li>'.repeat(level)}${p3}${'</li>'.repeat(level)}</ul>`;
-  }],
-  numberedList: [/(^|\n)(#+)\s(.*?)(?=\n|$)/g, (match, p1, p2, p3) => {
-    let level = p2.length;
-    return `${p1}<ol>${'<li>'.repeat(level)}${p3}${'</li>'.repeat(level)}</ol>`;
-  }],
-  definitionList: [/(^|\n);(.*?)\n: (.*?)(?=\n|$)/g, (match, p1, p2, p3) => {
-    return `${p1}<dl><dt>${p2}</dt><dd>${p3}</dd></dl>`;
-  }],
-  nestedDefinitionList: [/(^|\n)([:]+)(.*?)(?=\n|$)/g, (match, p1, p2, p3) => {
-    let level = p2.length;
-    return `${p1}${'<dd>'.repeat(level)}${p3}${'</dd>'.repeat(level)}`;
-  }],
-  mixedList: [/(^|\n)([\*\#\;:]+)\s(.*?)(?=\n|$)/g, (match, p1, p2, p3) => {
-    let tag;
-    if (p2[0] === '*') tag = 'ul';
-    else if (p2[0] === '#') tag = 'ol';
-    else if (p2[0] === ';') tag = 'dl';
-    else if (p2[0] === ':') tag = 'dd';
-    return `${p1}<${tag}><li>${p3}</li></${tag}>`;
-  }],
-  paragraphs: [/(?:<[^>]+>|\s*\n)+|([\s\S]+?)(?=(?:<[^>]+>|\s*\n)+|$)/g, (match, p1) => { if (p1) return '<p>$1</p>\n' }]
+  //paragraphs: [/^(?!\s*$)(?!.*<)(.*?\n^)/gm, (match, p1) => `<p>${p1}</p>`],
+
+
 }
 
 const allowedTags = [
@@ -129,31 +105,20 @@ const allowedTags = [
 class WikiMarkup {
   constructor(options) {
     Object.assign(this, {
-      linkify: options.linkify || false,
+      linkify: options?.linkify ?? false,
     });
-
   }
 
-  async render(text) {
+  render(markup) {
     try {
-
+      Object.values(marks).forEach(([pattern, replacement]) => {
+        markup = markup.replace(pattern, replacement);
+      });
     } catch (error) {
       console.error(error);
       throw error;
     } finally {
-      return text;
-    }
-  }
-
-  async renderFile(filePath, data) {
-    const fileContent = await fs.readFile(filePath, 'utf8');
-    try {
-
-    } catch (error) {
-      console.error(error);
-      throw error;
-    } finally {
-      return fileContent;
+      return markup;
     }
   }
 }
