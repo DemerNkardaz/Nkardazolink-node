@@ -31,6 +31,7 @@ const marks = {
             querySegment = option.replace('query:', '');
           } else if (option.startsWith('class:')) {
             classSegment = option.replace('class:', '');
+            classSegment = `class="${classSegment}"`;
           } else if (option.startsWith('style:')) {
             styleSegment = option.replace('style:', '');
           } else if (option.startsWith('attrib:')) {
@@ -72,7 +73,7 @@ const marks = {
         attribSegment = attribs;
       }
 
-      return `<a href="${href}"${classSegment ? ` class="${classSegment}"` : ''}${attribSegment ?? ''} title="${alt}"><img src="${src}" srcset="${srcSet}" alt="${alt}" decoding="async" loading="lazy"></a>`;
+      return `<a href="${href}"${classSegment ?? ''} title="${alt}"><img src="${src}" srcset="${srcSet}" alt="${alt}" decoding="async" loading="lazy"${attribSegment ?? ''}></a>`;
     }],
 
   linksLabeled: [/\[\[([^[\]]*?(?:\[[^[\]]]*?\][^[\]]*?)*?)\|([^[\]]*?(?:\[[^[\]]]*?\][^[\]]*?)*?)\]\]/g,
@@ -108,6 +109,22 @@ const marks = {
   paragraphs: [/(?:<[^>]+>|\s*\n)+|([\s\S]+?)(?=(?:<[^>]+>|\s*\n)+|$)/g, (match, p1) => { if (p1) return '<p>$1</p>\n' }]
 }
 
+const allowedTags = [
+  'div', 'article', 'section', 'header', 'footer',
+  'p', 'blockquote', 'pre', 'code',
+  'span', 'a', 'label', 'button',
+  'img', 'figure', 'figcaption',
+  'ul', 'ol', 'li', 'dl', 'dt', 'dd',
+  'table', 'caption', 'colgroup', 'col', 'tr', 'td', 'th', 'thead', 'tbody', 'tfoot',
+  'hr', 'br',
+  'h2', 'h3', 'h4', 'h5', 'h6',
+  'i', 'b', 'em', 'strong', 'cite', 'q',
+  'abbr', 'dfn', 'ins', 'kbd', 'mark', 'del',
+  'sub', 'sup', 'u', 'var', 'time', 'wbr',
+  'address', 'aside', 'fieldset', 'legend',
+  'meter', 'progress', 'video', 'source', 'picture', 'iframe',
+  'details', 'summary'
+];
 
 class WikiMarkup {
   constructor(options) {
