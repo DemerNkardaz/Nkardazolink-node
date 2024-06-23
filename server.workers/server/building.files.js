@@ -212,6 +212,42 @@ async function transferUncategorized(sourceDir, destinationDir) {
   }
 }
 
+async function transferSingleFile(sourceDir, destinationDir, fileTypes) {
+  if (fileTypes.includes(path.extname(sourceDir))) {
+    await fs.copy(sourceDir, destinationDir);
+    console.log(`[${new Date().toLocaleString().replace(',', '')}] :: ⬜ > [BUILDER] [TRANSFER] % “${destinationDir}” transfered successfully!`);
+  }
+}
+
+async function transferFiles(sourceDir, destinationDir, fileTypes) {
+  await fs.ensureDir(destinationDir);
+  const entries = await fs.readdir(sourceDir, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const sourcePath = path.join(sourceDir, entry.name);
+    const destinationPath = path.join(destinationDir, entry.name);
+    if (entry.isFile()) {
+
+      if (fileTypes.includes(path.extname(sourcePath))) {
+        await fs.copy(sourcePath, destinationPath);
+        console.log(`[${new Date().toLocaleString().replace(',', '')}] :: ⬜ > [BUILDER] [TRANSFER] % “${destinationPath}” transfered successfully!`);
+      }
+
+    } else if (entry.isDirectory()) {
+      await transferUncategorized(sourcePath, destinationPath);
+    }
+  }
+  const subDirs = entries.filter((entry) => entry.isDirectory());
+  for (const subDir of subDirs) {
+    const subDirPath = path.join(destinationDir, subDir.name);
+    const subDirEntries = await fs.readdir(subDirPath);
+    if (subDirEntries.length === 0) {
+      await fs.rmdir(subDirPath);
+    }
+  }
+}
+
+
 
 const createManifest = async (sourcePath, lang, manifest) => {
   const translate = (obj) => {
@@ -262,4 +298,4 @@ async function index(sourcePath) {
   console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [BUILDER] :: “${destinationPath}” Index file builded\x1b[39m`);
 }
 
-module.exports = { copyFilesAndMinify, createManifest, index, checkForIndex, buildExtensions, compileSCSS, compileJS, transferUncategorized };
+module.exports = { copyFilesAndMinify, createManifest, index, checkForIndex, buildExtensions, compileSCSS, compileJS, transferUncategorized, transferFiles, transferSingleFile };

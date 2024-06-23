@@ -156,3 +156,28 @@
     text-align: right;
   }
 }
+
+.nw-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  background: blue;
+  height: 26px;
+  width: 26px;
+  cursor: help;
+
+  & > img {
+    height: 24px;
+    width: 24px;
+    object-fit: contain;
+  }
+
+  &--fave {
+    background: $color-gold-pale;
+    justify-content: flex-start;
+    width: 50px;
+    padding-inline-start: 3px;
+    clip-path: polygon(0px 0px, 100% 0px, 70% 50%, 100% 100%, 0px 100%);
+  }
+}

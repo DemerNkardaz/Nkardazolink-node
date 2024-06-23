@@ -118,7 +118,7 @@ async function build() {
           resolve();
         } catch (err) {
           console.error(`[${new Date().toLocaleString().replace(',', '')}] :: 🟥 > Error during copy and minify:`);
-          console(err);
+          console.log(err);
           reject();
         }
       });

@@ -1,0 +1,11 @@
+<%
+  let badgeType, badgeAlt;
+  let badgeLink = '/images/svg/'
+
+  if (requestedBadge === 'fave') badgeLink = `${badgeLink}fave.svg`;
+  else badgeLink = `${badgeLink}favicon.svg`;
+
+%>
+<div class="nw-badge nw-badge--<%= requestedBadge %>">
+  <img src="<%= badgeLink %>" alt="" heigh="24" width="24">
+</div>

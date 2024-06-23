@@ -51,18 +51,28 @@
 
     &__title {
       position: relative;
-      display: flex;
+      display: grid;
+      grid-template: auto;
       justify-content: space-between;
-      height: 3rem;
+      min-height: 3rem;
       align-items: center;
       margin-block-start: 2rem;
       & > h1 {
         height: 100%;
         align-content: center;
+        grid-row: 2;
+        grid-column: 1;
       }
+    }
+    &__badges {
+      display: flex;
+      grid-row: 1;
+      grid-column: 1 / span 2;
     }
     &__actions {
       display: flex;
+      grid-row: 2;
+      grid-column: 2;
       gap: 10px;
       &>*:not(:last-child) {
         position: relative;

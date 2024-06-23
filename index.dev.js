@@ -3,6 +3,8 @@ const crypto = require('crypto');
 require('dotenv').config();
 require('./modules/CoreConfig/CoreConfig').config().init();
 global.__PROJECT_DIR__ = path.join(__dirname, '.');
+const __SERVER_SOURCE__ = path.join(__PROJECT_DIR__, 'src/serverside');
+const __APP_DIR__ = path.join(__PROJECT_DIR__, 'app');
 
 const serverINI = path.join(__PROJECT_DIR__, 'server.ini');
 ini.parse(serverINI, 'serverConfig');
@@ -155,11 +157,34 @@ chokidar.watch('./assets/locale/**/*', {
 });
 
 
+
+
+
+chokidar.watch('src/**/*.ejs', {
+  ignored: /(^|[\/\\])\../,
+  persistent: true,
+  awaitWriteFinish: {
+    stabilityThreshold: 500,
+    pollInterval: 100
+  }
+}).on('change', path => {
+  const { transferSingleFile } = require('./server.workers/server/building.files');
+  transferSingleFile(path, path.replace('src\\serverside', 'app'), ['.ejs']);
+
+  console.log(`[${new Date().toLocaleString().replace(',', '')}] :: ⬜ > [EJS] [TEMPLATE] ? “${path}” has been changed.`);
+});
+
+
+
+
+
+
+
+
 app.use((request, response, next) => {
   response.setHeader('Content-Type', 'text/html; charset=utf-8');
   next();
 });
-
 
 //setInterval(() => console.log(Object.keys(serverConfig.locales)), 5000);
 
