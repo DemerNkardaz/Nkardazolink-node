@@ -19,8 +19,66 @@ const marks = {
   h3: [/===\s(.*?)\s===/g, '<h3>$1</h3>'],
   h2: [/==\s(.*?)\s==/g, '<h2>$1</h2>'],
   hr: [/----/g, '<hr>'],
-  linksLabeled: [/\[\[(.*?)\|(.*?)\]\]/g, (match, p1, p2) => `<a href="/wiki/${sp2undr(p1)}" title="${p2}">${p2}</a>`],
-  links: [/\[\[(.*?)\]\]/g, (match, p1) => `<a href="/wiki/${sp2undr(p1)}" title="${p1}">${p1}</a>`],
+  imageLink: [/\[\[(File|Файл):([^[\]]+)\]\]/g,
+    (match, prefix, options) => {
+      let optionsArray = options.split('|');
+      let fileName, querySegment, classSegment, styleSegment, attribSegment, altText;
+      if (optionsArray.length > 0) {
+        fileName = optionsArray[0];
+        for (let i = 1; i < optionsArray.length; i++) {
+          let option = optionsArray[i];
+          if (option.startsWith('query:')) {
+            querySegment = option.replace('query:', '');
+          } else if (option.startsWith('class:')) {
+            classSegment = option.replace('class:', '');
+          } else if (option.startsWith('style:')) {
+            styleSegment = option.replace('style:', '');
+          } else if (option.startsWith('attrib:')) {
+            attribSegment = option.replace('attrib:', '');
+          } else {
+            altText = option;
+          }
+        }
+      }
+      let href = prefix === 'Файл' ? `/Файл:${fileName}` : `/File:${fileName}`;
+      let src = `/shared/images/${fileName}`;
+      let srcSet = `/shared/images/${fileName}`;
+      let alt = altText || '';
+
+      if (querySegment) {
+        const queryArgs = querySegment.split(';').map(arg => arg.trim());
+        let queryParams = '';
+        queryArgs.forEach((arg, index) => {
+          const [key, value] = arg.split('=').map(part => part.trim());
+          if (key && value) {
+            if (index === 0) {
+              queryParams += `?${key}=${value}`;
+            } else {
+              queryParams += `&${key}=${value}`;
+            }
+          }
+        });
+        srcSet += queryParams;
+      }
+      if (attribSegment) {
+        const attributesMap = attribSegment.split(';').map(arg => arg.trim());
+        let attribs = '';
+        attributesMap.forEach((arg, index) => {
+          const [key, value] = arg.split('=').map(part => part.trim());
+          if (key && value) {
+              attribs += ` ${key}="${value}"`;
+          }
+        });
+        attribSegment = attribs;
+      }
+
+      return `<a href="${href}"${classSegment ? ` class="${classSegment}"` : ''}${attribSegment ?? ''} title="${alt}"><img src="${src}" srcset="${srcSet}" alt="${alt}" decoding="async" loading="lazy"></a>`;
+    }],
+
+  linksLabeled: [/\[\[([^[\]]*?(?:\[[^[\]]]*?\][^[\]]*?)*?)\|([^[\]]*?(?:\[[^[\]]]*?\][^[\]]*?)*?)\]\]/g,
+    (match, p1, p2) => `<a href="/wiki/${sp2undr(p1)}" title="${p2}">${p2}</a>`],
+  links: [/\[\[([^[\]]*(?:\[[^[\]]*\][^[\]]*)*)\]\]/g,
+    (match, p1) => `<a href="/wiki/${sp2undr(p1)}" title="${p1}">${p1}</a>`],
 
   // ? INVALID RULES
   // TODO: FIX IT
@@ -47,7 +105,7 @@ const marks = {
     else if (p2[0] === ':') tag = 'dd';
     return `${p1}<${tag}><li>${p3}</li></${tag}>`;
   }],
-  paragraphs: [/(?:<[^>]+>|\s*\n)+|([\s\S]+?)(?=(?:<[^>]+>|\s*\n)+|$)/g, (match, p1) => { if (p1) return '<p>$1</p>\n'  }]
+  paragraphs: [/(?:<[^>]+>|\s*\n)+|([\s\S]+?)(?=(?:<[^>]+>|\s*\n)+|$)/g, (match, p1) => { if (p1) return '<p>$1</p>\n' }]
 }
 
 
