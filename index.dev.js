@@ -54,7 +54,7 @@ usersDataBase.run(`CREATE TABLE IF NOT EXISTS anonymousSessions (sessionID TEXT,
 const sessionManager = new SessionManager(usersDataBase);
 
 const wikiDataBase = new sqlite3.Database(path.join(__PROJECT_DIR__, 'static/data_base/wikiPages.db'));
-wikiDataBase.run(`CREATE TABLE IF NOT EXISTS articles (rowID INTEGER PRIMARY KEY, articleTitle TEXT, articleContent TEXT, otherLanguageVariants JSON)`);
+wikiDataBase.run(`CREATE TABLE IF NOT EXISTS articles (rowID INTEGER PRIMARY KEY, articleUrl TEXT, articleTitle TEXT, articleContent TEXT, otherLanguageVariants JSON)`);
 
 const sharedAssetsDB = new sqlite3.Database(path.join(__PROJECT_DIR__, 'static/data_base/sharedAssets.db'));
 sharedAssetsDB.run(`CREATE TABLE IF NOT EXISTS sharedFiles (rowID INTEGER PRIMARY KEY, FileType TEXT, Title TEXT, TitleLocales JSON, DescriptionLocales JSON, FileName TEXT, FileLink TEXT, FileEmbedded BLOB, FileInfo JSON)`);
