@@ -1,4 +1,5 @@
 const fs = require('fs').promises;
+const { default: axios } = require('axios');
 const path = require('path');
 const { DOMParser } = require('xmldom');
 
@@ -11,6 +12,46 @@ const marks = {
   italicbold: [/''''(.*?)''''/g, '<i><b>$1</b></i>'],
   bold: [/'''(.*?)'''/g, '<b>$1</b>'],
   italic: [/''(.*?)''/g, '<i>$1</i>'],
+  supb: [/\{\{(Chemical\snotation|Химическая\sнотация):([^{\}]+)\}\}/g,
+    (match, prefix, options) => {
+      const notationTemplate = (sup, sub) => `<sub-sup><sup>${sup}</sup><sub>${sub}</sub></sub-sup>`;
+      let optionsArray = options.split('|');
+      let chemicalElement, leftSegment, rightSegment;
+
+      if (optionsArray.length > 0) {
+        chemicalElement = optionsArray[0];
+        for (let i = 1; i < optionsArray.length; i++) {
+          let option = optionsArray[i];
+          if (option.startsWith('l:')) {
+            leftSegment = option.replace('l:', '');
+          } else if (option.startsWith('r:')) {
+            rightSegment = option.replace('r:', '');
+          }
+        }
+      }
+
+      function processSegment(segment) {
+        if (segment) {
+          const segmentArray = segment.split(';');
+          let top, bottom;
+
+          segmentArray.forEach(element => {
+            if (element.startsWith('^=')) top = element.replace('^=', '');
+            else if (element.startsWith('~=')) bottom = element.replace('~=', '');
+          });
+
+          console.log(notationTemplate(top, bottom));
+          return notationTemplate(top, bottom);
+      
+        }
+        else return null;
+      }
+
+      leftSegment = processSegment(leftSegment);
+      rightSegment = processSegment(rightSegment);
+
+      return `<span class="nw-chemical-notation">${leftSegment ?? ''}${chemicalElement}${rightSegment ?? ''}</span>`
+    }],
   sub: [/~(.*?)~/g, '<sub>$1</sub>'],
   sup: [/\^(.*?)\^/g, '<sup>$1</sup>'],
   h6: [/======\s(.*?)\s======/g, '<h6>$1</h6>'],
@@ -80,9 +121,7 @@ const marks = {
   links: [/\[\[([^[\]]*(?:\[[^[\]]*\][^[\]]*)*)\]\]/g,
     (match, p1) => `<a href="/wiki/${sp2undr(p1)}" title="${p1}">${p1}</a>`],
 
-  //paragraphs: [/^(?!\s*$)(?!.*<)(.*?\n^)/gm, (match, p1) => `<p>${p1}</p>`],
-
-
+  paragraphs: [/^(?![<\s])([^\n]*\S[^\n]*)(\n(?![<\s])([^\n]*\S[^\n]*))*\n(?=\s*\n*$)/gm, (match, p1) => `<p>${p1}</p>`],
 }
 
 const allowedTags = [
@@ -104,9 +143,7 @@ const allowedTags = [
 
 class WikiMarkup {
   constructor(options) {
-    Object.assign(this, {
-      linkify: options?.linkify ?? false,
-    });
+
   }
 
   render(markup) {

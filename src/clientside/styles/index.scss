@@ -1,5 +1,6 @@
 @import 'roots/fonts';
 @import 'roots/colors';
+@import 'stylesets/formulas';
 $base-font-size: 10.5pt;
 $base-line-height: 1.5em;
 
@@ -100,7 +101,9 @@ a {
   }
 }
 
-
+sub, sup {
+  line-height: 0;
+}
 
 
 body {

@@ -1,0 +1,31 @@
+sub-sup {
+  position: relative;
+  top: -0.1em;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: center;
+  vertical-align: middle;
+  gap: 0.1em;
+  font-size: 0.9em;
+  & sup, & sup {
+    margin: 0;
+    padding: 0;
+  }
+  & sup {
+    order: 1;
+    position: relative;
+    bottom: 0.5em;
+  }
+  & sub {
+    order: 2;
+    position: relative;
+    top: 0.5em;
+  }
+}
+
+.nw-chemical-notation {
+  display: inline-flex;
+  gap: 1px;
+  vertical-align: bottom;
+}
