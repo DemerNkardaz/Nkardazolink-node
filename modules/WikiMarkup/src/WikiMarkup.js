@@ -146,7 +146,7 @@ class WikiMarkup {
 
   }
 
-  render(markup) {
+  async render(markup) {
     try {
       Object.values(marks).forEach(([pattern, replacement]) => {
         markup = markup.replace(pattern, replacement);
@@ -155,7 +155,7 @@ class WikiMarkup {
       console.error(error);
       throw error;
     } finally {
-      return markup;
+      return await markup;
     }
   }
 }
