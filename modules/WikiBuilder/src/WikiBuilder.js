@@ -1,13 +1,15 @@
 class WikiBuilder {
   constructor(pageContent) {
     this.pageContent = pageContent;
-    this.build = this.#handlePage(); // Сохраняем промис в свойстве build
+    this.build = this.#handlePage();
   }
 
   async #handlePage() {
     try {
       let result;
       const articleDOM = await new JSDOM(`<!DOCTYPE html><body>${await new WikiMarkup().render(this.pageContent)}</body>`).window.document;
+
+      
       const articleHeadings = articleDOM.querySelectorAll('h2');
 
       if (articleHeadings.length > 0) {
