@@ -86,4 +86,19 @@
       }
     }
   }
+
+  &-tab {
+    &__content {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+  }
+
+  &-heading-l2 {
+    &-separator {
+      margin-block: 10px 15px;
+    }
+  }
 }

@@ -28,6 +28,7 @@ class WikiBuilder {
       }
 
       articleHeadings.forEach((heading) => {
+        heading.insertAdjacentHTML('afterend', '<hr class="nw-article-heading-l2-separator">');
         const wrapper = articleDOM.createElement('div');
         wrapper.className = 'nw-article-heading-l2-wrapper';
 
