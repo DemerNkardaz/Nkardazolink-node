@@ -10,7 +10,7 @@
     grid-column: 2;
     width: 100%;
     background: $color-body-main;
-    padding: 25px 40px;
+    padding-block: 25px;
     border-radius: 3px;
     gap: 1rem;
     z-index: 1;
@@ -37,11 +37,16 @@
     transition: all .15s cubic-bezier(.68, -0.55, .27, 1.55);
   }
 
+  &-footer {
+    padding-inline: 40px;
+  }
+
   &-header {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     width: 100%;
+    padding-inline: 40px;
 
     &__categories {
       font: {
@@ -87,6 +92,10 @@
     }
   }
 
+  &-tabs {
+    padding-inline: 40px;
+  }
+
   &-tab {
     &__content {
       position: relative;
@@ -96,9 +105,11 @@
     }
   }
 
-  &-heading-l2 {
-    &-separator {
-      margin-block: 10px 15px;
-    }
+  &-heading-l2-wrapper, &-nonheaded-wrapper {
+    padding-inline: 40px;
+  }
+
+  &-heading-l2-separator {
+    margin-block: 10px 15px;
   }
 }
