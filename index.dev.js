@@ -342,8 +342,16 @@ app.get('/:lang?/wiki/:page', async (request, response, next) => {
 
     const wikiContent = wikiDocument.querySelector('#article-content-panel');
     wikiContent.innerHTML = getArticleMarkup.innerHTML;
-      
-    response.send(wikiDOM.serialize());
+    
+    
+
+
+    const initialQuote = wikiDocument.querySelector('#initial-quote-text');
+    initialQuote.innerHTML = blockquote.quote;
+    const initialQuoteSub = wikiDocument.querySelector('#initial-quote-subscription');
+    initialQuoteSub.innerHTML = blockquote.subscription;
+    
+    response.send(htmlMinifier.minify(wikiDOM.serialize(), htmlMinifyOptions));
   } catch (error) {
     console.error(error);
     next(error);

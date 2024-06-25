@@ -38,7 +38,12 @@
   }
 
   &-footer {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
     padding-inline: 40px;
+    padding-block: 20px;
   }
 
   &-header {
@@ -107,13 +112,18 @@
       position: relative;
       display: flex;
       flex-direction: column;
-      gap: 15px;
+      gap: 20px;
     }
   }
 
   &-heading-l2-segment-wrapper, &-initial-wrapper {
     padding-inline: 40px;
     padding-block: 20px;
+
+
+    background: #3b4354;
+    border-radius: 16px;
+    color: #bbbdc3;
   }
 
   &-heading-l2-segment__separator {

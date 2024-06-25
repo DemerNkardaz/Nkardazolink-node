@@ -122,7 +122,7 @@ const marks = {
   links: [/\[\[([^[\]]*(?:\[[^[\]]*\][^[\]]*)*)\]\]/g,
     (match, p1) => `<a href="/wiki/${sp2undr(p1)}" title="${p1}">${p1}</a>`],
 
-  paragraphs: [/^(?![<\s])([^\n]*\S[^\n]*)(\n(?![<\s])([^\n]*\S[^\n]*))*\n(?=\s*\n*$)/gm, (match, p1) => `<p>${p1}</p>`],
+  //paragraphs: [/(?:^|\n)(?!(?:\s*<|^\s*$))(.*(?:\n|$))(?=\n(?:\s*<|\s*$)|$)/gs, (match, p1) => `<p>${p1.trim()}</p>\n` ],
 }
 
 const allowedTags = [

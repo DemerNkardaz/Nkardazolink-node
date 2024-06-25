@@ -46,7 +46,6 @@ class WikiBuilder {
         heading.parentNode.insertBefore(wrapper, heading);
         heading.remove();
       });
-
       result = articleDOM.body;
       return result;
     } catch (err) {
