@@ -105,11 +105,11 @@
     }
   }
 
-  &-heading-l2-wrapper, &-nonheaded-wrapper {
+  &-heading-l2-segment-wrapper, &-initial-wrapper {
     padding-inline: 40px;
   }
 
-  &-heading-l2-separator {
+  &-heading-l2-segment__separator {
     margin-block: 10px 15px;
   }
 }

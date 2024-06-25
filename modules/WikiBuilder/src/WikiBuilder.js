@@ -10,11 +10,11 @@ class WikiBuilder {
       const articleDOM = await new JSDOM(`<!DOCTYPE html><body>${await new WikiMarkup().render(this.pageContent)}</body>`).window.document;
 
       
-      const articleHeadings = articleDOM.querySelectorAll('h2');
+      const articleHeadings = articleDOM.querySelectorAll('h2.nw-article-heading-l2__title');
 
-      if (articleHeadings.length > 0) {
+      {
         const nonHeadedWrapper = articleDOM.createElement('div');
-        nonHeadedWrapper.className = 'nw-article-nonheaded-wrapper';
+        nonHeadedWrapper.className = 'nw-article-initial-wrapper';
 
         let currentElement = articleDOM.body.firstChild;
 
@@ -28,9 +28,9 @@ class WikiBuilder {
       }
 
       articleHeadings.forEach((heading) => {
-        heading.insertAdjacentHTML('afterend', '<hr class="nw-article-heading-l2-separator">');
+        heading.insertAdjacentHTML('afterend', '<hr class="nw-article-heading-l2-segment__separator">');
         const wrapper = articleDOM.createElement('div');
-        wrapper.className = 'nw-article-heading-l2-wrapper';
+        wrapper.className = 'nw-article-heading-l2-segment-wrapper';
 
         wrapper.appendChild(heading.cloneNode(true));
 
