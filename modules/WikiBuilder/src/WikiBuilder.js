@@ -10,25 +10,27 @@ class WikiBuilder {
       const articleDOM = await new JSDOM(`<!DOCTYPE html><body>${await new WikiMarkup().render(this.pageContent)}</body>`).window.document;
 
       
-      const articleHeadings = articleDOM.querySelectorAll('h2.nw-article-heading-l2__title');
-
+      const articleSegmentedHeadings = articleDOM.querySelectorAll('h2.nw-article-heading-l2__title');
+      const articleHeadings = articleDOM.querySelectorAll('h2');
       {
         const nonHeadedWrapper = articleDOM.createElement('div');
         nonHeadedWrapper.className = 'nw-article-initial-wrapper';
 
         let currentElement = articleDOM.body.firstChild;
 
-        while (currentElement && currentElement !== articleHeadings[0]) {
+        while (currentElement && currentElement !== articleSegmentedHeadings[0]) {
           const nextElement = currentElement.nextSibling;
           nonHeadedWrapper.appendChild(currentElement);
           currentElement = nextElement;
         }
 
-        articleDOM.body.insertBefore(nonHeadedWrapper, articleHeadings[0]);
+        articleDOM.body.insertBefore(nonHeadedWrapper, articleSegmentedHeadings[0]);
       }
 
-      articleHeadings.forEach((heading) => {
-        heading.insertAdjacentHTML('afterend', '<hr class="nw-article-heading-l2-segment__separator">');
+      articleHeadings.forEach((heading) => heading.insertAdjacentHTML('afterend', '<hr class="nw-article-heading-l2-segment__separator">'));
+
+      articleSegmentedHeadings.forEach((heading) => {
+        
         const wrapper = articleDOM.createElement('div');
         wrapper.className = 'nw-article-heading-l2-segment-wrapper';
 

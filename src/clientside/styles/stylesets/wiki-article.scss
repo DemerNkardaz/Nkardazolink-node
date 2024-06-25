@@ -92,6 +92,12 @@
     }
   }
 
+  &-content {
+    & h2:not(:first-child) {
+      margin-block: 20px 0;
+    }
+  }
+
   &-tabs {
     padding-inline: 40px;
   }
@@ -107,6 +113,7 @@
 
   &-heading-l2-segment-wrapper, &-initial-wrapper {
     padding-inline: 40px;
+    padding-block: 20px;
   }
 
   &-heading-l2-segment__separator {

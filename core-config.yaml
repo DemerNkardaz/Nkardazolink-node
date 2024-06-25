@@ -46,6 +46,7 @@ AppFuncs:
   - readFileAsync: 'promisify(fs.readFile)'
   - writeFileAsync: 'promisify(fs.writeFile)'
   - fileStat: 'promisify(fs.stat)'
+  - htmlMinifyOptions: { preserveLineBreaks: true, collapseWhitespace: true, removeComments: true, minifyJS: true, minifyCSS: true }
 AppVariables: 
   - Vars
   - __NK__:
