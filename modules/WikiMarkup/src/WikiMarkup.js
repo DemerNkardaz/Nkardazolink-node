@@ -6,6 +6,19 @@ const { DOMParser } = require('xmldom');
 const space2underline = (str) => str.replace(/\s/g, '_');
 
 const marks = {
+  section: [/\{\{(Section|Секция):([^{\}]+)\}\}/g,
+    (match, prefix, options) => {
+      let optionsArray = options.split('|');
+      let sectionTitle, sectionElement;
+
+      if (optionsArray.length > 0) {
+        sectionTitle = optionsArray[0];
+        sectionElement = optionsArray[1];
+      }
+
+      return `<section class="nw-article-tab__content" role="tabpanel" id="article-${sectionElement}-panel" aria-labelledby="article-${sectionElement}" data-sectionlabel="${sectionTitle}">`
+    }],
+  sectionEnd: [/\{\{(End\ssection|Конец\sсекции)\}\}/g, '</section>'],
   emstrong: [/!!!!(.*?)!!!!/g, '<em><strong>$1</strong></em>'],
   strong: [/!!!(.*?)!!!/g, '<strong>$1</strong>'],
   em: [/!!(.*?)!!/g, '<em>$1</em>'],

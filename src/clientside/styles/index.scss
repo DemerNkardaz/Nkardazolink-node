@@ -13,7 +13,7 @@ $base-line-height: 1.5em;
   box-sizing: border-box;
 }
 
-button, input {font-family: inherit;}
+button, input {font-family: inherit; color: inherit}
 html, body {
   font: {
     size: $base-font-size;
