@@ -121,9 +121,10 @@
     padding-block: 20px;
 
 
-    background: #3b4354;
+    //background: #3b4354;
     border-radius: 16px;
-    color: #bbbdc3;
+    border: 1px solid $color-quote-border;
+    //color: #bbbdc3;
   }
 
   &-heading-l2-segment__separator {

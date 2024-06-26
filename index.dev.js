@@ -301,9 +301,6 @@ app.get('/:lang?/wiki/:page', async (request, response, next) => {
     `)
   };
     const markup = await new WikiMarkup().render(`
-  <div style="display:flex; width: 128px; height:1512px; background: grey; float: right;">
-      dosjmfkasflk;
-  </div>
   '''Нагаока Хэйидзи Ёсинобу''' (長岡 平意地 義信) — четвёртый регент рёсёгуна острова Татарикири, владыки горы Сумпаку, величественного [[Асидзава Иватомо]].
   <p>
     {{Химическая нотация:C|l:^=14;~=4-|r:^=2;~=12}}
@@ -350,7 +347,7 @@ app.get('/:lang?/wiki/:page', async (request, response, next) => {
     initialQuote.innerHTML = blockquote.quote;
     const initialQuoteSub = wikiDocument.querySelector('#initial-quote-subscription');
     initialQuoteSub.innerHTML = blockquote.subscription;
-    
+
     response.send(htmlMinifier.minify(wikiDOM.serialize(), htmlMinifyOptions));
   } catch (error) {
     console.error(error);

@@ -189,7 +189,10 @@ const parseSize = (sizeString) => {
   return parseInt(sizeString);
 }
 
+const space2underline = (str) => str.replace(/\s/g, '_');
+const underline2space = (str) => str.replace(/\_/g, ' ');
+
 module.exports = {
   mergeObjects, varToYaml, getLastModifiedInFolders, parseUrl, urlSpaceToUnderscore, liveSassCompiler, parseToInterval,
-  parseToDays, parseSize
+  parseToDays, parseSize, space2underline, underline2space
 };

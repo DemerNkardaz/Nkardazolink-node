@@ -3,7 +3,7 @@ const { default: axios } = require('axios');
 const path = require('path');
 const { DOMParser } = require('xmldom');
 
-const sp2undr = (str) => str.replace(/\s/g, '_');
+const space2underline = (str) => str.replace(/\s/g, '_');
 
 const marks = {
   emstrong: [/!!!!(.*?)!!!!/g, '<em><strong>$1</strong></em>'],
@@ -118,9 +118,9 @@ const marks = {
       return `<a href="${href}"${classSegment ?? ''} title="${alt}"><img src="${src}" srcset="${srcSet}" alt="${alt}" decoding="async" loading="lazy"${attribSegment ?? ''}></a>`;
     }],
   linksLabeled: [/\[\[([^[\]]*?(?:\[[^[\]]]*?\][^[\]]*?)*?)\|([^[\]]*?(?:\[[^[\]]]*?\][^[\]]*?)*?)\]\]/g,
-    (match, p1, p2) => `<a href="/wiki/${sp2undr(p1)}" title="${p2}">${p2}</a>`],
+    (match, p1, p2) => `<a href="/wiki/${space2underline(p1)}" title="${p2}">${p2}</a>`],
   links: [/\[\[([^[\]]*(?:\[[^[\]]*\][^[\]]*)*)\]\]/g,
-    (match, p1) => `<a href="/wiki/${sp2undr(p1)}" title="${p1}">${p1}</a>`],
+    (match, p1) => `<a href="/wiki/${space2underline(p1)}" title="${p1}">${p1}</a>`],
 
   //paragraphs: [/(?:^|\n)(?!(?:\s*<|^\s*$))(.*(?:\n|$))(?=\n(?:\s*<|\s*$)|$)/gs, (match, p1) => `<p>${p1.trim()}</p>\n` ],
 }
