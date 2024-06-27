@@ -1,0 +1,1 @@
+const space2underline=e=>e.replace(/\s/g,"_"),underline2space=e=>e.replace(/\_/g," ");export default{space2underline:space2underline,underline2space:underline2space};

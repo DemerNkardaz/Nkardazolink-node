@@ -6,7 +6,8 @@
     locale[queriedLanguage].Nkardaz.name
   ];*/
 
-  const pageTitle = request.params?.page ? underline2space(request.params?.page) : locale[queriedLanguage].Meta_Pereferences.titles[queriedMode ?? 'default'];
+  const pageSubTitle = request.params?.subPage ? ` — ${underline2space(request.params?.subPage)} | ${locale[queriedLanguage].meta.inf['wiki-title']}` : ` | ${locale[queriedLanguage].meta.inf['wiki-title']}`;
+  const pageTitle = request.params?.page ? `${underline2space(request.params?.page)}${pageSubTitle}` : locale[queriedLanguage].Meta_Pereferences.titles[queriedMode ?? 'default'];
   const pageDesription = locale[queriedLanguage].Meta_Pereferences.meta.desc[queriedMode ?? 'default'];
   const pageSeoImage = locale[queriedLanguage].Meta_Pereferences.meta.image[queriedMode ?? 'default'];
   const pageAuthor = locale[queriedLanguage].Nkardaz.name;

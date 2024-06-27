@@ -1,7 +1,10 @@
 class WikiBuilder {
-  constructor(pageContent) {
+  constructor(pageContent, request) {
     this.pageContent = pageContent;
+    this.activeTab = request.params.subPage ? underline2space(request.params.subPage) : null;
+    this.page = request.params.page;
     this.build = this.#handlePage();
+    console.log(this.activeTab);
   }
 
   async #handlePage() {
@@ -79,12 +82,17 @@ class WikiBuilder {
           const sectionId = section.id;
           const ariaLabelledBy = section.getAttribute('aria-labelledby');
 
-          const tabButton = articleDOM.createElement('button');
+          const tabButton = articleDOM.createElement('a');
           tabButton.className = 'nw-article-tabs__switch-btn';
+          tabButton.setAttribute('href', `/wiki/${this.page}/${space2underline(sectionLabel)}`);
           tabButton.setAttribute('role', 'tab');
           tabButton.id = ariaLabelledBy;
           tabButton.setAttribute('aria-controls', sectionId);
-          tabButton.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
+          if (this.activeTab && sectionLabel === this.activeTab) {
+            tabButton.setAttribute('aria-selected', 'true');
+          } else {
+            tabButton.setAttribute('aria-selected', this.activeTab ? 'false' : (index === 0 ? 'true' : 'false'));
+          }
           tabButton.setAttribute('data-tab-index', index === sections.length - 1 ? 'last' : index);
           tabButton.setAttribute('type', 'button');
           tabButton.textContent = sectionLabel;

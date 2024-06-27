@@ -283,7 +283,7 @@ app.get('/:lang?/wiki', async (request, response, next) => {
   }
 });
 
-app.get('/:lang?/wiki/:page', async (request, response, next) => {
+app.get('/:lang?/wiki/:page/:subPage?', async (request, response, next) => {
   /*
   ? Создать «Разделы» — страницы с категориями и статьями общей тематики, например Раздел:Нихонсимагуни или Раздел:Магия
   ? Создать «Категории» — обычный элемент википедии, котрый содержит перечень статей, входящих в эти самые категории.
@@ -349,14 +349,13 @@ app.get('/:lang?/wiki/:page', async (request, response, next) => {
   {{Конец секции}}
   `);
     
-    console.log(await new WikiBuilder(markup).build);
 
 
     const Builded = await loadComponent('layout', { request }).PostProcessor({ request });
     const wikiDOM = await new JSDOM(Builded);
     const wikiDocument = wikiDOM.window.document;
 
-    const getArticleMarkup = await new WikiBuilder(markup).build;
+    const getArticleMarkup = await new WikiBuilder(markup, request).build;
 
     const wikiContent = wikiDocument.querySelector('.nw-article-content');
     wikiContent.innerHTML = getArticleMarkup;
