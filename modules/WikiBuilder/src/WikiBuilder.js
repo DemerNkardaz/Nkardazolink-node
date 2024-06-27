@@ -18,7 +18,7 @@ class WikiBuilder {
 
       if (sections.length === 0) {
         const defaultSection = articleDOM.createElement('section');
-        defaultSection.className = 'nw-article-tab__content';
+        defaultSection.className = 'nw-article-tab__content active';
         defaultSection.setAttribute('role', 'tabpanel');
         defaultSection.id = 'article-content-panel';
         defaultSection.setAttribute('aria-labelledby', 'article-content');
@@ -60,7 +60,7 @@ class WikiBuilder {
           wrapper.appendChild(heading.cloneNode(true));
 
           let sibling = heading.nextSibling;
-          while (sibling && sibling.nodeName !== 'H2') {
+          while (sibling && !(sibling.nodeName == 'H2' && sibling.classList.contains('nw-article-heading-l2__title'))) {
             const nextSibling = sibling.nextSibling;
             wrapper.appendChild(sibling);
             sibling = nextSibling;
