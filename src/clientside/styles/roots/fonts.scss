@@ -1,16 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+SC:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Philosopher:ital,wght@0,400;0,700;1,400;1,700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;300;400;500;600;700;900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@200;300;400;500;600;700;900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@200;300;400;500;600;700;900&display=swap');
-
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@200;300;400;500;600;700;900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@200;300;400;500;600;700;900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@200;300;400;500;600;700;900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@200;300;400;500;600;700;900&display=swap');
 
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
 @import url('https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap');
@@ -35,28 +26,23 @@
 }
 
 $font-h1: 'Cormorant SC',
-  'Noto Serif JP',
-  'Noto Serif TC',
-  'Noto Serif KR',
   'Noto Color Emoji',
   serif;
 
 $font-headings: 'Cormorant Garamond',
-'Noto Serif JP',
-'Noto Serif TC',
-'Noto Serif KR',
 'Noto Color Emoji',
 serif;
 $font-default: 'Philosopher',
-'Noto Serif JP',
-'Noto Serif TC',
-'Noto Serif KR',
 'Noto Color Emoji',
 serif;
 $font-emoji: 'Noto Color Emoji';
 $font-wiki: 'Roboto',
-'Noto Sans JP',
-'Noto Sans TC',
-'Noto Sans KR',
 'Noto Color Emoji',
 sans-serif;
+
+
+[class^="nw-font-"] {
+  font-size: 1.1rem;
+  font-family: sans-serif;
+  margin-inline: 0.1rem;
+}
