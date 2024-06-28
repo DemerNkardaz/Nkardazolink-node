@@ -62,7 +62,7 @@ document.addEventListener('click', function (e) {
         if (title.textContent.includes('—')) {
           title.textContent = title.textContent.replace(/—\s(.*?)\s\|/, `— ${tabTitle} |`);
         } else {
-          title.textContent = title.textContent.replace(/\s(.*?)\s\|/, ` — ${tabTitle} |`);
+          title.textContent = title.textContent.replace(/\s\|/, ` — ${tabTitle} |`);
         }
       } else {
         const targetUrl = new URL(target.href);

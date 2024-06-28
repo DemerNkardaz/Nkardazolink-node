@@ -124,6 +124,7 @@
       transition: all .2s ease;
       border-radius: 3px;
       font-size: 1.05rem;
+      outline: 2px solid transparent;
       cursor: pointer;
       &:hover {
         color: inherit;
@@ -138,6 +139,10 @@
       }
       &:active {
         background: $color-gold-orange;
+      }
+
+      &:focus-visible {
+        outline: 2px solid $color-gold-pale;
       }
     }
   }

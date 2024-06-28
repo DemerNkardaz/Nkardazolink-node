@@ -1,0 +1,1 @@
+document.addEventListener("DOMContentLoaded",(()=>{document.querySelectorAll("img").forEach((e=>{e.classList.add("placeholder"),e.complete&&e.classList.add("placeholder2")}))}));

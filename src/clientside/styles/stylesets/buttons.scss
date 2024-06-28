@@ -33,6 +33,7 @@
     border-radius: 50%;
     color: transparent;
     background: transparent;
+    outline: 2px solid transparent;
     border: none;
     &::after {
         content: attr(data-icon);
@@ -63,7 +64,7 @@
       mask: radial-gradient(circle 47px, #0000 41.5%, #fff 47.5%);
       z-index: -1;
     }
-    &:hover::after {
+    &:hover::after{
       color: $color-gold-hover;
       background: white;
       left: 3px;
@@ -71,6 +72,15 @@
     &:active::after {
       left: -1px;
       scale: 0.95;
+    }
+
+    &:focus-visible::after {
+      left: -1px;
+      scale: 0.95;
+      border-color: transparent;
+      outline: 2px solid $color-gold-hover;
+      color: $color-gold-hover;
+      background: white;
     }
   }
 }

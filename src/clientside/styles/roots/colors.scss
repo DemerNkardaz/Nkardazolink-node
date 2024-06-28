@@ -1,3 +1,89 @@
+// CSS Variables
+:root {
+  --shadow-22a10: #22222210;
+  --shadow-22a29: #22222229;
+  --shadow-22a64: #22222264;
+  --shadow-22a86: #22222286;
+  --shadow-00a95: #00000095;
+
+  --text-33: #333;
+  --text-48: #484848;
+  --text-d5: #d5d5d5;
+  --text-ee: #eee;
+  --text-ed: #ededed;
+  --text-fe: #fefefefe;
+  --text-a4: #A4A4A4;
+  --text-8d: #8d8d8d;
+
+  --color-body-main: #FEFEFE;
+
+  --color-quote-main: #EFEFEF;
+  --color-quote-border: #DEDEDE;
+
+  --color-border-main: #B3B3B3;
+
+  --color-btn-main: var(--color-body-main);
+
+  --color-gold-dark: #E1AA4B;
+  --color-gold-dark-emboss: #fbc76e;
+  --color-gold-pale: #E2B13C;
+  --color-gold-pale-semilight: #FFD228;
+
+  --color-gold-orange: #E08A1E;
+  --color-gold-orange-5f: #E08A1E5f;
+  --color-gold-hover: #FEDB1D;
+  --color-gold-med-hover: #FFE727;
+  --color-gold-light-hover: #FFF527;
+  --color-gold-semi-light: #ffd228;
+  --color-gold-dirty: #C29819;
+  --color-gold-selected: #EBC824;
+  --color-gold-light: #ffed9a;
+
+  --color-kamon-red: #dc4032;
+}
+
+$shadow-22a10: var(--shadow-22a10);
+$shadow-22a29: var(--shadow-22a29);
+$shadow-22a64: var(--shadow-22a64);
+$shadow-22a86: var(--shadow-22a86);
+$shadow-00a95: var(--shadow-00a95);
+
+$text-33: var(--text-33);
+$text-48: var(--text-48);
+$text-d5: var(--text-d5);
+$text-ee: var(--text-ee);
+$text-ed: var(--text-ed);
+$text-fe: var(--text-fe);
+$text-a4: var(--text-a4);
+$text-8d: var(--text-8d);
+
+$color-body-main: var(--color-body-main);
+
+$color-quote-main: var(--color-quote-main);
+$color-quote-border: var(--color-quote-border);
+
+$color-border-main: var(--color-border-main);
+
+$color-btn-main: var(--color-btn-main);
+
+$color-gold-dark: var(--color-gold-dark);
+$color-gold-dark-emboss: var(--color-gold-dark-emboss);
+$color-gold-pale: var(--color-gold-pale);
+$color-gold-pale-semilight: var(--color-gold-pale-semilight);
+
+$color-gold-orange: var(--color-gold-orange);
+$color-gold-orange-5f: var(--color-gold-orange-5f);
+$color-gold-hover: var(--color-gold-hover);
+$color-gold-med-hover: var(--color-gold-med-hover);
+$color-gold-light-hover: var(--color-gold-light-hover);
+$color-gold-semi-light: var(--color-gold-semi-light);
+$color-gold-dirty: var(--color-gold-dirty);
+$color-gold-selected: var(--color-gold-selected);
+$color-gold-light: var(--color-gold-light);
+
+$color-kamon-red: var(--color-kamon-red);
+
+
 $shadow-22a10: #22222210;
 $shadow-22a29: #22222229;
 $shadow-22a64: #22222264;
