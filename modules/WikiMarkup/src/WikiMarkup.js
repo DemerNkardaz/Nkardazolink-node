@@ -1,6 +1,6 @@
 const space2underline = (str) => str.replace(/\s/g, '_');
 
-const localisedTitles = (obj) => `${obj.text} (<span lang="${obj.lang}" class="nw-font-${obj.lang}">${obj.origin}</span>${obj.add ? `, ${obj.add}` : ''})`;
+const localisedTitles = (obj) => `${obj.text} (${obj.wikiSource ? `<a href="https://${obj.wikiSource[2]}.wikipedia.org/wiki/${obj.wikiSource[1]}">${obj.wikiSource[0]}</a>&nbsp;` : ''}<span lang="${obj.lang}" class="nw-font-${obj.lang}">${obj.origin}</span>${obj.add ? `, ${obj.add}` : ''})`;
 
 
 
@@ -28,7 +28,7 @@ class WikiMarkup {
         /\{\{(nihon-go|нихон-го):([^{\}]+)\}\}/g,
         (match, prefix, options) => {
           let optionsArray = options.split('|');
-          let localisedText, originText, additional;
+          let localisedText, originText, additional, wikiSource;
 
           if (optionsArray.length > 0) {
             localisedText = optionsArray[0];
@@ -36,7 +36,18 @@ class WikiMarkup {
             additional = optionsArray[2] ?? null;
           }
 
-          return localisedTitles({ text: localisedText, lang: 'ja', origin: originText, add: additional })
+          switch (prefix) {
+            case 'nihon-go':
+              wikiSource = ['Japanese:', 'Japanese_language', 'en'];
+              break;
+            case 'нихон-го':
+              wikiSource = ['яп.', 'Японский_язык', 'ru'];
+              break;
+            default:
+              wikiSource = null;
+          }
+
+          return localisedTitles({ text: localisedText, lang: 'ja', origin: originText, add: additional, wikiSource: wikiSource })
         }],
       transcriptReplacement: [
         /\<\s(.*?)\s\/\>/g,
