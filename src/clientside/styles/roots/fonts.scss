@@ -46,3 +46,9 @@ sans-serif;
   font-family: sans-serif;
   margin-inline: 0.1rem;
 }
+
+.nw-font- {
+  &ja, &zh, &kr {
+    word-break: keep-all;
+  }
+}
