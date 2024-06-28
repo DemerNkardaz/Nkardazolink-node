@@ -134,6 +134,8 @@ http {
 
   sendfile on;
 
+  ${(os === 'linux') ? 'aio on;' : ''}
+  ${(os === 'linux') ? 'directio 8m;' : ''}
   ${(os === 'linux' || os === 'macos') ? 'tcp_nopush on;' : ''}
   ${(os === 'linux' || os === 'macos') ? 'tcp_nodelay off;' : ''}
 
@@ -177,17 +179,20 @@ http {
   gzip_buffers 32 4k;
   gzip_disable "msie6";
 
+  keepalive_timeout 120;
+  keepalive_requests 1000;
+
+  reset_timedout_connection on;
+  client_body_timeout 60;
+  client_header_timeout 14;
+
+  send_timeout 10;
+
   client_body_buffer_size 32k;
   client_header_buffer_size 1k;
   client_max_body_size 12m;
   large_client_header_buffers 2 1k;
 
-  client_body_timeout 60s;
-  client_header_timeout 60s;
-
-  keepalive_timeout 120;
-
-  send_timeout 10;
 
   upstream nodeWikiApplication {
     ip_hash;
@@ -227,7 +232,7 @@ http {
   }
 
   server {
-    listen ${serverConfig.NGINX.HTTPSPort} ssl;
+    listen ${serverConfig.NGINX.HTTPSPort} ssl${(os === 'linux') ? ' reuseport' : ''};
     http2 ${serverConfig.NGINX.HTTP2 ? 'on' : 'off'};
     server_name ${serverConfig.server.host};
 

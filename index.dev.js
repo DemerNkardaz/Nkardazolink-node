@@ -390,17 +390,18 @@ app.get('/shared/models/:3dModelName', async (request, response, next) => {
 
 app.get('/shared/images/nocache/:imageFileName', async (request, response, next) => {
   try {
-    const handler = new ImageHandler(__PROJECT_DIR__, request, enabledCache = false);
-    const handledResult = await handler.getImage(sharedAssetsDB);
+    const noCacheImageHandler = await new ImageHandler()
+      .queryAssing(__PROJECT_DIR__, request, enabledCache = false);
+    const noCacheImageResult = await noCacheImageHandler.getImage(sharedAssetsDB);
 
-    if (typeof handledResult === 'string') {
-      const error = new Error(handledResult.message);
+    if (typeof noCacheImageResult === 'string') {
+      const error = new Error(noCacheImageResult.message);
       error.status = 404;
       throw error;
     }
     else
-      response.contentType(handledResult.mimeType);
-    response.send(handledResult.imageBuffer);
+      response.contentType(noCacheImageResult.mimeType);
+    response.send(noCacheImageResult.imageBuffer);
   } catch (error) {
     console.error('Error processing image:', error);
     next(error);
@@ -450,11 +451,13 @@ app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
       if (serverConfig.allowedFileTypes.images.includes(getExtension)) {
         const language = await request.headers['accept-language'].substring(0, 2);
         request.params.imageFileName = FileName;
-        const imageHandler = new ImageHandler(__PROJECT_DIR__, request, serverConfig.cache.enabled, true);
-        const handledResult = await imageHandler.getImage(sharedAssetsDB);
 
-        if (typeof handledResult === 'string') {
-          const error = new Error(handledResult.message);
+        const previewPageImageHandler = await new ImageHandler()
+          .queryAssing(__PROJECT_DIR__, request, serverConfig.cache.enabled, true);
+        const previewPageImageResult = await previewPageImageHandler.getImage(sharedAssetsDB);
+
+        if (typeof previewPageImageResult === 'string') {
+          const error = new Error(previewPageImageResult.message);
           error.status = 404;
           throw error;
         }
@@ -477,8 +480,8 @@ app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
         `;
         //console.log(handledResult);
 
-        const isCached = handledResult.cached ? 'Кэш' : 'Не кэшируется';
-        const metaInfo = handledResult.dataBaseInfo.FileInfo || null;
+        const isCached = previewPageImageResult.cached ? 'Кэш' : 'Не кэшируется';
+        const metaInfo = previewPageImageResult.dataBaseInfo.FileInfo || null;
         let metaResolution, metaFileSize, metaAccessTime, metaModifiedTime, metaCreateTime, metaSpace, metaHasAlpha, metaFormat, metaDensity, metaChannels;
         if (metaInfo) {
           metaResolution = `${metaInfo.width}x${metaInfo.height}` || null;
@@ -492,7 +495,7 @@ app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
           metaDensity = metaInfo.density;
           metaChannels = metaInfo.channels;
         }
-        const fileLoadedInfo = handledResult.fileInfo || null;
+        const fileLoadedInfo = previewPageImageResult.fileInfo || null;
         let fileResolution, fileSize, fileAccessTime, fileModifiedTime, fileCreateTime, fileSpace, fileHasAlpha, fileFormat, fileDensity, fileChannels;
         if (fileLoadedInfo) {
           fileResolution = `${fileLoadedInfo.width}x${fileLoadedInfo.height}` || null;
@@ -506,11 +509,11 @@ app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
           fileDensity = fileLoadedInfo.density;
           fileChannels = fileLoadedInfo.channels;
         }
-        const dbTitle = handledResult.dataBaseInfo.Title || '';
-        const dbFileName = handledResult.dataBaseInfo.FileName;
-        const dbFileType = locale[language].FileTypes[handledResult.dataBaseInfo.FileType];
+        const dbTitle = previewPageImageResult.dataBaseInfo.Title || '';
+        const dbFileName = previewPageImageResult.dataBaseInfo.FileName;
+        const dbFileType = locale[language].FileTypes[previewPageImageResult.dataBaseInfo.FileType];
         const dbFileSource = request.params.imageFileName;
-        let dbFileLink = handledResult.dataBaseInfo.FileLink;
+        let dbFileLink = previewPageImageResult.dataBaseInfo.FileLink;
         dbFileLink = !dbFileLink.startsWith('https://') ? `/${dbFileLink}` : dbFileLink;
         result = `
           <h1 style="display: flex; justify-content: space-between;"><span>${dbTitle}</span><span>${Arguments ? 'Сгенерировано запросом' : ''}</span></h1>
@@ -561,16 +564,17 @@ app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
 app.get('/shared/images/:imageFileName', async (request, response, next) => {
 
   try {
-    const handler = new ImageHandler(__PROJECT_DIR__, request, serverConfig.cache.enabled);
-    const handledResult = await handler.getImage(sharedAssetsDB);
+    const requestImageHandler = await new ImageHandler()
+      .queryAssing(__PROJECT_DIR__, request, serverConfig.cache.enabled);
+    const requestImageResult = await requestImageHandler.getImage(sharedAssetsDB);
 
-    if (typeof handledResult === 'string') {
-      const error = new Error(handledResult.message);
+    if (typeof requestImageResult === 'string') {
+      const error = new Error(requestImageResult.message);
       error.status = 404;
       throw error;
     } else {
-      response.contentType(handledResult.mimeType);
-      response.send(handledResult.imageBuffer);
+      response.contentType(requestImageResult.mimeType);
+      response.send(requestImageResult.imageBuffer);
 
     }
   } catch (error) {
@@ -582,17 +586,18 @@ app.get('/shared/images/:imageFileName', async (request, response, next) => {
 
 app.get('/local/images/*', async (request, response, next) => {
   try {
-    const handler = new ImageHandler(path.join(__PROJECT_DIR__, 'static/public/resource/images'), request, serverConfig.cache.enabled);
-    const handledResult = await handler.getImage();
+    const localFilesImageHandler = await new ImageHandler()
+      .queryAssing(path.join(__PROJECT_DIR__, 'static/public/resource/images'), request, serverConfig.cache.enabled);
+    const localFilesImageResult = await localFilesImageHandler.getImage();
 
-    if (typeof handledResult === 'string') {
-      const error = new Error(handledResult.message);
+    if (typeof localFilesImageResult === 'string') {
+      const error = new Error(localFilesImageResult.message);
       error.status = 404;
       throw error;
     }
     else
-      response.contentType(handledResult.mimeType);
-    response.send(handledResult.imageBuffer);
+      response.contentType(localFilesImageResult.mimeType);
+    response.send(localFilesImageResult.imageBuffer);
   } catch (error) {
     console.error('Error processing image:', error);
     next(error);
