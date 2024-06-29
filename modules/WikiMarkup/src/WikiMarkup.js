@@ -2,6 +2,7 @@ const space2underline = (str) => str.replace(/\s/g, '_');
 
 const localisedTitles = (obj) => `${obj.text} (${obj.wikiSource ? `<a href="https://${obj.wikiSource[2]}.wikipedia.org/wiki/${obj.wikiSource[1]}">${obj.wikiSource[0]}</a>&nbsp;` : ''}<span lang="${obj.lang}" class="nw-font-${obj.lang}">${obj.origin}</span>${obj.add ? `, ${obj.add}` : ''})`;
 const localSpan = (lang, text) => `<span lang="${lang}" class="nw-font-${lang}">${text}</span>`;
+
 const isoLanguages = [
   "aa", "ab", "ae", "af", "ak", "am", "an", "ar", "as", "av", "ay", "az", "ba",
   "be", "bg", "bh", "bi", "bm", "bn", "bo", "br", "bs", "ca", "ce", "ch", "co",
@@ -20,7 +21,9 @@ const isoLanguages = [
   "zh", "zu"
 ];
 
-
+const customLanguages = [
+  'tangut', 'khitan'
+]
 
 const allowedTags = [
   'div', 'article', 'section', 'header', 'footer',
@@ -43,14 +46,14 @@ class WikiMarkup {
   constructor(options) {
     this.marks = {
       localedText: [
-        /\{\{(\w\w):([^{\}]+)\}\}/g,
+        /\{\{(\w+)[:|：]([^{\}]+)\}\}/g,
         (match, prefix, text) => {
-          if (isoLanguages.includes(prefix)) return localSpan(prefix, text);
+          if (serverConfig.language.isoCodes.includes(prefix) || serverConfig.language.customCodes.includes(prefix)) return localSpan(prefix, text);
           else return match;
         }
       ],
       nihongo: [
-        /\{\{(nihon-go|нихон-го):([^{\}]+)\}\}/g,
+        /\{\{(nihon-go|нихон-го)[:|：]([^{\}]+)\}\}/g,
         (match, prefix, options) => {
           let optionsArray = options.split('|');
           let localisedText, originText, additional, wikiSource;

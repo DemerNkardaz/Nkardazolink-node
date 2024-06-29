@@ -297,7 +297,7 @@ const fontExtensions = ['ttf', 'otf', 'woff', 'woff2'];
 const docExtensions = ['pdf', 'doc', 'docx', 'odt', 'rtf', 'txt', 'csv', 'xls', 'xlsx', 'ppt', 'pptx'];
 const dataExtensions = ['xml', 'html', 'xhtml', 'yaml', 'yml', 'json', 'ejs', 'pug', 'jade', 'csv'];
 
-
+console.log(serverConfig);
 
 const queriesType = {
   s: `<tr><td><p>s</p>размер</td><td>Изменяет размер изображения на основе одного значения</td><tr>`,
@@ -571,6 +571,7 @@ app.get('/:lang?/wiki/:page/:subPage?', async (request, response, next) => {
   <div style="background: #e2b13c; width: 320px; height: 512px; float: right; margin-inline-start: 20px;"></div>
   {{нихон-го:'''Нагаока Хэйидзи Ёсинобу'''|長岡 平意地 義信|{{ja:「ながおか へいいじ よしのぶ」}}Nagaoka Heiiji Yoshinobu; [[IIIЭ]].[[917]]–[[967]]}} — четвёртый регент [[Рёсёгун|рёсёгуна]] острова [[Татарикири]], владыки горы [[Сумпаку|Су́мпаку]], величественного [[Асидзава Иватомо]].
   <br>
+  <p>{{tangut:𗀔𗼘𗁅𗔔𗀄𗀇𗦲𗤶𗊴𗼑𗀂𗧍}}</p>
   <p>
     {{Химическая нотация:C|l:^=14;~=4-|r:^=2;~=12}}
   </p>
