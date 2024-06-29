@@ -7,4 +7,5 @@ Extensions:
   DataExtend: enabled
   Utilities: enabled
   WikiMarkup: enabled
+  WikiTemplate: enabled
   WikiBuilder: enabled

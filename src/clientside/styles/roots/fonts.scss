@@ -7,6 +7,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap');
 
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+Tangut&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+Khitan+Small+Script&display=swap');
 
 .material-symbols-rounded {
   font-variation-settings:'FILL' 1,'wght'400,'GRAD' 200,'opsz' 40
@@ -43,6 +44,7 @@ $font-wiki: 'Roboto',
 sans-serif;
 
 $font-tangut: 'Noto Serif Tangut', serif;
+$font-khitan-smallscript: 'Noto Serif Khitan Small Script', serif;
 
 
 [class^="nw-font-"] {
@@ -52,11 +54,15 @@ $font-tangut: 'Noto Serif Tangut', serif;
 }
 
 .nw-font- {
-  &ja, &zh, &kr, &tangut {
+  &ja, &zh, &kr, &tangut, &khitan {
     word-break: keep-all;
   }
 
   &tangut {
     font-family: $font-tangut;
+  }
+  
+  &khitan {
+    font-family: $font-khitan-smallscript;
   }
 }
