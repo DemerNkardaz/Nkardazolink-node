@@ -45,7 +45,7 @@
   <!-- ***** OG:META *****-->
   <meta property="og:type" content="website">
   <meta property="og:title" content="<%= pageTitle %>" data-key="Meta_Pereferences.titles.<%= queriedMode %>">
-  <meta property="og:url" content="<%= pageUrl %>">
+  <meta property="og:url" content="<%= decodeURIComponent(pageUrl) %>">
   <meta property="og:description" content="<%= pageDesription %>" data-key="Meta_Pereferences.meta.desc.<%= queriedMode %>">
   <meta property="og:image" content="<%= pageSeoImage %>" data-key="Meta_Pereferences.meta.image.<%= queriedMode %>">
   <meta property="og:locale" content="<%= queriedLanguage %>">
@@ -53,7 +53,7 @@
   <!-- ????? TWITTER:META ????? -->
   <meta name="twitter:card" content="summary_large_image">
   <meta property="twitter:domain" content="<%= domainUrl %>">
-  <meta property="twitter:url" content="<%= pageUrl %>">
+  <meta property="twitter:url" content="<%= decodeURIComponent(pageUrl) %>">
   <meta name="twitter:title" content="<%= pageTitle %>" data-key="Meta_Pereferences.titles.<%= queriedMode %>">
   <meta name="twitter:description" content="<%= pageDesription %>" data-key="Meta_Pereferences.meta.desc.<%= queriedMode %>">
   <meta name="twitter:image" content="<%= pageSeoImage %>" data-key="Meta_Pereferences.meta.image.<%= queriedMode %>">
@@ -106,7 +106,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link rel="preconnect" href="https://www.google-analytics.com" crossorigin="use-credentials">
 
-  <link rel="alternate" hreflang="x-default" href="<%= `${request.protocol}://${request.hostname}${request.url}` %>">
+  <link rel="alternate" hreflang="x-default" href="<%= decodeURIComponent(`${request.protocol}://${request.hostname}${request.url}`) %>">
   <% request.isHomePage && serverConfig.language.supported.forEach(language => { 
     let url = `${request.protocol}://${language.split('-')[0]}.${request.hostname}${request.url}`;
     if (language === 'en') language = 'en-US';
@@ -117,5 +117,5 @@
     else if (language === 'vi') language = 'vi-VN';
     else if (language === 'ro') language = 'ro-RO';
     %>
-  <link rel="alternate" hreflang="<%= language %>" href="<%= url %>">
+  <link rel="alternate" hreflang="<%= language %>" href="<%= decodeURIComponent(url) %>">
   <% }); %>
