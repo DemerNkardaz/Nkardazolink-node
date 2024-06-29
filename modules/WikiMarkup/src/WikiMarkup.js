@@ -153,7 +153,7 @@ class WikiMarkup {
       h3: [/===\s(.*?)\s===/g, (m, p) => `<h3 id="${space2underline(p)}">${p}</h3>`],
       h2: [/==\s(.*?)\s==/g, (m, p) => `<h2 id="${space2underline(p)}">${p}</h2>`],
       hr: [/----/g, '<hr>'],
-      imageLink: [/\[\[(File|Файл):([^[\]]+)\]\]/g,
+      imageLink: [/\[\[(File|Файл|ファイル|文件|파일|Tệp)[:|：]([^[\]]+)\]\]/g,
         (match, prefix, options) => {
           let optionsArray = options.split('|');
           let fileName, querySegment, classSegment, styleSegment, attribSegment, altText;
@@ -175,7 +175,27 @@ class WikiMarkup {
               }
             }
           }
-          let href = prefix === 'Файл' ? `/Файл:${fileName}` : `/File:${fileName}`;
+          let href;
+          switch (prefix) {
+            case 'Файл':
+              href = `/wiki/Файл:${fileName}`;
+              break;
+            case 'File':
+              href = `/wiki/File:${fileName}`;
+              break;
+            case 'ファイル':
+              href = `/wiki/ファイル：${fileName}`;
+              break;
+            case '文件':
+              href = `/wiki/文件：${fileName}`;
+              break;
+            case '파일':
+              href = `/wiki/파일：${fileName}`;
+              break;
+            case 'Tệp':
+              href = `/wiki/Tệp:${fileName}`;
+              break;
+          }
           let src = `/shared/images/${fileName}`;
           let srcSet = `/shared/images/${fileName}`;
           let alt = altText || '';

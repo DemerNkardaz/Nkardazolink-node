@@ -44,11 +44,13 @@ const parseLines = (data) => {
         const key = keyValue[0].trim();
         let value = keyValue[1].trim();
 
-        if (value.startsWith('{this}')) {
+        if (value.startsWith('{regex}: ')) value = new RegExp(value.substring('{regex}: '.length));
+        else if (value.startsWith('{this}')) {
           let lastPath = value.split('{this}/')[1];
           const projectDir = path.join(__dirname, '..', '..', '..');
           value = path.join(projectDir, lastPath);
-        } else if (value.startsWith('{math}:')) {
+        }
+        else if (value.startsWith('{math}:')) {
           let mathString = value.split('{math}:')[1].trim();
           value = mathjs.evaluate(mathString);
         }

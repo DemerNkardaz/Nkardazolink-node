@@ -261,6 +261,272 @@ app.get('/', async (request, response, next) => {
 });
 
 
+app.get('/shared/models/:3dModelName', async (request, response, next) => {
+  try {
+
+  } catch (error) {
+    console.error('Error processing image:', error);
+    next(error);
+  }
+});
+
+
+app.get('/shared/images/nocache/:imageFileName', async (request, response, next) => {
+  try {
+    const noCacheImageHandler = await new ImageHandler()
+      .queryAssing(__PROJECT_DIR__, request, enabledCache = false);
+    const noCacheImageResult = await noCacheImageHandler.getImage(sharedAssetsDB);
+
+    if (typeof noCacheImageResult === 'string') {
+      const error = new Error(noCacheImageResult.message);
+      error.status = 404;
+      throw error;
+    }
+    else
+      response.contentType(noCacheImageResult.mimeType);
+    response.send(noCacheImageResult.imageBuffer);
+  } catch (error) {
+    console.error('Error processing image:', error);
+    next(error);
+  }
+});
+
+const imageExtensions = ['jpg', 'jpeg', 'png', 'apng', 'gif', 'webp', 'ico', 'svg', 'avif', 'bmp', 'tga', 'dds', 'tiff', 'jfif'];
+const videoExtensions = ['mp4', 'mkv', 'webm', 'ogv', 'avi', 'mov', 'wmv', 'mpg', 'mpeg', 'm4v', '3gp', '3g2', 'mng', 'asf', 'asx', 'mxf', 'ts', 'flv', 'f4v', 'f4p', 'f4a', 'f4b'];
+const fontExtensions = ['ttf', 'otf', 'woff', 'woff2'];
+const docExtensions = ['pdf', 'doc', 'docx', 'odt', 'rtf', 'txt', 'csv', 'xls', 'xlsx', 'ppt', 'pptx'];
+const dataExtensions = ['xml', 'html', 'xhtml', 'yaml', 'yml', 'json', 'ejs', 'pug', 'jade', 'csv'];
+
+
+
+const queriesType = {
+  s: `<tr><td><p>s</p>размер</td><td>Изменяет размер изображения на основе одного значения</td><tr>`,
+  wh: `<tr><td><p>wh</p>ширина/высота</td><td>Изменяет размер изображения на основе двух значений</td><tr>`,
+  r: `<tr><td><p>r</p>пост-размер</td><td>Изменяет размер изображения на основе одного значения после конвертаций</td><tr>`,
+  bg: `<tr><td><p>bg</p>фон</td><td>Если изображение имеет альфа канал, указывает цвет фона в формате HEX/HEXA (без знака #), или в формате RGBA (255,255,255,1)</td><tr>`,
+  fit: `<tr><td><p>fit</p>подгонка</td><td>Указание способна подгонки изображения (cover, contain, fill, inside)</td><tr>`,
+  to: `<tr><td><p>to</p>формат</td><td>Указание формата для конвертации (jpg, png, webp, aviff, gif, tiff)</td><tr>`,
+  q: `<tr><td><p>q</p>качество</td><td>Указание качества изображения (1-100) при конвертации в jpg, avif, webp, tiff</td><tr>`,
+  p: `<tr><td><p>p</p>отступы</td><td>Указание отступов содержимого изображения от его границ</td><tr>`,
+  pbg: `<tr><td><p>pbg</p>«рамка»</td><td>Указание цвета фона отступа в формате HEX/HEXA (без знака #), или в формате RGBA (255,255,255,1)</td><tr>`,
+  rotate: `<tr><td><p>rotate</p>поворот</td><td>Указание поворота изображения в градусах (&minus;360—360)</td><tr>`,
+  protate: `<tr><td><p>protate</p>пост-поворот</td><td>Указание поворота изображения в градусах (&minus;360—360) после предыдущих преобразований</td><tr>`,
+  rbg: `<tr><td><p>rbg</p>заливка поворота</td><td>Указание цвета фона заполнения при повороте изобраэения в формате HEX/HEXA (без знака #), или в формате RGBA (255,255,255,1)</td><tr>`,
+  water: `<tr><td><p>water</p>водяной знак</td><td>Название файла водяного знака</td><tr>`,
+  gamma: `<tr><td><p>gamma</p>гамма</td><td>Указание гаммы для изображения в двух целых или плавающих значениях через запятую (2.2,0.5 или 3,1)</td><tr>`,
+  brightness: `<tr><td><p>brightness</p>яркость</td><td>Указание яркости изображения в целом или плавающем значении</td><tr>`,
+  saturation: `<tr><td><p>saturate</p>насыщенность</td><td>Указание насыщенности изображения в целом или плавающем значении</td><tr>`,
+  hue: `<tr><td><p>hue</p>тон</td><td>Указание смещения тона изображения в градусах (&minus;360—360)</td><tr>`,
+  pos: `<tr><td><p>pos</p>положение</td><td>Положение водяного знака (n — по центру свреху, nw — по левому верхнему углу, ne — по правому верхнему углу, s — по центру снизу, sw — по левому нижнему углу, se — по правому нижнему углу)</td><tr>`,
+  ws: `<tr><td><p>ws</p>размер</td><td>Указание размера водяного знака на основе одного значения</td><tr>`,
+  wpost: `<tr><td><p>wpost</p>пост-знак</td><td>Указание должен ли знак устанавливаться на изображение после всех преобразований, если да — wpost=true</td><tr>`,
+};
+
+
+app.get('/:lang?/wiki/:fileGetter', async (request, response, next) => {
+  let result;
+  const { fileGetter } = request.params;
+  const decodedURL = decodeURIComponent(fileGetter);
+  console.log(decodedURL);
+  console.log(decodeURIComponent(request.url));
+  
+  if (!serverConfig.routes.validFilesQuery.test(decodedURL)) return next();
+  else {
+    if (!request.params.lang) {
+      if (decodedURL.startsWith('Файл')) response.redirect(`/ru${request.url}`);
+      else if (decodedURL.startsWith('File')) response.redirect(`/en${request.url}`);
+      else if (decodedURL.startsWith('ファイル')) response.redirect(`/ja${request.url}`);
+      else if (decodedURL.startsWith('文件')) response.redirect(`/zh${request.url}`);
+      else if (decodedURL.startsWith('파일')) response.redirect(`/kr${request.url}`);
+      else if (decodedURL.startsWith('Tệp')) response.redirect(`/vi${request.url}`);
+      return;
+    }
+  }
+
+  try {
+    const fileName = decodedURL.replace(serverConfig.routes.validFilesQuery, '').replace(/\?.*$/, '');
+    const fileArguments = request.url.includes('?') ? request.url.replace(/^[^?]*\?/, '?') : '';
+    const getFileExtension = path.extname(request.url.split('?')[0]);
+
+    if (serverConfig.allowedFileTypes.images.includes(getFileExtension)) {
+      const language = await request.headers['accept-language'].substring(0, 2);
+      request.params.imageFileName = fileName;
+
+      const previewPageImageHandler = await new ImageHandler()
+        .queryAssing(__PROJECT_DIR__, request, serverConfig.cache.enabled, true);
+      const previewPageImageResult = await previewPageImageHandler.getImage(sharedAssetsDB);
+
+      if (typeof previewPageImageResult === 'string') {
+        const error = new Error(previewPageImageResult.message);
+        error.status = 404;
+        throw error;
+      }
+
+
+      const queriesTable = `
+          <table>
+            <tr>
+                <th colspan="2">Аргументы запроса</th>
+            </tr>
+            ${Object.keys(queriesType).map(key => {
+        const tableRow = queriesType[key];
+        if (Object.keys(request.query).includes(key)) {
+          return tableRow.replace('<tr>', '<tr class="query-used">');
+        } else {
+          return tableRow;
+        }
+      }).join('')}
+          </table>
+        `;
+
+      const isCached = previewPageImageResult.cached ? 'Кэш' : 'Не кэшируется';
+      const metaInfo = previewPageImageResult.dataBaseInfo.FileInfo || null;
+      let metaResolution, metaFileSize, metaAccessTime, metaModifiedTime, metaCreateTime, metaSpace, metaHasAlpha, metaFormat, metaDensity, metaChannels;
+      if (metaInfo) {
+        metaResolution = `${metaInfo.width}x${metaInfo.height}` || null;
+        metaFileSize = metaInfo.size / 1024 / 1024 + ' МБ';
+        metaAccessTime = metaInfo.atime;
+        metaModifiedTime = metaInfo.mtime;
+        metaCreateTime = metaInfo.ctime;
+        metaSpace = metaInfo.space;
+        metaHasAlpha = metaInfo.hasAlpha || false;
+        metaFormat = metaInfo.format;
+        metaDensity = metaInfo.density;
+        metaChannels = metaInfo.channels;
+      }
+      const fileLoadedInfo = previewPageImageResult.fileInfo || null;
+      let fileResolution, fileSize, fileAccessTime, fileModifiedTime, fileCreateTime, fileSpace, fileHasAlpha, fileFormat, fileDensity, fileChannels;
+      if (fileLoadedInfo) {
+        fileResolution = `${fileLoadedInfo.width}x${fileLoadedInfo.height}` || null;
+        fileSize = fileLoadedInfo.size / 1024 / 1024 + ' МБ';
+        fileAccessTime = fileLoadedInfo.atime;
+        fileModifiedTime = fileLoadedInfo.mtime;
+        fileCreateTime = fileLoadedInfo.ctime;
+        fileSpace = fileLoadedInfo.space;
+        fileHasAlpha = fileLoadedInfo.hasAlpha || false;
+        fileFormat = fileLoadedInfo.format;
+        fileDensity = fileLoadedInfo.density;
+        fileChannels = fileLoadedInfo.channels;
+      }
+      const dbTitle = previewPageImageResult.dataBaseInfo.Title || '';
+      const dbFileName = previewPageImageResult.dataBaseInfo.FileName;
+      const dbFileType = locale[language].FileTypes[previewPageImageResult.dataBaseInfo.FileType];
+      const dbFileSource = request.params.imageFileName;
+      let dbFileLink = previewPageImageResult.dataBaseInfo.FileLink;
+      dbFileLink = !dbFileLink.startsWith('https://') ? `/${dbFileLink}` : dbFileLink;
+      result = `
+          <h1 style="display: flex; justify-content: space-between;"><span>${dbTitle}</span><span>${fileArguments ? 'Сгенерировано запросом' : ''}</span></h1>
+          <h2 style="display: flex; justify-content: space-between;"><span>${dbFileName}</span></h2>
+          <h3>${dbFileType}</h3>
+          ${fileArguments ? isCached : ''}<br>
+          ${fileArguments ? queriesTable : ''}
+          <br>
+          <a href="${dbFileLink}">${dbFileLink}</a>
+          <p>Старое разрешение: ${metaInfo && metaResolution} ${fileArguments && fileLoadedInfo && fileResolution ? `| Новое разрешение: ${fileResolution}` : ''}</p>
+          <a href="/shared/images/${dbFileSource}${fileArguments}" target="_blank"><img src="/shared/images/${dbFileSource}${fileArguments}" alt="${dbTitle}"></a>
+        `;
+
+    }
+
+    else if (dataExtensions.includes(getFileExtension)) {
+      if (getFileExtension === 'xml') {
+        try {
+          const row = await new Promise((resolve, reject) => {
+            sharedAssetsDB.get('SELECT * FROM sharedFiles WHERE FileName = ? AND FileType = ?', [fileName, 'XML'], (err, row) => {
+              if (err) reject(err);
+              else resolve(row);
+            });
+          });
+
+          if (!row) throw new Error(`${fileName} XML Not Found`);
+          result = `<pre>${row.FileEmbedded.toString()
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')}</pre>`;
+          console.log(result);
+        } catch (error) {
+          console.error(error);
+          throw error;
+        }
+      }
+    }
+    else { response.status(400).send('Invalid URL format'); return; }
+
+    response.send(result);
+  } catch (err) {
+    console.error('Error processing file:', err);
+    next(err);
+  }
+
+});
+
+app.get('/shared/images/:imageFileName', async (request, response, next) => {
+
+  try {
+    const requestImageHandler = await new ImageHandler()
+      .queryAssing(__PROJECT_DIR__, request, serverConfig.cache.enabled);
+    const requestImageResult = await requestImageHandler.getImage(sharedAssetsDB);
+
+    if (typeof requestImageResult === 'string') {
+      const error = new Error(requestImageResult.message);
+      error.status = 404;
+      throw error;
+    } else {
+      response.contentType(requestImageResult.mimeType);
+      response.send(requestImageResult.imageBuffer);
+
+    }
+  } catch (error) {
+    console.error('Error processing image:', error);
+    next(error);
+  }
+});
+
+
+app.get('/local/images/*', async (request, response, next) => {
+  try {
+    const localFilesImageHandler = await new ImageHandler()
+      .queryAssing(path.join(__PROJECT_DIR__, 'static/public/resource/images'), request, serverConfig.cache.enabled);
+    const localFilesImageResult = await localFilesImageHandler.getImage();
+
+    if (typeof localFilesImageResult === 'string') {
+      const error = new Error(localFilesImageResult.message);
+      error.status = 404;
+      throw error;
+    }
+    else
+      response.contentType(localFilesImageResult.mimeType);
+    response.send(localFilesImageResult.imageBuffer);
+  } catch (error) {
+    console.error('Error processing image:', error);
+    next(error);
+  }
+});
+
+app.post('/process-dom', (reqest, response) => {
+  const { window } = new JSDOM();
+  const $ = require('jquery')(window);
+
+  const { dom } = reqest.body;
+  $('#content').append('<p>Added by server</p>');
+  const processedDom = domInstance.window.document.documentElement.outerHTML;
+
+  response.json({ dom: processedDom });
+});
+
+app.post('/registration', (request, response) => {
+  try {
+    const messageSender = nodemailer.createTransport({
+
+    });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+
+
+
 app.get('/:lang?/wiki', async (request, response, next) => {
   console.log(request.urlLanguageRequest);
   try {
@@ -378,253 +644,12 @@ app.get('/:lang?/wiki/:page/:subPage?', async (request, response, next) => {
 });
 
 
-app.get('/shared/models/:3dModelName', async (request, response, next) => {
-  try {
-
-  } catch (error) {
-    console.error('Error processing image:', error);
-    next(error);
-  }
-});
-
-
-app.get('/shared/images/nocache/:imageFileName', async (request, response, next) => {
-  try {
-    const noCacheImageHandler = await new ImageHandler()
-      .queryAssing(__PROJECT_DIR__, request, enabledCache = false);
-    const noCacheImageResult = await noCacheImageHandler.getImage(sharedAssetsDB);
-
-    if (typeof noCacheImageResult === 'string') {
-      const error = new Error(noCacheImageResult.message);
-      error.status = 404;
-      throw error;
-    }
-    else
-      response.contentType(noCacheImageResult.mimeType);
-    response.send(noCacheImageResult.imageBuffer);
-  } catch (error) {
-    console.error('Error processing image:', error);
-    next(error);
-  }
-});
-
-const imageExtensions = ['jpg', 'jpeg', 'png', 'apng', 'gif', 'webp', 'ico', 'svg', 'avif', 'bmp', 'tga', 'dds', 'tiff', 'jfif'];
-const videoExtensions = ['mp4', 'mkv', 'webm', 'ogv', 'avi', 'mov', 'wmv', 'mpg', 'mpeg', 'm4v', '3gp', '3g2', 'mng', 'asf', 'asx', 'mxf', 'ts', 'flv', 'f4v', 'f4p', 'f4a', 'f4b'];
-const fontExtensions = ['ttf', 'otf', 'woff', 'woff2'];
-const docExtensions = ['pdf', 'doc', 'docx', 'odt', 'rtf', 'txt', 'csv', 'xls', 'xlsx', 'ppt', 'pptx'];
-const dataExtensions = ['xml', 'html', 'xhtml', 'yaml', 'yml', 'json', 'ejs', 'pug', 'jade', 'csv'];
 
 
 
-const queriesType = {
-  s: `<tr><td><p>s</p>размер</td><td>Изменяет размер изображения на основе одного значения</td><tr>`,
-  wh: `<tr><td><p>wh</p>ширина/высота</td><td>Изменяет размер изображения на основе двух значений</td><tr>`,
-  r: `<tr><td><p>r</p>пост-размер</td><td>Изменяет размер изображения на основе одного значения после конвертаций</td><tr>`,
-  bg: `<tr><td><p>bg</p>фон</td><td>Если изображение имеет альфа канал, указывает цвет фона в формате HEX/HEXA (без знака #), или в формате RGBA (255,255,255,1)</td><tr>`,
-  fit: `<tr><td><p>fit</p>подгонка</td><td>Указание способна подгонки изображения (cover, contain, fill, inside)</td><tr>`,
-  to: `<tr><td><p>to</p>формат</td><td>Указание формата для конвертации (jpg, png, webp, aviff, gif, tiff)</td><tr>`,
-  q: `<tr><td><p>q</p>качество</td><td>Указание качества изображения (1-100) при конвертации в jpg, avif, webp, tiff</td><tr>`,
-  p: `<tr><td><p>p</p>отступы</td><td>Указание отступов содержимого изображения от его границ</td><tr>`,
-  pbg: `<tr><td><p>pbg</p>«рамка»</td><td>Указание цвета фона отступа в формате HEX/HEXA (без знака #), или в формате RGBA (255,255,255,1)</td><tr>`,
-  rotate: `<tr><td><p>rotate</p>поворот</td><td>Указание поворота изображения в градусах (&minus;360—360)</td><tr>`,
-  protate: `<tr><td><p>protate</p>пост-поворот</td><td>Указание поворота изображения в градусах (&minus;360—360) после предыдущих преобразований</td><tr>`,
-  rbg: `<tr><td><p>rbg</p>заливка поворота</td><td>Указание цвета фона заполнения при повороте изобраэения в формате HEX/HEXA (без знака #), или в формате RGBA (255,255,255,1)</td><tr>`,
-  water: `<tr><td><p>water</p>водяной знак</td><td>Название файла водяного знака</td><tr>`,
-  gamma: `<tr><td><p>gamma</p>гамма</td><td>Указание гаммы для изображения в двух целых или плавающих значениях через запятую (2.2,0.5 или 3,1)</td><tr>`,
-  brightness: `<tr><td><p>brightness</p>яркость</td><td>Указание яркости изображения в целом или плавающем значении</td><tr>`,
-  saturation: `<tr><td><p>saturate</p>насыщенность</td><td>Указание насыщенности изображения в целом или плавающем значении</td><tr>`,
-  hue: `<tr><td><p>hue</p>тон</td><td>Указание смещения тона изображения в градусах (&minus;360—360)</td><tr>`,
-  pos: `<tr><td><p>pos</p>положение</td><td>Положение водяного знака (n — по центру свреху, nw — по левому верхнему углу, ne — по правому верхнему углу, s — по центру снизу, sw — по левому нижнему углу, se — по правому нижнему углу)</td><tr>`,
-  ws: `<tr><td><p>ws</p>размер</td><td>Указание размера водяного знака на основе одного значения</td><tr>`,
-  wpost: `<tr><td><p>wpost</p>пост-знак</td><td>Указание должен ли знак устанавливаться на изображение после всех преобразований, если да — wpost=true</td><tr>`,
-};
-app.get(/^\/([A-Za-zа-яА-Я0-9_%]+):/, async (request, response, next) => {
-  const decodedUrl = decodeURIComponent(request.url);
-  let result;
-  try {
-
-    if (/^\/(File|Файл):/.test(decodedUrl)) {
-      const FileName = decodedUrl.replace(/^\/(File|Файл):/, '').replace(/\?.*$/, '');
-      const Arguments = request.url.includes('?') ? request.url.replace(/^[^?]*\?/, '?') : '';
-      const getExtension = path.extname(request.url.split('?')[0]);
-
-      if (serverConfig.allowedFileTypes.images.includes(getExtension)) {
-        const language = await request.headers['accept-language'].substring(0, 2);
-        request.params.imageFileName = FileName;
-
-        const previewPageImageHandler = await new ImageHandler()
-          .queryAssing(__PROJECT_DIR__, request, serverConfig.cache.enabled, true);
-        const previewPageImageResult = await previewPageImageHandler.getImage(sharedAssetsDB);
-
-        if (typeof previewPageImageResult === 'string') {
-          const error = new Error(previewPageImageResult.message);
-          error.status = 404;
-          throw error;
-        }
 
 
-        const queriesTable = `
-          <table>
-            <tr>
-                <th colspan="2">Аргументы запроса</th>
-            </tr>
-            ${Object.keys(queriesType).map(key => {
-          const tableRow = queriesType[key];
-          if (Object.keys(request.query).includes(key)) {
-            return tableRow.replace('<tr>', '<tr class="query-used">');
-          } else {
-            return tableRow;
-          }
-        }).join('')}
-          </table>
-        `;
-        //console.log(handledResult);
 
-        const isCached = previewPageImageResult.cached ? 'Кэш' : 'Не кэшируется';
-        const metaInfo = previewPageImageResult.dataBaseInfo.FileInfo || null;
-        let metaResolution, metaFileSize, metaAccessTime, metaModifiedTime, metaCreateTime, metaSpace, metaHasAlpha, metaFormat, metaDensity, metaChannels;
-        if (metaInfo) {
-          metaResolution = `${metaInfo.width}x${metaInfo.height}` || null;
-          metaFileSize = metaInfo.size / 1024 / 1024 + ' МБ';
-          metaAccessTime = metaInfo.atime;
-          metaModifiedTime = metaInfo.mtime;
-          metaCreateTime = metaInfo.ctime;
-          metaSpace = metaInfo.space;
-          metaHasAlpha = metaInfo.hasAlpha || false;
-          metaFormat = metaInfo.format;
-          metaDensity = metaInfo.density;
-          metaChannels = metaInfo.channels;
-        }
-        const fileLoadedInfo = previewPageImageResult.fileInfo || null;
-        let fileResolution, fileSize, fileAccessTime, fileModifiedTime, fileCreateTime, fileSpace, fileHasAlpha, fileFormat, fileDensity, fileChannels;
-        if (fileLoadedInfo) {
-          fileResolution = `${fileLoadedInfo.width}x${fileLoadedInfo.height}` || null;
-          fileSize = fileLoadedInfo.size / 1024 / 1024 + ' МБ';
-          fileAccessTime = fileLoadedInfo.atime;
-          fileModifiedTime = fileLoadedInfo.mtime;
-          fileCreateTime = fileLoadedInfo.ctime;
-          fileSpace = fileLoadedInfo.space;
-          fileHasAlpha = fileLoadedInfo.hasAlpha || false;
-          fileFormat = fileLoadedInfo.format;
-          fileDensity = fileLoadedInfo.density;
-          fileChannels = fileLoadedInfo.channels;
-        }
-        const dbTitle = previewPageImageResult.dataBaseInfo.Title || '';
-        const dbFileName = previewPageImageResult.dataBaseInfo.FileName;
-        const dbFileType = locale[language].FileTypes[previewPageImageResult.dataBaseInfo.FileType];
-        const dbFileSource = request.params.imageFileName;
-        let dbFileLink = previewPageImageResult.dataBaseInfo.FileLink;
-        dbFileLink = !dbFileLink.startsWith('https://') ? `/${dbFileLink}` : dbFileLink;
-        result = `
-          <h1 style="display: flex; justify-content: space-between;"><span>${dbTitle}</span><span>${Arguments ? 'Сгенерировано запросом' : ''}</span></h1>
-          <h2 style="display: flex; justify-content: space-between;"><span>${dbFileName}</span></h2>
-          <h3>${dbFileType}</h3>
-          ${Arguments ? isCached : ''}<br>
-          ${Arguments ? queriesTable : ''}
-          <br>
-          <a href="${dbFileLink}">${dbFileLink}</a>
-          <p>Старое разрешение: ${metaInfo && metaResolution} ${Arguments && fileLoadedInfo && fileResolution ? `| Новое разрешение: ${fileResolution}` : ''}</p>
-          <a href="/shared/images/${dbFileSource}${Arguments}" target="_blank"><img src="/shared/images/${dbFileSource}${Arguments}" alt="${dbTitle}"></a>
-        `;
-
-      }
-
-      else if (dataExtensions.includes(getExtension)) {
-        if (getExtension === 'xml') {
-          try {
-            const row = await new Promise((resolve, reject) => {
-              sharedAssetsDB.get('SELECT * FROM sharedFiles WHERE FileName = ? AND FileType = ?', [FileName, 'XML'], (err, row) => {
-                if (err) reject(err);
-                else resolve(row);
-              });
-            });
-
-            if (!row) throw new Error(`${FileName} XML Not Found`);
-            result = `<pre>${row.FileEmbedded.toString()
-              .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;')}</pre>`;
-            console.log(result);
-          } catch (error) {
-            console.error(error);
-            throw error;
-          }
-        }
-      }
-    }
-    else { response.status(400).send('Invalid URL format'); return; }
-
-    response.send(result);
-  } catch (error) {
-    console.error('Error processing file:', error);
-    next(error);
-  }
-});
-
-
-app.get('/shared/images/:imageFileName', async (request, response, next) => {
-
-  try {
-    const requestImageHandler = await new ImageHandler()
-      .queryAssing(__PROJECT_DIR__, request, serverConfig.cache.enabled);
-    const requestImageResult = await requestImageHandler.getImage(sharedAssetsDB);
-
-    if (typeof requestImageResult === 'string') {
-      const error = new Error(requestImageResult.message);
-      error.status = 404;
-      throw error;
-    } else {
-      response.contentType(requestImageResult.mimeType);
-      response.send(requestImageResult.imageBuffer);
-
-    }
-  } catch (error) {
-    console.error('Error processing image:', error);
-    next(error);
-  }
-});
-
-
-app.get('/local/images/*', async (request, response, next) => {
-  try {
-    const localFilesImageHandler = await new ImageHandler()
-      .queryAssing(path.join(__PROJECT_DIR__, 'static/public/resource/images'), request, serverConfig.cache.enabled);
-    const localFilesImageResult = await localFilesImageHandler.getImage();
-
-    if (typeof localFilesImageResult === 'string') {
-      const error = new Error(localFilesImageResult.message);
-      error.status = 404;
-      throw error;
-    }
-    else
-      response.contentType(localFilesImageResult.mimeType);
-    response.send(localFilesImageResult.imageBuffer);
-  } catch (error) {
-    console.error('Error processing image:', error);
-    next(error);
-  }
-});
-
-app.post('/process-dom', (reqest, response) => {
-  const { window } = new JSDOM();
-  const $ = require('jquery')(window);
-
-  const { dom } = reqest.body;
-  $('#content').append('<p>Added by server</p>');
-  const processedDom = domInstance.window.document.documentElement.outerHTML;
-
-  response.json({ dom: processedDom });
-});
-
-app.post('/registration', (request, response) => {
-  try {
-    const messageSender = nodemailer.createTransport({
-
-    });
-  } catch (error) {
-    console.error(error);
-    next(error);
-  }
-});
 
 app.use((req, res, next) => {
   const err = new Error('Not Found');
