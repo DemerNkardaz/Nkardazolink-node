@@ -1,4 +1,6 @@
 @import '../roots/colors.scss';
+@import '../roots/lib-jp-colors.scss';
+@import '../roots/lib-zh-colors.scss';
 
 .nw-root-container {
   position: relative;
@@ -173,11 +175,19 @@
     object-fit: contain;
   }
 
-  &--fave {
-    background: $color-gold-pale;
+  &[class*="nw-badge--fave"] {
     justify-content: flex-start;
     width: 50px;
     padding-inline-start: 3px;
     clip-path: polygon(0px 0px, 100% 0px, 70% 50%, 100% 100%, 0px 100%);
+  }
+
+  &--fave {
+    background: $color-jp-usumoegi;
+    
+    &-max {background: $color-gold-pale;}
+    &-special {background: $color-jp-fujimurasaki;}
+    &-high {background: $color-kamon-red;}
+    &-med {background: $color-jp-sora-iro;}
   }
 }

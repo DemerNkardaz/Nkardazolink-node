@@ -10,14 +10,22 @@
       в: <a href="#">Нагаока (Род)</a>, <a href="#">Личности Ōйнадзумы</a>, <a href="#">Пять регентов Инадзума-но Иватомо</a>
     </section>
     <section class="nw-article-header__title">
+
       <section class="nw-article-header__badges">
+        <%- include('./routines/badge.ejs', { requestedBadge: 'fave-max' }) %>
+        <%- include('./routines/badge.ejs', { requestedBadge: 'fave-special' }) %>
+        <%- include('./routines/badge.ejs', { requestedBadge: 'fave-high' }) %>
+        <%- include('./routines/badge.ejs', { requestedBadge: 'fave-med' }) %>
         <%- include('./routines/badge.ejs', { requestedBadge: 'fave' }) %>
       </section>
+
       <h1 id="article-header">Нагаока Хэйидзи Ёсинобу</h1>
+
       <div class="nw-article-header__actions">
         <a href="#comments" class="material-symbols-linear btn btn-header-action" type="button" aria-label="Edit article" data-icon="mode_comment">mode_comment</a>
         <div class="material-symbols-linear btn btn-header-action" type="button" aria-label="Edit article" data-icon="more_vert">more_vert</div>
       </div>
+
     </section>
 
     <blockquote class="nw-quote">

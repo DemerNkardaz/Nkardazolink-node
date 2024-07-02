@@ -2,7 +2,7 @@
   let badgeType, badgeAlt;
   let badgeLink = '/images/svg/'
 
-  if (requestedBadge === 'fave') badgeLink = `${badgeLink}fave.svg`;
+  if (requestedBadge.startsWith('fave')) badgeLink = `${badgeLink}fave.svg`;
   else badgeLink = `${badgeLink}favicon.svg`;
 
 %>

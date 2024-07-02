@@ -1,0 +1,10 @@
+
+<root>
+  <let var='text' val='Default text'/>
+  <let var='kanji'/>
+  <let var='additional'/>
+
+  <template>
+    <use var='text'/> (<a href="https://en.wikipedia.org/wiki/Japanese_language" target="_blank">Japanese:</a> <span lang="ja" class="nw-font-ja"><use var='kanji'/></span><use var='additional' insertAfter=", "/>)
+  </template>
+</root>

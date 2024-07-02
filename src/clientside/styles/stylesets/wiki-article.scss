@@ -78,6 +78,7 @@
     }
     &__badges {
       display: flex;
+      gap: 5px;
       grid-row: 1;
       grid-column: 1 / span 2;
     }
