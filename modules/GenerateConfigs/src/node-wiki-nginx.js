@@ -245,6 +245,8 @@ http {
       proxy_http_version 1.1;
       limit_req zone=mylimit burst=${serverConfig.NGINX.limits.requestsBurst} delay=${serverConfig.NGINX.limits.requestsDelay};
 
+      proxy_set_header Nginx-Active "true";
+
       proxy_set_header Upgrade $http_upgrade;
       proxy_set_header Connection 'upgrade';
       proxy_set_header Host $host;
@@ -254,15 +256,7 @@ http {
       proxy_set_header detected-user-device $detected_device;
       proxy_set_header user-ip-address $remote_addr;
 
-      add_header X-Content-Type-Options 'nosniff';
       add_header X-Request-Detected-Device $detected_device;
-      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
-      add_header X-Frame-Options "DENY";
-      add_header X-XSS-Protection "1; mode=block";
-      add_header Referrer-Policy "no-referrer-when-downgrade";
-      add_header Project-name '${serverConfig.server.wiki.project}';
-      add_header Project-type '${serverConfig.server.wiki.type} ${serverConfig.server.wiki.version}';
-      add_header Project-core '${serverConfig.server.wiki.core}';
       add_header Project-proxy 'Nginx $nginx_version';
       add_header X-Request-ID $request_id;
       add_header X-Request-Time $request_time;

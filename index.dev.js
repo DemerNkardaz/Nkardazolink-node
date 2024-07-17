@@ -28,7 +28,9 @@ app.use(useragent.express());
 app.use(express.json());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__PROJECT_DIR__, 'app'));
-app.set('trust proxy', 1) // trust first proxy
+app.set('trust proxy', 1);
+
+app.use(setResponseHeaders);
 
 /*
 const knexDB = knex({
@@ -182,12 +184,6 @@ chokidar.watch('src/**/*.{ejs,scss}', {
 
 
 
-
-
-app.use((request, response, next) => {
-  response.setHeader('Content-Type', 'text/html; charset=utf-8');
-  next();
-});
 
 //setInterval(() => console.log(Object.keys(serverConfig.locales)), 5000);
 

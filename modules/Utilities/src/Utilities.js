@@ -192,7 +192,26 @@ const parseSize = (sizeString) => {
 const space2underline = (str) => str.replace(/\s/g, '_');
 const underline2space = (str) => str.replace(/\_/g, ' ');
 
+
+function setResponseHeaders(req, res, next) {
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'no-referrer-when-downgrade');
+  res.setHeader('Project-name', serverConfig.server.wiki.project);
+  res.setHeader('Project-core', `${serverConfig.server.wiki.core} ${serverConfig.server.wiki.version}`);
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+
+  if (!req.headers['nginx-active']) {
+    res.setHeader('Project-proxy', 'Disabled');
+  }
+
+  next();
+}
+
+
 module.exports = {
   mergeObjects, varToYaml, getLastModifiedInFolders, parseUrl, urlSpaceToUnderscore, liveSassCompiler, parseToInterval,
-  parseToDays, parseSize, space2underline, underline2space
+  parseToDays, parseSize, space2underline, underline2space, setResponseHeaders
 };
