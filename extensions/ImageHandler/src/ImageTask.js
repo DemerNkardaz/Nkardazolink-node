@@ -1,7 +1,7 @@
-const { parentPort } = require('worker_threads');
 const path = require('path');
-const { ImageHandler } = require('./ImageHandler');
 const sqlite3 = require("sqlite3").verbose();
+const { parentPort } = require('worker_threads');
+const { ImageHandler } = require('./ImageHandler');
 
 
 parentPort.on('message', async (data) => {
@@ -9,24 +9,16 @@ parentPort.on('message', async (data) => {
     global.__PROJECT_DIR__ = data.__PROJECT_DIR__;
     global.serverConfig = data.serverConfig;
 
-    if (data.localFile === true) {
-      const localFilesImageHandler = await new ImageHandler()
-      .queryAssing(path.join(__PROJECT_DIR__, 'static/public/resource/images'), data.workerRequest, serverConfig.cache.enabled);
-      const localFilesImageResult = await localFilesImageHandler.getImage();
+    const sharedAssetsDB = data.localFile !== true
+      ? new sqlite3.Database(path.join(__PROJECT_DIR__, 'static/data_base/sharedAssets.db')) : null;
+    const imageRootPath = data.localFile !== true ? __PROJECT_DIR__ : path.join(__PROJECT_DIR__, 'static/public/resource/images');
 
-      if (typeof localFilesImageResult === 'string') parentPort.postMessage({ error: localFilesImageResult });
-      else parentPort.postMessage({ mimeType: localFilesImageResult.mimeType, imageBuffer: localFilesImageResult.imageBuffer });
+    const requestedImageHandler = await new ImageHandler()
+      .queryAssing(imageRootPath, data.workerRequest, serverConfig.cache.enabled);
+    const requestedImageResult = await requestedImageHandler.getImage(sharedAssetsDB);
 
-    } else {
-      const sharedAssetsDB = new sqlite3.Database(path.join(__PROJECT_DIR__, 'static/data_base/sharedAssets.db'));
-
-      const requestImageHandler = await new ImageHandler()
-        .queryAssing(__PROJECT_DIR__, data.workerRequest, serverConfig.cache.enabled);
-      const requestImageResult = await requestImageHandler.getImage(sharedAssetsDB);
-
-      if (typeof requestImageResult === 'string') parentPort.postMessage({ error: requestImageResult });
-      else parentPort.postMessage({ mimeType: requestImageResult.mimeType, imageBuffer: requestImageResult.imageBuffer });
-    }
+    if (typeof requestedImageResult === 'string') parentPort.postMessage({ error: requestedImageResult });
+    else parentPort.postMessage({ mimeType: requestedImageResult.mimeType, imageBuffer: requestedImageResult.imageBuffer });
   } catch (error) {
     parentPort.postMessage({ error: error.message });
     console.log(error);
