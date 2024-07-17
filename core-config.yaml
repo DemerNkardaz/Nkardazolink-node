@@ -22,6 +22,7 @@ IndexDependencies:
   - express-useragent: 'useragent'
   - socket.io: 'socketIO'
   - url: '{ URL }'
+  - worker_threads: '{ Worker }'
   - xmlbuilder: 'xmlbuilder'
   - stream: '{ Readable }'
   - cookie-parser: 'cookieParser'

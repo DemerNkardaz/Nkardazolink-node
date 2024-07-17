@@ -1,5 +1,6 @@
-const fs = require('fs');
 const path = require('path');
+const root = path.join(__dirname, '..', '..', '..');
+const fs = require('fs');
 const yaml = require('js-yaml');
 
 class DataExtend {

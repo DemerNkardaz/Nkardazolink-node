@@ -1,5 +1,6 @@
-const sharp = require('sharp');
 const path = require('path');
+const root = path.join(__dirname, '..', '..', '..');
+const sharp = require('sharp');
 const fsPromises = require('fs').promises;
 const fs = require('fs');
 const mime = require('mime-types');
@@ -7,6 +8,8 @@ const crypto = require('crypto');
 const axios = require('axios');
 const chroma = require('chroma-js');
 const { DOMParser, XMLSerializer } = require('xmldom');
+const { imageRouter } = require('./ImageRoute');
+const { mergeObjects } = require(path.join(root, 'modules/Utilities/Utilities'));
 
 class ImageCacheCleaner {
   constructor() {
@@ -58,6 +61,7 @@ class ImageCacheCleaner {
 class ImageHandler {
   #handlerQuery = { cacheDirectory: path.join(__PROJECT_DIR__, 'cache/images') };
   #localisedFileQuery = /^(File|Файл|ファイル|文件|파일|Tệp)(:|：)/i;
+
 
   constructor() {
     !fs.existsSync('./cache/images') && fs.mkdirSync('./cache/images', { recursive: true });
@@ -664,4 +668,4 @@ class ImageHandler {
 }
 
 
-module.exports = { ImageHandler, ImageCacheCleaner };
+module.exports = { ImageHandler, ImageCacheCleaner, imageRouter };

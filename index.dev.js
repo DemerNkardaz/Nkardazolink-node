@@ -459,48 +459,7 @@ app.get('/:lang?/wiki/:fileGetter', async (request, response, next) => {
 
 });
 
-app.get('/shared/images/:imageFileName', async (request, response, next) => {
-
-  try {
-    const requestImageHandler = await new ImageHandler()
-      .queryAssing(__PROJECT_DIR__, request, serverConfig.cache.enabled);
-    const requestImageResult = await requestImageHandler.getImage(sharedAssetsDB);
-
-    if (typeof requestImageResult === 'string') {
-      const error = new Error(requestImageResult.message);
-      error.status = 404;
-      throw error;
-    } else {
-      response.contentType(requestImageResult.mimeType);
-      response.send(requestImageResult.imageBuffer);
-
-    }
-  } catch (error) {
-    console.error('Error processing image:', error);
-    next(error);
-  }
-});
-
-
-app.get('/local/images/*', async (request, response, next) => {
-  try {
-    const localFilesImageHandler = await new ImageHandler()
-      .queryAssing(path.join(__PROJECT_DIR__, 'static/public/resource/images'), request, serverConfig.cache.enabled);
-    const localFilesImageResult = await localFilesImageHandler.getImage();
-
-    if (typeof localFilesImageResult === 'string') {
-      const error = new Error(localFilesImageResult.message);
-      error.status = 404;
-      throw error;
-    }
-    else
-      response.contentType(localFilesImageResult.mimeType);
-    response.send(localFilesImageResult.imageBuffer);
-  } catch (error) {
-    console.error('Error processing image:', error);
-    next(error);
-  }
-});
+app.use(imageRouter);
 
 app.post('/process-dom', (reqest, response) => {
   const { window } = new JSDOM();

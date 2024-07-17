@@ -1,16 +1,20 @@
+const path = require('path');
+const root = path.join(__dirname, '..', '..', '..');
 const fs = require('fs');
 const yaml = require('js-yaml');
-const path = require('path');
 const chokidar = require('chokidar');
+
 const config = (file) => {
   let methods = {};
   const projectDirectory = path.join(__dirname, '..', '..', '..');
   const configPath = path.join(projectDirectory, `${file || 'core-config'}.yaml`);
   let configFile = null;
   let previousInit = [];
+  
   methods.reloadConfigFile = () => {
     return yaml.load(fs.readFileSync(configPath, 'utf8'));
   }
+
   methods.handle = async (dependency, isNotRequire) => {
     let key = Object.keys(dependency)[0];
     let value = dependency[key];
