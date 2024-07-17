@@ -61,6 +61,40 @@ class ImageCacheCleaner {
 class ImageHandler {
   #handlerQuery = { cacheDirectory: path.join(__PROJECT_DIR__, 'cache/images') };
   #localisedFileQuery = /^(File|Файл|ファイル|文件|파일|Tệp)(:|：)/i;
+  #allowedColorSpaces = ['rgb', 'srgb', 'adobergb', 'cmyk', 'xyz', 'lab', 'labs', 'labq', 'lch', 'cmc', 'b-w', 'hsv', 'scrgb', 'rgb16', 'grey16', 'yxy'];
+  #iccProfiles = [
+    ['sRGB IEC61966-2.1', 'sRGB Color Space Profile.icm'],
+    ['ProPhoto RGB', 'ProPhoto.icm'],
+    ['CIE RGB', 'CIERGB.icc'],
+    ['Adobe RGB (1998)', 'AdobeRGB1998.icc'],
+    ['Apple RGB', 'AppleRGB.icc'],
+    ['ColorMatch RGB', 'ColorMatchRGB.icc'],
+    ['Wide Gamut RGB', 'WideGamutRGB.icc'],
+
+    ['PAL/SECAM', 'PAL_SECAM.icc'],
+    ['SMPTE-C', 'SMPTE-C.icc'],
+    
+    ['Coated FOGRA27 (ISO 12647-2:2004)', 'CoatedFOGRA27.icc'],
+    ['Coated FOGRA39 (ISO 12647-2:2004)', 'CoatedFOGRA39.icc'],
+    ['Coated GRACoL 2006 (ISO 12647-2:2004)', 'CoatedGRACoL2006.icc'],
+    ['Japan Color 2001 Coated', 'JapanColor2001Coated.icc'],
+    ['Japan Color 2001 Uncoated', 'JapanColor2001Uncoated.icc'],
+    ['Japan Color 2002 Newspaper', 'JapanColor2002Newspaper.icc'],
+    ['Japan Color 2003 Web Coated', 'JapanColor2003WebCoated.icc'],
+    ['Japan Web Coated (Ad)', 'JapanWebCoated.icc'],
+    ['US Web Coated (SWOP) v2', 'USWebCoatedSWOP.icc'],
+    ['US Web Uncoated v2', 'USWebUncoated.icc'],
+    ['Uncoated FOGRA29 (ISO 12647-2:2004)', 'UncoatedFOGRA29.icc'],
+    ['Web Coated FOGRA28 (ISO 12647-2:2004)', 'WebCoatedFOGRA28.icc'],
+    ['Web Coated SWOP Grade 3 Paper', 'WebCoatedSWOP2006Grade3.icc'],
+    ['Web Coated SWOP Grade 5 Paper', 'WebCoatedSWOP2006Grade5.icc'],
+    ['CMYK (Generic)', 'CMYKGeneric.icc'],
+    ['Euroscale Coated', 'EuroscaleCoated.icc'],
+    ['Euroscale Uncoated', 'EuroscaleUncoated.icc'],
+    ['RSWOP', 'RSWOP.icm'],
+
+    ['BW', 'BlackWhite.icc'],
+  ];
 
 
   constructor() {
@@ -107,6 +141,8 @@ class ImageHandler {
     this.#handlerQuery.imageRatioFit = request.query.ratioFit || null;
     this.#handlerQuery.imageRatioShift = request.query.ratioShift || null;
     this.#handlerQuery.imageBorderRadius = request.query.br || null;
+    this.#handlerQuery.imageColorSpace = request.query.colorSpace || null;
+    this.#handlerQuery.imageICCProfile = request.query.icc || null;
 
     if (this.#handlerQuery.imageBackgroundColor) {
       const [r, g, b, alpha] = chroma(this.#handlerQuery.imageBackgroundColor).rgba();
@@ -274,6 +310,9 @@ class ImageHandler {
           imageBuffer = await sharp(imageBuffer).rotate(this.#handlerQuery.imageRotate, { background: this.#handlerQuery.imageRotateBackgroundColor || { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
         }
 
+        if (this.#handlerQuery.imageColorSpace || this.#handlerQuery.imageICCProfile)
+          imageBuffer = await this.#switchColorProfile(imageBuffer);
+
         if (this.#handlerQuery.imageGamma || this.#handlerQuery.imageBrightness || this.#handlerQuery.imageSaturation || this.#handlerQuery.imageHUE) {
           const options = {};
           if (this.#handlerQuery.imageBrightness) options.brightness = this.#handlerQuery.imageBrightness;
@@ -338,6 +377,23 @@ class ImageHandler {
       }
     } catch (error) {
       return `Error: ${error.message}`;
+    }
+  }
+
+  async #switchColorProfile(imageBuffer) {
+    let processingImage = sharp(imageBuffer);
+    console.log(this.#handlerQuery.imageICCProfile);
+    try {
+      if (this.#allowedColorSpaces.includes(this.#handlerQuery.imageColorSpace))
+        processingImage = processingImage.toColorspace(this.#handlerQuery.imageColorSpace);
+
+      let iccProfile = this.#iccProfiles.find(profile => profile.includes(this.#handlerQuery.imageICCProfile));
+      if (iccProfile) processingImage = processingImage.withMetadata({ icc: iccProfile[1] });
+
+    } catch (err) {
+      console.log('Error processing image:', err);
+    } finally {
+      return await processingImage.toBuffer();
     }
   }
 
@@ -484,7 +540,7 @@ class ImageHandler {
         break;
       case 'jpeg':
       case 'jpg':
-        convertedImageBuffer = await sharp(imageBuffer).jpeg({ quality: this.#handlerQuery.convertQuality || 75 }).toBuffer();
+        convertedImageBuffer = await sharp(imageBuffer).jpeg({ quality: this.#handlerQuery.convertQuality || 75, mozjpeg: true }).toBuffer();
         mimeType = 'image/jpeg';
         break;
       case 'tiff':
