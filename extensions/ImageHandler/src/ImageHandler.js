@@ -73,7 +73,7 @@ class ImageHandler {
 
     ['PAL/SECAM', 'PAL_SECAM.icc'],
     ['SMPTE-C', 'SMPTE-C.icc'],
-    
+
     ['Coated FOGRA27 (ISO 12647-2:2004)', 'CoatedFOGRA27.icc'],
     ['Coated FOGRA39 (ISO 12647-2:2004)', 'CoatedFOGRA39.icc'],
     ['Coated GRACoL 2006 (ISO 12647-2:2004)', 'CoatedGRACoL2006.icc'],
@@ -118,6 +118,7 @@ class ImageHandler {
     this.#handlerQuery.imageFit = request.query.fit || null;
     this.#handlerQuery.convetToFromat = request.query.to || null;
     this.#handlerQuery.convertQuality = request.query.q ? parseInt(request.query.q) : null;
+    this.#handlerQuery.convertAlphaQuality = request.query.aQ ? parseInt(request.query.aQ) : null;
     this.#handlerQuery.imagePaddingPercent = request.query.p ? parseFloat(request.query.p) : 0;
     this.#handlerQuery.imageSizeAfterProcessing = request.query.r ? parseInt(request.query.r) : 0;
     this.#handlerQuery.imageBackgroundColor = request.query.bg || null;
@@ -143,6 +144,24 @@ class ImageHandler {
     this.#handlerQuery.imageBorderRadius = request.query.br || null;
     this.#handlerQuery.imageColorSpace = request.query.colorSpace || null;
     this.#handlerQuery.imageICCProfile = request.query.icc || null;
+
+    this.#handlerQuery.zlibCompression = parseInt(request.query.zlib) || null;
+    this.#handlerQuery.progressive = request.query.progressive ? (request.query.progressive === 'true' ? true : false) : null;
+    this.#handlerQuery.dither = parseFloat(request.query.dither) || null;
+    this.#handlerQuery.colors = parseInt(request.query.colors) || null;
+    this.#handlerQuery.effort = parseInt(request.query.effort) || null;
+    this.#handlerQuery.pngPalette = request.query.pngPalette ? (request.query.pngPalette === 'true' ? true : false) : null;
+
+    this.#handlerQuery.mozjpeg = request.query.mozjpeg ? (request.query.mozjpeg === 'true' ? true : false) : null;
+    this.#handlerQuery.chromaSubsampling = request.query.chromaSubsampling || null;
+
+    this.#handlerQuery.lossless = request.query.lossless ? (request.query.lossless === 'true' ? true : false) : null;
+    this.#handlerQuery.nearLossless = request.query.nearLossless ? (request.query.nearLossless === 'true' ? true : false) : null;
+    this.#handlerQuery.smartSubsample = request.query.smartSubsample ? (request.query.smartSubsample === 'true' ? true : false) : null;
+    this.#handlerQuery.preset = request.query.preset || null;
+
+    this.#handlerQuery.bitdepth = parseInt(this.#handlerQuery.bitdepth) || null;
+
 
     if (this.#handlerQuery.imageBackgroundColor) {
       const [r, g, b, alpha] = chroma(this.#handlerQuery.imageBackgroundColor).rgba();
@@ -523,24 +542,56 @@ class ImageHandler {
 
     switch (this.#handlerQuery.convetToFromat.toLowerCase()) {
       case 'webp':
-        convertedImageBuffer = await sharp(imageBuffer).webp({ quality: this.#handlerQuery.convertQuality || 75 }).toBuffer();
+        convertedImageBuffer = await sharp(imageBuffer).webp({
+          quality: this.#handlerQuery.convertQuality || 75,
+          alphaQuality: this.#handlerQuery.convertAlphaQuality || 100,
+          effort: this.#handlerQuery.effort || 4,
+          lossless: this.#handlerQuery.lossless || false,
+          nearLossless: this.#handlerQuery.nearLossless || false,
+          smartSubsample: this.#handlerQuery.smartSubsample || false,
+          preset: this.#handlerQuery.preset || 'default',
+        }).toBuffer();
         mimeType = 'image/webp';
         break;
       case 'avif':
-        convertedImageBuffer = await sharp(imageBuffer).avif({ quality: this.#handlerQuery.convertQuality || 75, chromaSubsampling: '4:2:0' }).toBuffer();
+        convertedImageBuffer = await sharp(imageBuffer).avif({
+          quality: this.#handlerQuery.convertQuality || 75,
+          lossless: this.#handlerQuery.lossless || false,
+          effort: this.#handlerQuery.effort || 4,
+          chromaSubsampling: this.#handlerQuery.chromaSubsampling || '4:4:4',
+          bitdepth: this.#handlerQuery.bitdepth || 8
+        }).toBuffer();
         mimeType = 'image/avif';
         break;
       case 'gif':
-        convertedImageBuffer = await sharp(imageBuffer).gif().toBuffer();
+        convertedImageBuffer = await sharp(imageBuffer).gif({
+          dither: this.#handlerQuery.dither || 1.0,
+          colors: this.#handlerQuery.colors || 256,
+          effort: this.#handlerQuery.effort || 7,
+          progressive: this.#handlerQuery.progressive || false
+        }).toBuffer();
         mimeType = 'image/gif';
         break;
       case 'png':
-        convertedImageBuffer = await sharp(imageBuffer).png().toBuffer();
+        convertedImageBuffer = await sharp(imageBuffer).png({
+          quality: this.#handlerQuery.convertQuality || 75,
+          compressionLevel: this.#handlerQuery.zlibCompression || 6,
+          palette: this.#handlerQuery.pngPalette || false,
+          dither: this.#handlerQuery.dither || 1.0,
+          colors: this.#handlerQuery.colors || 256,
+          effort: this.#handlerQuery.effort || 7,
+          progressive: this.#handlerQuery.progressive || false,
+        }).toBuffer();
         mimeType = 'image/png';
         break;
       case 'jpeg':
       case 'jpg':
-        convertedImageBuffer = await sharp(imageBuffer).jpeg({ quality: this.#handlerQuery.convertQuality || 75, mozjpeg: true }).toBuffer();
+        convertedImageBuffer = await sharp(imageBuffer).jpeg({
+          quality: this.#handlerQuery.convertQuality || 75,
+          progressive: this.#handlerQuery.progressive || false,
+          mozjpeg: this.#handlerQuery.mozjpeg || false,
+          chromaSubsampling: this.#handlerQuery.chromaSubsampling || '4:2:0'
+        }).toBuffer();
         mimeType = 'image/jpeg';
         break;
       case 'tiff':
