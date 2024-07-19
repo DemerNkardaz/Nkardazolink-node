@@ -10,7 +10,7 @@ const crypto = require('crypto');
 const ejs = require('ejs');
 const { copyFilesAndMinify, createManifest, index, checkForIndex, buildExtensions, compileSCSS, compileJS, transferUncategorized } = require('./server.workers/server/building.files.js');
 global.__PROJECT_DIR__ = path.join(__dirname, '.');
-global.serverConfig = ini.parse(path.join(__PROJECT_DIR__, 'server.ini'));
+global.serverConfig = ini.parse('./server.ini');
 
 const runArguments = process.argv.slice(2);
 function generateToken(count, mode) {
@@ -29,7 +29,7 @@ function generateMuchTokens() {
 }
 
 const cmbScripts = {
-  'nginx-php-cgi-start': '@echo off\n' + 'cd /d C:\\nginx\n' + 'start nginx\n' + `php-cgi -b 127.0.0.1:9000 -c ${path.join(__PROJECT_DIR__, 'tools', 'php.ini')}`,
+  'nginx-php-cgi-start': '@echo off\n' + 'cd /d C:\\nginx\n' + 'start nginx\n' + `php-cgi -b 127.0.0.1:9000 -c ${path.join(serverConfig.paths.root, 'tools', 'php.ini')}`,
   'nginx-reload': '@echo off\n' + 'cd /d C:\\nginx\n' + 'nginx -s reload',
   'nginx-kill': '@echo off\n' + 'cd /d C:\\nginx\n' + 'nginx -s stop',
   'localtunnel-run': `lt --port ${serverConfig.server.HTTPPort} --subdomain ${serverConfig.server.localTunnel}`,

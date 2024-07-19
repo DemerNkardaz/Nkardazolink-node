@@ -4,7 +4,7 @@ const path = require('path');
 
 const imageRouter = express.Router();
 
-async function processImage(request, response, next, localFile = false) {
+async function processImage(request, response, next, localFile = false, cacheEnabled) {
   const isFileTypeValid = serverConfig.allowedFileTypes.images.includes(path.extname(request.path));
   if (isFileTypeValid) {
     try {
@@ -12,7 +12,8 @@ async function processImage(request, response, next, localFile = false) {
       const workerRequest = { query: request.query ?? {}, params: request.params ?? {}, url: request.url };
       const messageData = { __PROJECT_DIR__, serverConfig, workerRequest };
 
-      if (localFile) messageData.localFile = true;
+      messageData.localFile = localFile;
+      messageData.cacheEnabled = cacheEnabled ?? serverConfig.cache.enabled;
 
       worker.postMessage(messageData);
 
@@ -47,6 +48,8 @@ async function processImage(request, response, next, localFile = false) {
 }
 
 imageRouter.get('/local/images/*', async (request, response, next) => await processImage(request, response, next, true));
+imageRouter.get('/local/images/nocache/*', async (request, response, next) => await processImage(request, response, next, true, false));
 imageRouter.get('/shared/images/:imageFileName', async (request, response, next) => await processImage(request, response, next));
+imageRouter.get('/shared/images/nocache/:imageFileName', async (request, response, next) => await processImage(request, response, next, false, false));
 
 module.exports = { imageRouter };

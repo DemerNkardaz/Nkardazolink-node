@@ -37,7 +37,6 @@ class ImageCacheCleaner {
 
   }
 
-
   async #removeOutdatedCache() {
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - parseToDays(this.cacheMaxAge));
@@ -57,8 +56,6 @@ class ImageCacheCleaner {
     }
   }
 }
-
-
 
 const allowedColorSpaces = [
   'rgb',
@@ -120,10 +117,9 @@ const iccProfiles = [
 
 
 
-
 class ImageHandler {
   #handlerQuery = { cacheDirectory: path.join(__PROJECT_DIR__, 'cache/images') };
-  #localisedFileQuery = /^(File|Файл|ファイル|文件|파일|Tệp)(:|：)/i;
+  #localisedFileQuery = new RegExp(serverConfig.routes.validFilesQuery.source, serverConfig.routes.validFilesQuery.flags + "i");
 
   constructor() {
     !fs.existsSync('./cache/images') && fs.mkdirSync('./cache/images', { recursive: true });
@@ -134,12 +130,12 @@ class ImageHandler {
     this.#handlerQuery.sourcePath = sourcePath;
 
     this.#handlerQuery.imageFilePath = this.#localisedFileQuery.test(request.params[0])
-      ? request.params[0].replace(this.#localisedFileQuery, '')
-      : request.params[0];
+    ? request.params[0].replace(this.#localisedFileQuery, '')
+    : request.params[0];
     
     this.#handlerQuery.imageFileName = this.#localisedFileQuery.test(request.params.imageFileName)
-      ? request.params.imageFileName.replace(this.#localisedFileQuery, '')
-      : request.params.imageFileName || null;
+    ? request.params.imageFileName.replace(this.#localisedFileQuery, '')
+    : request.params.imageFileName || null;
     
     this.#handlerQuery.imageSizeBeforeProcessing = request.query.s ? parseInt(request.query.s) : null;
     this.#handlerQuery.imageWidthHeight = request.query.wh ? request.query.wh.split('x').map(Number) : null;
@@ -230,7 +226,8 @@ class ImageHandler {
         });
       });
     } else {
-      imagePath = path.join(this.#handlerQuery.sourcePath, this.#handlerQuery.imageFilePath);
+      imagePath = path.join(this.#handlerQuery.sourcePath, 'images', this.#handlerQuery.imageFilePath);
+      console.log(imagePath);
       try {
         const result = await this.#readAndHandleImage(imagePath);
         return result;

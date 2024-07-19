@@ -4,18 +4,19 @@ require('dotenv').config();
 require('./modules/CoreConfig/CoreConfig').config().init();
 global.__PROJECT_DIR__ = path.join(__dirname, '.');
 
-const serverINI = path.join(__PROJECT_DIR__, 'server.ini');
+const serverINI = path.join('./server.ini');
 ini.parse(serverINI, 'serverConfig');
 ini.watch(serverINI, 'serverConfig');
 require('./modules/ModuleLoader/ModuleLoader').config(serverConfig.modules.modulesFolder).init(srcMode = serverConfig.modules.useSrc);
 require('./modules/ModuleLoader/ModuleLoader').config(serverConfig.modules.extensionsFolder).init(srcMode = serverConfig.modules.useSrc);
-
+//serverConfig.paths.root
 console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Server started\x1b[39m`);
 //app.use(liveSassCompiler);
 app.use(urlSpaceToUnderscore);
 app.use(compression());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__PROJECT_DIR__, 'assets')));
+app.use(express.static(serverConfig.paths.manifest));
+app.use(express.static(serverConfig.paths.sitemaps));
 app.use(express.static(path.join(__PROJECT_DIR__, 'static/public')));
 app.use(express.static(path.join(__PROJECT_DIR__, 'static/public/styles')));
 app.use(express.static(path.join(__PROJECT_DIR__, 'static/public/script')));
@@ -265,7 +266,7 @@ app.get('/shared/models/:3dModelName', async (request, response, next) => {
     next(error);
   }
 });
-
+/*
 
 app.get('/shared/images/nocache/:imageFileName', async (request, response, next) => {
   try {
@@ -285,7 +286,7 @@ app.get('/shared/images/nocache/:imageFileName', async (request, response, next)
     console.error('Error processing image:', error);
     next(error);
   }
-});
+});*/
 
 const imageExtensions = ['jpg', 'jpeg', 'png', 'apng', 'gif', 'webp', 'ico', 'svg', 'avif', 'bmp', 'tga', 'dds', 'tiff', 'jfif'];
 const videoExtensions = ['mp4', 'mkv', 'webm', 'ogv', 'avi', 'mov', 'wmv', 'mpg', 'mpeg', 'm4v', '3gp', '3g2', 'mng', 'asf', 'asx', 'mxf', 'ts', 'flv', 'f4v', 'f4p', 'f4a', 'f4b'];
@@ -349,7 +350,7 @@ app.get('/:lang?/wiki/:fileGetter', async (request, response, next) => {
       request.params.imageFileName = fileName;
 
       const previewPageImageHandler = await new ImageHandler()
-        .queryAssing(__PROJECT_DIR__, request, serverConfig.cache.enabled, true);
+        .queryAssing(serverConfig.paths.shared, request, serverConfig.cache.enabled, true);
       const previewPageImageResult = await previewPageImageHandler.getImage(sharedAssetsDB);
 
       if (typeof previewPageImageResult === 'string') {
@@ -409,7 +410,7 @@ app.get('/:lang?/wiki/:fileGetter', async (request, response, next) => {
       const dbFileType = locale[language].FileTypes[previewPageImageResult.dataBaseInfo.FileType];
       const dbFileSource = request.params.imageFileName;
       let dbFileLink = previewPageImageResult.dataBaseInfo.FileLink;
-      dbFileLink = !dbFileLink.startsWith('https://') ? `/${dbFileLink}` : dbFileLink;
+      dbFileLink = !dbFileLink.startsWith('https://') ? `/shared/${dbFileLink}` : dbFileLink;
       result = `
           <h1 style="display: flex; justify-content: space-between;"><span>${dbTitle}</span><span>${fileArguments ? 'Сгенерировано запросом' : ''}</span></h1>
           <h2 style="display: flex; justify-content: space-between;"><span>${dbFileName}</span></h2>
@@ -606,9 +607,6 @@ app.get('/:lang?/wiki/:page/:subPage?', async (request, response, next) => {
     next(error);
   }
 });
-
-
-
 
 
 

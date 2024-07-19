@@ -3,6 +3,7 @@ const { promisify } = require('util');
 const readFile = promisify(fs.readFile);
 const chokidar = require('chokidar');
 const path = require('path');
+const root = path.join(__dirname, '..', '..', '..');
 const mathjs = require('mathjs');
 
 let isProcessing = false;
@@ -47,8 +48,7 @@ const parseLines = (data) => {
         if (value.startsWith('{regex}: ')) value = new RegExp(value.substring('{regex}: '.length));
         else if (value.startsWith('{this}')) {
           let lastPath = value.split('{this}/')[1];
-          const projectDir = path.join(__dirname, '..', '..', '..');
-          value = path.join(projectDir, lastPath);
+          value = path.join(root, lastPath);
         }
         else if (value.startsWith('{math}:')) {
           let mathString = value.split('{math}:')[1].trim();

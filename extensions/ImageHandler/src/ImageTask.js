@@ -10,11 +10,11 @@ parentPort.on('message', async (data) => {
     global.serverConfig = data.serverConfig;
 
     const sharedAssetsDB = data.localFile !== true
-      ? new sqlite3.Database(path.join(__PROJECT_DIR__, 'static/data_base/sharedAssets.db')) : null;
-    const imageRootPath = data.localFile !== true ? __PROJECT_DIR__ : path.join(__PROJECT_DIR__, 'static/public/resource/images');
-
+      ? new sqlite3.Database(path.join(serverConfig.paths.root, 'static/data_base/sharedAssets.db')) : null;
+    const imageRootPath = data.localFile !== true ? serverConfig.paths.shared : serverConfig.paths.local;
+    
     const requestedImageHandler = await new ImageHandler()
-      .queryAssing(imageRootPath, data.workerRequest, serverConfig.cache.enabled);
+      .queryAssing(imageRootPath, data.workerRequest, data.cacheEnabled);
     const requestedImageResult = await requestedImageHandler.getImage(sharedAssetsDB);
 
     if (typeof requestedImageResult === 'string') parentPort.postMessage({ error: requestedImageResult });
