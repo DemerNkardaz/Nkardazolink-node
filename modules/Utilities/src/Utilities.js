@@ -4,9 +4,9 @@ const sass = require('sass');
 
 function mergeObjects(...objects) {
   try {
-  const result = {};
-  for (const object of objects) Object.assign(result, object);
-  return result;
+    const result = {};
+    for (const object of objects) Object.assign(result, object);
+    return result;
   } catch (error) {
     console.error('Error merging objects:', error);
   }
@@ -26,22 +26,22 @@ async function varToYaml(variableName, variable) {
 }
 
 async function getLastModifiedInFolders() {
-    try {
-        const paths = ['./', './app', './static'];
-        const lastModifiedDates = await Promise.all(paths.map(async folderPath => {
-            const files = await fs.promises.readdir(folderPath);
-            const lastModifiedDates = await Promise.all(files.map(async file => {
-                const filePath = path.join(folderPath, file);
-                const stats = await fs.promises.stat(filePath);
-                return stats.mtime;
-            }));
-            return Math.max(...lastModifiedDates);
-        }));
-        return Math.max(...lastModifiedDates);
-    } catch (error) {
-        console.error('Ошибка при получении даты последнего обновления:', error);
-        throw error;
-    }
+  try {
+    const paths = ['./', './app', './static'];
+    const lastModifiedDates = await Promise.all(paths.map(async folderPath => {
+      const files = await fs.promises.readdir(folderPath);
+      const lastModifiedDates = await Promise.all(files.map(async file => {
+        const filePath = path.join(folderPath, file);
+        const stats = await fs.promises.stat(filePath);
+        return stats.mtime;
+      }));
+      return Math.max(...lastModifiedDates);
+    }));
+    return Math.max(...lastModifiedDates);
+  } catch (error) {
+    console.error('Ошибка при получении даты последнего обновления:', error);
+    throw error;
+  }
 }
 
 async function parseUrl(request) {
@@ -202,6 +202,8 @@ function setResponseHeaders(req, res, next) {
   res.setHeader('Project-name', serverConfig.server.wiki.project);
   res.setHeader('Project-core', `${serverConfig.server.wiki.core} ${serverConfig.server.wiki.version}`);
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  res.setHeader('Permissions-Policy', 'microphone=(), camera=()');
+
 
   if (!req.headers['nginx-active']) {
     res.setHeader('Project-proxy', 'Disabled');

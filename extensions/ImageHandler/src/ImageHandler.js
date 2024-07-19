@@ -58,44 +58,72 @@ class ImageCacheCleaner {
   }
 }
 
+
+
+const allowedColorSpaces = [
+  'rgb',
+  'srgb',
+  'adobergb',
+  'cmyk',
+  'xyz',
+  'lab',
+  'labs',
+  'labq',
+  'lch',
+  'cmc',
+  'b-w',
+  'hsv',
+  'scrgb',
+  'rgb16',
+  'grey16',
+  'yxy'
+];
+
+const iccProfiles = [
+  //* RGB ICC Profiles
+  ['sRGB IEC61966-2.1', 'sRGB Color Space Profile.icm'],
+  ['ProPhoto RGB', 'ProPhoto.icm'],
+  ['CIE RGB', 'CIERGB.icc'],
+  ['Adobe RGB (1998)', 'AdobeRGB1998.icc'],
+  ['Apple RGB', 'AppleRGB.icc'],
+  ['ColorMatch RGB', 'ColorMatchRGB.icc'],
+  ['Wide Gamut RGB', 'WideGamutRGB.icc'],
+    
+  ['PAL/SECAM', 'PAL_SECAM.icc'],
+  ['SMPTE-C', 'SMPTE-C.icc'],
+
+  //* CMYK ICC Profiles
+  ['Coated FOGRA27 (ISO 12647-2:2004)', 'CoatedFOGRA27.icc'],
+  ['Coated FOGRA39 (ISO 12647-2:2004)', 'CoatedFOGRA39.icc'],
+  ['Coated GRACoL 2006 (ISO 12647-2:2004)', 'CoatedGRACoL2006.icc'],
+  ['Japan Color 2001 Coated', 'JapanColor2001Coated.icc'],
+  ['Japan Color 2001 Uncoated', 'JapanColor2001Uncoated.icc'],
+  ['Japan Color 2002 Newspaper', 'JapanColor2002Newspaper.icc'],
+  ['Japan Color 2003 Web Coated', 'JapanColor2003WebCoated.icc'],
+  ['Japan Web Coated (Ad)', 'JapanWebCoated.icc'],
+  ['US Web Coated (SWOP) v2', 'USWebCoatedSWOP.icc'],
+  ['US Web Uncoated v2', 'USWebUncoated.icc'],
+  ['Uncoated FOGRA29 (ISO 12647-2:2004)', 'UncoatedFOGRA29.icc'],
+  ['Web Coated FOGRA28 (ISO 12647-2:2004)', 'WebCoatedFOGRA28.icc'],
+  ['Web Coated SWOP Grade 3 Paper', 'WebCoatedSWOP2006Grade3.icc'],
+  ['Web Coated SWOP Grade 5 Paper', 'WebCoatedSWOP2006Grade5.icc'],
+  ['Euroscale Coated', 'EuroscaleCoated.icc'],
+  ['Euroscale Uncoated', 'EuroscaleUncoated.icc'],
+  ['RSWOP', 'RSWOP.icm'],
+
+  //* Gray ICC Profiles
+  ['BW', 'BlackWhite.icc'],
+  ['sGray', 'sGray.icc'],
+
+];
+
+
+
+
+
 class ImageHandler {
   #handlerQuery = { cacheDirectory: path.join(__PROJECT_DIR__, 'cache/images') };
   #localisedFileQuery = /^(File|Файл|ファイル|文件|파일|Tệp)(:|：)/i;
-  #allowedColorSpaces = ['rgb', 'srgb', 'adobergb', 'cmyk', 'xyz', 'lab', 'labs', 'labq', 'lch', 'cmc', 'b-w', 'hsv', 'scrgb', 'rgb16', 'grey16', 'yxy'];
-  #iccProfiles = [
-    ['sRGB IEC61966-2.1', 'sRGB Color Space Profile.icm'],
-    ['ProPhoto RGB', 'ProPhoto.icm'],
-    ['CIE RGB', 'CIERGB.icc'],
-    ['Adobe RGB (1998)', 'AdobeRGB1998.icc'],
-    ['Apple RGB', 'AppleRGB.icc'],
-    ['ColorMatch RGB', 'ColorMatchRGB.icc'],
-    ['Wide Gamut RGB', 'WideGamutRGB.icc'],
-
-    ['PAL/SECAM', 'PAL_SECAM.icc'],
-    ['SMPTE-C', 'SMPTE-C.icc'],
-
-    ['Coated FOGRA27 (ISO 12647-2:2004)', 'CoatedFOGRA27.icc'],
-    ['Coated FOGRA39 (ISO 12647-2:2004)', 'CoatedFOGRA39.icc'],
-    ['Coated GRACoL 2006 (ISO 12647-2:2004)', 'CoatedGRACoL2006.icc'],
-    ['Japan Color 2001 Coated', 'JapanColor2001Coated.icc'],
-    ['Japan Color 2001 Uncoated', 'JapanColor2001Uncoated.icc'],
-    ['Japan Color 2002 Newspaper', 'JapanColor2002Newspaper.icc'],
-    ['Japan Color 2003 Web Coated', 'JapanColor2003WebCoated.icc'],
-    ['Japan Web Coated (Ad)', 'JapanWebCoated.icc'],
-    ['US Web Coated (SWOP) v2', 'USWebCoatedSWOP.icc'],
-    ['US Web Uncoated v2', 'USWebUncoated.icc'],
-    ['Uncoated FOGRA29 (ISO 12647-2:2004)', 'UncoatedFOGRA29.icc'],
-    ['Web Coated FOGRA28 (ISO 12647-2:2004)', 'WebCoatedFOGRA28.icc'],
-    ['Web Coated SWOP Grade 3 Paper', 'WebCoatedSWOP2006Grade3.icc'],
-    ['Web Coated SWOP Grade 5 Paper', 'WebCoatedSWOP2006Grade5.icc'],
-    ['CMYK (Generic)', 'CMYKGeneric.icc'],
-    ['Euroscale Coated', 'EuroscaleCoated.icc'],
-    ['Euroscale Uncoated', 'EuroscaleUncoated.icc'],
-    ['RSWOP', 'RSWOP.icm'],
-
-    ['BW', 'BlackWhite.icc'],
-  ];
-
 
   constructor() {
     !fs.existsSync('./cache/images') && fs.mkdirSync('./cache/images', { recursive: true });
@@ -142,7 +170,7 @@ class ImageHandler {
     this.#handlerQuery.imageRatioFit = request.query.ratioFit || null;
     this.#handlerQuery.imageRatioShift = request.query.ratioShift || null;
     this.#handlerQuery.imageBorderRadius = request.query.br || null;
-    this.#handlerQuery.imageColorSpace = request.query.colorSpace || null;
+    this.#handlerQuery.imageColorSpace = request.query.colorSpace ? request.query.colorSpace.toLowerCase() : null;
     this.#handlerQuery.imageICCProfile = request.query.icc || null;
 
     this.#handlerQuery.zlibCompression = parseInt(request.query.zlib) || null;
@@ -403,12 +431,11 @@ class ImageHandler {
     let processingImage = sharp(imageBuffer);
     console.log(this.#handlerQuery.imageICCProfile);
     try {
-      if (this.#allowedColorSpaces.includes(this.#handlerQuery.imageColorSpace))
-        processingImage = processingImage.toColorspace(this.#handlerQuery.imageColorSpace);
-
-      let iccProfile = this.#iccProfiles.find(profile => profile.includes(this.#handlerQuery.imageICCProfile));
+      let isValidColorSpace = this.#handlerQuery.imageColorSpace && allowedColorSpaces.map(colorSpace => colorSpace.toLowerCase()).includes(this.#handlerQuery.imageColorSpace);
+      let iccProfile = this.#handlerQuery.imageICCProfile && iccProfiles.find(iccEntry => iccEntry.map(profile => profile.toLowerCase()).includes(this.#handlerQuery.imageICCProfile.toLowerCase()));
+      
+      if (isValidColorSpace) processingImage = processingImage.toColorspace(this.#handlerQuery.imageColorSpace);      
       if (iccProfile) processingImage = processingImage.withMetadata({ icc: iccProfile[1] });
-
     } catch (err) {
       console.log('Error processing image:', err);
     } finally {
