@@ -14,6 +14,8 @@ modules/*/*
 bin/
 static/site.maps/*.xml
 static/site.maps/*.xml.gz
+assets/sitemaps/*.xml
+assets/sitemaps/*.xml.gz
 .env
 *.crt
 *.key

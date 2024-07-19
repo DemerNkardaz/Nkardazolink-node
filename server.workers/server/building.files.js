@@ -282,7 +282,7 @@ const createManifest = async (sourcePath, lang, manifest) => {
   };
 
   const translatedManifest = translate(manifest);
-  const outputPath = path.join(sourcePath, `static/public/manifest/manifest.${lang}.webmanifest`);
+  const outputPath = path.join(sourcePath, `assets/manifest/manifest.${lang}.webmanifest`);
   const minifiedManifest = JSON.stringify({ lang, ...translatedManifest }, null, 0);
   await fs.writeFile(outputPath, minifiedManifest, 'utf-8');
   console.log(`\x1b[33m[${new Date().toLocaleString().replace(',', '')}] :: 🟨 > [BUILDER] % Manifest for [${lang.toUpperCase()}] created successfully!\x1b[39m`);

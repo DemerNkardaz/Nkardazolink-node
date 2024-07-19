@@ -143,7 +143,7 @@ async function build() {
           await writeFileAsync(path.join(__PROJECT_DIR__, 'Tools', `php.ini`), phpIni, 'utf-8');
         }
         {
-          const manifestOutput = path.join(__PROJECT_DIR__, 'static/public/manifest/');
+          const manifestOutput = path.join(__PROJECT_DIR__, 'assets/manifest/');
           if (!fs.existsSync(manifestOutput)) fs.mkdirSync(manifestOutput, { recursive: true });
           const { Manifest } = require('./app/templates/manifest_template.js');
           const manifestTemplate = new Manifest();

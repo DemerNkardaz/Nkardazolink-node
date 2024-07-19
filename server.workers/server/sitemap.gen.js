@@ -7,13 +7,13 @@ const zlib = require('zlib');
 
 async function generateSiteMaps(sourcePath) {
   try {
-    if (!fs.existsSync(path.join(sourcePath, 'static/site.maps'))) {
-      fs.mkdirSync(path.join(sourcePath, 'static/site.maps'), { recursive: true });
+    if (!fs.existsSync(path.join(sourcePath, 'assets/sitemaps'))) {
+      fs.mkdirSync(path.join(sourcePath, 'assets/sitemaps'), { recursive: true });
     }
 
-    const asciiArt = await readFileAsync(path.join(sourcePath, 'static/fun_ascii.txt'), 'utf8');
+    const asciiArt = await readFileAsync(path.join(sourcePath, 'assets/fun_ascii.txt'), 'utf8');
     const content = `${asciiArt}\nUser-agent: *\nSitemap: http://${process.env.HOST}:${process.env.PORT}/sitemap.index.xml.gz\nSitemap: http://${process.env.HOST}:${process.env.PORT}/sitemap.index.xml`;
-    await fs.writeFileSync(path.join(sourcePath, 'static/site.maps/robots.txt'), content, 'utf-8');
+    await fs.writeFileSync(path.join(sourcePath, 'assets/sitemaps/robots.txt'), content, 'utf-8');
     console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Write robots.txt completed\x1b[39m`);
 
     const locations = [
@@ -80,12 +80,12 @@ async function generateSiteMaps(sourcePath) {
     });
     sitemaps.push({ url: 'sitemap.index.xml', lastmod: new Date().toISOString(), content: sitemapXMLIndex.end({ pretty: false }) });
     sitemaps.forEach(sitemap => {
-      fs.writeFileSync(path.join(sourcePath, `static/site.maps/${sitemap.url}`), sitemap.content, 'utf-8');
+      fs.writeFileSync(path.join(sourcePath, `assets/sitemaps/${sitemap.url}`), sitemap.content, 'utf-8');
       console.log(`\x1b[34m[${new Date().toLocaleString().replace(',', '')}] :: 🔵 > [SITEMAP] :: [${sitemap.url}] created\x1b[39m`);
       zlib.gzip(sitemap.content, (err, zipped) => {
         if (err) console.error(err);
         else
-          fs.writeFileSync(path.join(sourcePath, `static/site.maps/${sitemap.url}.gz`), zipped, 'binary'),
+          fs.writeFileSync(path.join(sourcePath, `assets/sitemaps/${sitemap.url}.gz`), zipped, 'binary'),
           console.log(`\x1b[34m[${new Date().toLocaleString().replace(',', '')}] :: 🔵 > [SITEMAP] :: [${sitemap.url}] compressed with GZIP\x1b[39m`);
       });
     });
