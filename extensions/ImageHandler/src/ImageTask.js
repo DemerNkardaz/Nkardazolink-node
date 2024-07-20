@@ -12,13 +12,13 @@ parentPort.on('message', async (data) => {
     const sharedAssetsDB = data.localFile !== true
       ? new sqlite3.Database(path.join(serverConfig.paths.root, 'static/data_base/sharedAssets.db')) : null;
     const imageRootPath = data.localFile !== true ? serverConfig.paths.shared : serverConfig.paths.local;
-    
+
     const requestedImageHandler = await new ImageHandler()
       .queryAssing(imageRootPath, data.workerRequest, data.cacheEnabled);
     const requestedImageResult = await requestedImageHandler.getImage(sharedAssetsDB);
 
     if (typeof requestedImageResult === 'string') parentPort.postMessage({ error: requestedImageResult });
-    else parentPort.postMessage({ mimeType: requestedImageResult.mimeType, imageBuffer: requestedImageResult.imageBuffer });
+    else parentPort.postMessage({ mimeType: requestedImageResult.mimeType, imageBuffer: requestedImageResult.imageBuffer, fileSource: requestedImageResult.dataBaseInfo?.FileLink || null });
   } catch (error) {
     parentPort.postMessage({ error: error.message });
     console.log(error);

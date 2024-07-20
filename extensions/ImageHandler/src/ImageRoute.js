@@ -24,6 +24,13 @@ async function processImage(request, response, next, localFile = false, cacheEna
           next(error);
         } else {
           const imageBuffer = Buffer.from(message.imageBuffer);
+          if (message.fileSource !== null) {
+            let encodedFileSource = message.fileSource;
+            encodedFileSource = encodedFileSource.replace(/[^a-zA-Z0-9+\/\\\.\-\:]+/g, (match) => encodeURIComponent(match));
+            
+            response.setHeader('Original-File-Source', encodedFileSource);
+
+          }
           response.contentType(message.mimeType);
           response.send(imageBuffer);
         }
