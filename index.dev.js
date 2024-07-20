@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const path = require('path');
 
 require('dotenv').config();
 require('./modules/CoreConfig/CoreConfig').config().init();
@@ -44,8 +45,6 @@ const knexDB = knex({
   useNullAsDefault: true
 });*/
 
-
-new ImageCacheCleaner(serverConfig.cache.cacheCleaningFrequency);
 
 const usersDataBase = new sqlite3.Database(path.join(__PROJECT_DIR__, 'static/data_base/users.db'));
 usersDataBase.run(`CREATE TABLE IF NOT EXISTS users (rowID INTEGER PRIMARY KEY, userID TEXT, userName TEXT, userLink TEXT, login TEXT, password TEXT, email TEXT, sessionID TEXT, settings JSON, authorize JSON)`);
@@ -452,7 +451,11 @@ app.get('/:lang?/wiki/:fileGetter', async (request, response, next) => {
 
 });
 
-app.use(imageRouter);
+if (typeof imageRouter !== 'undefined') new ImageCacheCleaner(serverConfig.cache.cacheCleaningFrequency), app.use(imageRouter);
+else {
+  app.use('/local/images', express.static(path.join(serverConfig.paths.local, 'images')));
+  app.use('/shared/images', express.static(path.join(serverConfig.paths.shared, 'images')));
+}
 
 app.post('/process-dom', (reqest, response) => {
   const { window } = new JSDOM();
