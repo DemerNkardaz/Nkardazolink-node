@@ -227,7 +227,6 @@ class ImageHandler {
       });
     } else {
       imagePath = path.join(this.#handlerQuery.sourcePath, 'images', this.#handlerQuery.imageFilePath);
-      console.log(imagePath);
       try {
         const result = await this.#readAndHandleImage(imagePath);
         return result;
@@ -354,18 +353,6 @@ class ImageHandler {
           imageBuffer = await sharp(imageBuffer).rotate(this.#handlerQuery.imageRotate, { background: this.#handlerQuery.imageRotateBackgroundColor || { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
         }
 
-        if (this.#handlerQuery.imageColorSpace || this.#handlerQuery.imageICCProfile)
-          imageBuffer = await this.#switchColorProfile(imageBuffer);
-
-        if (this.#handlerQuery.imageGamma || this.#handlerQuery.imageBrightness || this.#handlerQuery.imageSaturation || this.#handlerQuery.imageHUE) {
-          const options = {};
-          if (this.#handlerQuery.imageBrightness) options.brightness = this.#handlerQuery.imageBrightness;
-          if (this.#handlerQuery.imageSaturation) options.saturation = this.#handlerQuery.imageSaturation;
-          if (this.#handlerQuery.imageHUE) options.hue = this.#handlerQuery.imageHUE;
-
-          imageBuffer = await sharp(imageBuffer).modulate(options).gamma(this.#handlerQuery.imageGamma[0], this.#handlerQuery.imageGamma[1]).toBuffer();
-        }
-
         if (this.#handlerQuery.imageBorderRadius) {
           const borderRadiusValue = this.#handlerQuery.imageBorderRadius.trim();
           let radiusInPixels;
@@ -406,6 +393,20 @@ class ImageHandler {
           imageBuffer = await this.#applyRatio(imageBuffer);
         }
 
+        if (this.#handlerQuery.imageColorSpace || this.#handlerQuery.imageICCProfile)
+          imageBuffer = await this.#switchColorProfile(imageBuffer);
+
+        if (this.#handlerQuery.imageGamma || this.#handlerQuery.imageBrightness || this.#handlerQuery.imageSaturation || this.#handlerQuery.imageHUE) {
+          const options = {};
+          if (this.#handlerQuery.imageBrightness) options.brightness = this.#handlerQuery.imageBrightness;
+          if (this.#handlerQuery.imageSaturation) options.saturation = this.#handlerQuery.imageSaturation;
+          if (this.#handlerQuery.imageHUE) options.hue = this.#handlerQuery.imageHUE;
+
+          imageBuffer = sharp(imageBuffer).modulate(options);
+          this.#handlerQuery.imageGamma && (imageBuffer = imageBuffer.gamma(this.#handlerQuery.imageGamma[0], this.#handlerQuery.imageGamma[1]));
+
+          imageBuffer = await imageBuffer.toBuffer();
+        }
 
         if (this.#handlerQuery.staticURL.includes('?') && imageBuffer.length <= serverConfig.cache.maxCachedImageSize) {
           const cachedName = `${this.#handlerQuery.cacheKeyImageRequest}-${this.#generateCacheKey(mimeType.slice(6))}`;
@@ -426,7 +427,6 @@ class ImageHandler {
 
   async #switchColorProfile(imageBuffer) {
     let processingImage = sharp(imageBuffer);
-    console.log(this.#handlerQuery.imageICCProfile);
     try {
       let isValidColorSpace = this.#handlerQuery.imageColorSpace && allowedColorSpaces.map(colorSpace => colorSpace.toLowerCase()).includes(this.#handlerQuery.imageColorSpace);
       let iccProfile = this.#handlerQuery.imageICCProfile && iccProfiles.find(iccEntry => iccEntry.map(profile => profile.toLowerCase()).includes(this.#handlerQuery.imageICCProfile.toLowerCase()));

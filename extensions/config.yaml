@@ -1,4 +1,5 @@
 Extensions:
   # Disabling the “Image Handler” extension will turn off image processing features and gives static access to the shared/local images folders.
   # External images url-sources, which are stored in the Data Base cannot be used like as “/shared/images/imageName.ext” with disabled extension.
+  # Keep the filenames in the Data Base and in the assets folder identical to avoid any errors.
   ImageHandler: enabled
