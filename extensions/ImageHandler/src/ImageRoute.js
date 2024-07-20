@@ -20,10 +20,11 @@ async function processImage(request, response, next, localFile = false, cacheEna
       worker.on('message', (message) => {
         if (message.error) {
           const error = new Error(message.error);
-          error.status = 404;
+          //error.status = 404;
+          console.log(error);
           next(error);
         } else {
-          const imageBuffer = Buffer.from(message.imageBuffer);
+          const imageInstance = Buffer.from(message.imageInstance);
           if (message.fileSource !== null) {
             let encodedFileSource = message.fileSource;
             encodedFileSource = encodedFileSource.replace(/[^a-zA-Z0-9+\/\\\.\-\:]+/g, (match) => encodeURIComponent(match));
@@ -32,7 +33,7 @@ async function processImage(request, response, next, localFile = false, cacheEna
 
           }
           response.contentType(message.mimeType);
-          response.send(imageBuffer);
+          response.send(imageInstance);
         }
       });
 

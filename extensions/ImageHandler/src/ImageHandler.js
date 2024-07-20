@@ -120,12 +120,14 @@ const iccProfiles = [
 class ImageHandler {
   #handlerQuery = { cacheDirectory: path.join(__PROJECT_DIR__, 'cache/images') };
   #localisedFileQuery = new RegExp(serverConfig.routes.validFilesQuery.source, serverConfig.routes.validFilesQuery.flags + "i");
+  #isHasQuery = false;
 
   constructor() {
     !fs.existsSync('./cache/images') && fs.mkdirSync('./cache/images', { recursive: true });
   }
 
   async queryAssing(sourcePath, request, enableCache = true, getImageInfoOnly = false) {
+    this.#isHasQuery = Object.keys(request.query).length > 0;
     this.#handlerQuery.isGetImageInfoOnly = getImageInfoOnly;
     this.#handlerQuery.sourcePath = sourcePath;
 
@@ -226,8 +228,9 @@ class ImageHandler {
         });
       });
     } else {
-      imagePath = path.join(this.#handlerQuery.sourcePath, 'images', this.#handlerQuery.imageFilePath);
+      imagePath = path.join(this.#handlerQuery.sourcePath, 'images', this.#handlerQuery.imageFilePath.replace('nocache/', ''));
       try {
+        console.log(imagePath);
         const result = await this.#readAndHandleImage(imagePath);
         return result;
       } catch (error) {
@@ -238,11 +241,11 @@ class ImageHandler {
 
 
   async #readAndHandleImage(imagePath, dataBaseInfo = null) {
-    let imageBuffer;
+    let imageInstance;
     let remoteMetaData = null;
 
     try {
-      if (!imagePath.startsWith('https://')) imageBuffer = await fsPromises.readFile(imagePath);
+      if (!imagePath.startsWith('https://')) imageInstance = await fsPromises.readFile(imagePath);
       else {
         const remoteMeta = await axios.head(imagePath);
 
@@ -258,7 +261,7 @@ class ImageHandler {
         Object.assign(remoteMetaData, metaData);
 
         //!console.log(JSON.stringify(remoteMetaData));
-        imageBuffer = Buffer.from(remoteImage.data);
+        imageInstance = Buffer.from(remoteImage.data);
       }
     } catch (err) {
       if (err.code === 'ENOENT') {
@@ -276,7 +279,7 @@ class ImageHandler {
         //console.info(`Line of cached, loaded from cache: ${imagePath}`);
         if (this.#handlerQuery.isGetImageInfoOnly === true) return { dataBaseInfo: dataBaseInfo || null, cached: true, remoteMetaData: remoteMetaData || null, fileInfo: isCacheExists.fileInfo };
         
-        return { mimeType: isCacheExists.mimeType || 'application/octet-stream', imageBuffer: isCacheExists.imageBuffer, dataBaseInfo: dataBaseInfo || null, cached: true, fileInfo: isCacheExists.fileInfo || null, remoteMetaData: remoteMetaData || null };
+        return { mimeType: isCacheExists.mimeType || 'application/octet-stream', imageInstance: isCacheExists.imageInstance, dataBaseInfo: dataBaseInfo || null, cached: true, fileInfo: isCacheExists.fileInfo || null, remoteMetaData: remoteMetaData || null };
       } catch (error) {
         return `Error: ${error.message}`;
       }
@@ -284,73 +287,138 @@ class ImageHandler {
     //if (!/\.\w+$/.test(this.staticUrl)) console.info(`Line of generated, new genearion of cache: ${imagePath}`);
           
     try {
-      if (this.#handlerQuery.watermark && this.#handlerQuery.isPlaceWatermarkAfterProcessing !== true && this.#handlerQuery.watermarkPosition) imageBuffer = await this.#setWatermark(imageBuffer);
-
       let mimeType = mime.lookup(imagePath) || 'application/octet-stream';
+      if (!mimeType.startsWith('image/')) return `File Not Image: ${imagePath}. Mime type <i>${mimeType}</i> is incorrect.`;
+      if (this.#isHasQuery) {
+        console.log('Testing of single buffer');
+        imageInstance = mimeType !== 'image/svg+xml' ? sharp(imageInstance) : imageInstance;
+        
+        let svgScales;
+
+
+        {
+          if (mimeType !== 'image/svg+xml') {
+
+          } else {
+            imageInstance = Buffer.from(await this.#rescaleSVG(imageInstance, this.#handlerQuery.imageSizeBeforeProcessing), 'utf8');
+            svgScales = await this.#checkSVGScale(imageInstance);
+            imageInstance = sharp(imageInstance);
+          }
+        }
+        { //? Image Conversion
+          if (this.#handlerQuery.convetToFromat) {
+            if (mimeType === 'image/svg+xml' && (svgScales['width'] > 2048 || svgScales['height'] > 2048)) {
+              imageInstance = Buffer.from(await this.#rescaleSVG(imageInstance, 2048), 'utf8');
+            }
+
+            const getConverted = await this.#convertImage(imageInstance);
+            imageInstance = getConverted.convertedimageInstance;
+            mimeType = getConverted.mimeType;
+          }
+        }
+        {
+          const isQueryColorTransform = this.#handlerQuery.imageGamma || this.#handlerQuery.imageBrightness || this.#handlerQuery.imageSaturation || this.#handlerQuery.imageHUE;
+          const isQueryColorSpace = this.#handlerQuery.imageColorSpace || this.#handlerQuery.imageICCProfile;
+
+
+          if (this.#handlerQuery.imagePaddingPercent > 0) imageInstance = await this.#applyPadding(imageInstance);
+
+
+          if (this.#handlerQuery.imageRatio) imageInstance = await this.#applyRatio(imageInstance);
+          
+          if (isQueryColorTransform) {
+            const options = {};
+            if (this.#handlerQuery.imageBrightness) options.brightness = this.#handlerQuery.imageBrightness;
+            if (this.#handlerQuery.imageSaturation) options.saturation = this.#handlerQuery.imageSaturation;
+            if (this.#handlerQuery.imageHUE) options.hue = this.#handlerQuery.imageHUE;
+
+            imageInstance = imageInstance.modulate(options);
+            this.#handlerQuery.imageGamma &&
+              (imageInstance = imageInstance.gamma(this.#handlerQuery.imageGamma[0], this.#handlerQuery.imageGamma[1]));
+          }
+
+          if (isQueryColorSpace) imageInstance = await this.#switchColorProfile(imageInstance);
+        }
+
+        
+
+        const fileInfo = await imageInstance.metadata();
+        imageInstance = await imageInstance.toBuffer();
+
+        const isValidForCache = this.#handlerQuery.staticURL.includes('?') && imageInstance.length <= serverConfig.cache.maxCachedImageSize;
+
+        if (isValidForCache) {
+          const cachedName = `${this.#handlerQuery.cacheKeyImageRequest}-${this.#generateCacheKey(mimeType.slice(6))}`;
+          this.#handlerQuery.cacheEnabled === true && await this.#saveToCache(imageInstance, cachedName);
+        }
+
+        return { imageInstance, mimeType, dataBaseInfo, fileInfo, remoteMetaData };
+      }
+      if (this.#handlerQuery.watermark && this.#handlerQuery.isPlaceWatermarkAfterProcessing !== true && this.#handlerQuery.watermarkPosition)
+        imageInstance = await this.#setWatermark(imageInstance);
+
       let svgScales;
 
       if (mimeType.startsWith('image/')) {
         let metadata;
 
         if (mimeType !== 'image/svg+xml') {
-          metadata = await sharp(imageBuffer).metadata();
+          metadata = await sharp(imageInstance).metadata();
 
           if (this.#handlerQuery.imageSizeBeforeProcessing) {
             const maxDimension = Math.max(metadata.width, metadata.height);
             const finalSize = this.#handlerQuery.imageSizeBeforeProcessing ? Math.min(this.#handlerQuery.imageSizeBeforeProcessing, maxDimension) : null;
 
             if (finalSize && finalSize < maxDimension) {
-              imageBuffer = await sharp(imageBuffer).resize(finalSize, finalSize, { withoutEnlargement: true, fit: this.#handlerQuery.imageFit || 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
+              imageInstance = await sharp(imageInstance).resize(finalSize, finalSize, { withoutEnlargement: true, fit: this.#handlerQuery.imageFit || 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
             }
           } else if (this.#handlerQuery.imageWidthHeight) {
             const maxWidth = Math.min(this.#handlerQuery.imageWidthHeight[0], metadata.width);
             const maxHeight = Math.min(this.#handlerQuery.imageWidthHeight[1], metadata.height);
 
-            imageBuffer = await sharp(imageBuffer).resize(maxWidth, maxHeight, { withoutEnlargement: true, fit: this.#handlerQuery.imageFit || 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
+            imageInstance = await sharp(imageInstance).resize(maxWidth, maxHeight, { withoutEnlargement: true, fit: this.#handlerQuery.imageFit || 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
           }
           if (this.#handlerQuery.imageRotate) {
-            imageBuffer = await sharp(imageBuffer).rotate(this.#handlerQuery.imageRotate, { background: this.#handlerQuery.imageRotateBackgroundColor || { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
+            imageInstance = await sharp(imageInstance).rotate(this.#handlerQuery.imageRotate, { background: this.#handlerQuery.imageRotateBackgroundColor || { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
           }
         } else {
-          imageBuffer = Buffer.from(await this.#rescaleSVG(imageBuffer, this.#handlerQuery.imageSizeBeforeProcessing), 'utf8');
-          svgScales = await this.#checkSVGScale(imageBuffer);
+          imageInstance = Buffer.from(await this.#rescaleSVG(imageInstance, this.#handlerQuery.imageSizeBeforeProcessing), 'utf8');
+          svgScales = await this.#checkSVGScale(imageInstance);
         }
 
         if (this.#handlerQuery.convetToFromat) {
           if (mimeType === 'image/svg+xml' && (svgScales['width'] > 2048 || svgScales['height'] > 2048)) {
-            imageBuffer = Buffer.from(await this.#rescaleSVG(imageBuffer, 2048), 'utf8');
+            imageInstance = Buffer.from(await this.#rescaleSVG(imageInstance, 2048), 'utf8');
           }
 
-          const getConverted = await this.#convertImage(imageBuffer);
-          imageBuffer = getConverted.convertedImageBuffer;
+          const getConverted = await this.#convertImage(imageInstance);
+          imageInstance = getConverted.convertedimageInstance;
           mimeType = getConverted.mimeType;
         }
 
-        if (this.#handlerQuery.imagePaddingPercent > 0) {
-          imageBuffer = await this.#applyPadding(imageBuffer);
-        }
+        if (this.#handlerQuery.imagePaddingPercent > 0) imageInstance = await this.#applyPadding(imageInstance);
 
         if (this.#handlerQuery.imageSizeAfterProcessing) {
           if (!isNaN(this.resolution) && this.resolution > 0) {
-            imageBuffer = await sharp(imageBuffer).resize(this.#handlerQuery.imageSizeAfterProcessing, this.#handlerQuery.imageSizeAfterProcessing, { withoutEnlargement: true,  fit: 'inside' }).toBuffer();
+            imageInstance = await sharp(imageInstance).resize(this.#handlerQuery.imageSizeAfterProcessing, this.#handlerQuery.imageSizeAfterProcessing, { withoutEnlargement: true,  fit: 'inside' }).toBuffer();
           }
         }
         
-        if (this.#handlerQuery.watermark && this.#handlerQuery.isPlaceWatermarkAfterProcessing === true && this.#handlerQuery.watermarkPosition) imageBuffer = await this.#setWatermark(imageBuffer);
+        if (this.#handlerQuery.watermark && this.#handlerQuery.isPlaceWatermarkAfterProcessing === true && this.#handlerQuery.watermarkPosition) imageInstance = await this.#setWatermark(imageInstance);
 
         if (this.#handlerQuery.imageBackgroundColor) {
           if (mimeType !== 'image/svg+xml') {
-            const afterScaleMeta = await sharp(imageBuffer).metadata();
+            const afterScaleMeta = await sharp(imageInstance).metadata();
             let backgroundImage = await sharp({ create: { width: afterScaleMeta.width, height: afterScaleMeta.height, channels: 4, background: this.#handlerQuery.imageBackgroundColor } }).webp().toBuffer();
 
-            imageBuffer = await sharp(backgroundImage).composite([{ input: imageBuffer }]).toBuffer();
+            imageInstance = await sharp(backgroundImage).composite([{ input: imageInstance }]).toBuffer();
           } else {
-            imageBuffer = Buffer.from(await this.#createSVGBackground(imageBuffer, this.#handlerQuery.imageBackgroundColor), 'utf8');
+            imageInstance = Buffer.from(await this.#createSVGBackground(imageInstance, this.#handlerQuery.imageBackgroundColor), 'utf8');
           }
         }
 
         if (this.#handlerQuery.isImageRotateAfterProcessing) {
-          imageBuffer = await sharp(imageBuffer).rotate(this.#handlerQuery.imageRotate, { background: this.#handlerQuery.imageRotateBackgroundColor || { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
+          imageInstance = await sharp(imageInstance).rotate(this.#handlerQuery.imageRotate, { background: this.#handlerQuery.imageRotateBackgroundColor || { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
         }
 
         if (this.#handlerQuery.imageBorderRadius) {
@@ -361,14 +429,14 @@ class ImageHandler {
             radiusInPixels = parseInt(borderRadiusValue.slice(0, -2), 10);
           } else if (borderRadiusValue.endsWith('perc')) {
             const radiusPercent = parseFloat(borderRadiusValue.slice(0, -4));
-            const metadata = await sharp(imageBuffer).metadata();
+            const metadata = await sharp(imageInstance).metadata();
             const minDimension = Math.min(metadata.width, metadata.height);
             radiusInPixels = Math.floor((radiusPercent / 100) * minDimension);
           } else {
             throw new Error(`Invalid borderRadius value: ${this.#handlerQuery.imageBorderRadius}`);
           }
 
-          const metadata = await sharp(imageBuffer).metadata();
+          const metadata = await sharp(imageInstance).metadata();
           const { width, height } = metadata;
 
           const svgMask = `
@@ -380,7 +448,7 @@ class ImageHandler {
           const maskBuffer = Buffer.from(svgMask);
 
 
-          imageBuffer = await sharp(imageBuffer)
+          imageInstance = await sharp(imageInstance)
             .composite([{
               input: maskBuffer,
               blend: 'dest-in'
@@ -390,11 +458,11 @@ class ImageHandler {
         }
 
         if (this.#handlerQuery.imageRatio) {
-          imageBuffer = await this.#applyRatio(imageBuffer);
+          imageInstance = await this.#applyRatio(imageInstance);
         }
 
         if (this.#handlerQuery.imageColorSpace || this.#handlerQuery.imageICCProfile)
-          imageBuffer = await this.#switchColorProfile(imageBuffer);
+          imageInstance = await this.#switchColorProfile(imageInstance);
 
         if (this.#handlerQuery.imageGamma || this.#handlerQuery.imageBrightness || this.#handlerQuery.imageSaturation || this.#handlerQuery.imageHUE) {
           const options = {};
@@ -402,21 +470,21 @@ class ImageHandler {
           if (this.#handlerQuery.imageSaturation) options.saturation = this.#handlerQuery.imageSaturation;
           if (this.#handlerQuery.imageHUE) options.hue = this.#handlerQuery.imageHUE;
 
-          imageBuffer = sharp(imageBuffer).modulate(options);
-          this.#handlerQuery.imageGamma && (imageBuffer = imageBuffer.gamma(this.#handlerQuery.imageGamma[0], this.#handlerQuery.imageGamma[1]));
+          imageInstance = sharp(imageInstance).modulate(options);
+          this.#handlerQuery.imageGamma && (imageInstance = imageInstance.gamma(this.#handlerQuery.imageGamma[0], this.#handlerQuery.imageGamma[1]));
 
-          imageBuffer = await imageBuffer.toBuffer();
+          imageInstance = await imageInstance.toBuffer();
         }
 
-        if (this.#handlerQuery.staticURL.includes('?') && imageBuffer.length <= serverConfig.cache.maxCachedImageSize) {
+        if (this.#handlerQuery.staticURL.includes('?') && imageInstance.length <= serverConfig.cache.maxCachedImageSize) {
           const cachedName = `${this.#handlerQuery.cacheKeyImageRequest}-${this.#generateCacheKey(mimeType.slice(6))}`;
-          this.#handlerQuery.cacheEnabled === true && await this.#saveToCache(imageBuffer, cachedName);
+          this.#handlerQuery.cacheEnabled === true && await this.#saveToCache(imageInstance, cachedName);
         }
 
-        const fileInfo = await sharp(imageBuffer).metadata();
-        fileInfo.icc && delete fileInfo.icc;
+        const fileInfo = await sharp(imageInstance).metadata();
+        //fileInfo.icc && delete fileInfo.icc;
 
-        return { imageBuffer, mimeType, dataBaseInfo, fileInfo, remoteMetaData };
+        return { imageInstance, mimeType, dataBaseInfo, fileInfo, remoteMetaData };
       } else {
         return `File is not an image: ${imagePath}`;
       }
@@ -425,8 +493,8 @@ class ImageHandler {
     }
   }
 
-  async #switchColorProfile(imageBuffer) {
-    let processingImage = sharp(imageBuffer);
+  async #switchColorProfile(imageInstance) {
+    let processingImage = imageInstance;
     try {
       let isValidColorSpace = this.#handlerQuery.imageColorSpace && allowedColorSpaces.map(colorSpace => colorSpace.toLowerCase()).includes(this.#handlerQuery.imageColorSpace);
       let iccProfile = this.#handlerQuery.imageICCProfile && iccProfiles.find(iccEntry => iccEntry.map(profile => profile.toLowerCase()).includes(this.#handlerQuery.imageICCProfile.toLowerCase()));
@@ -436,11 +504,11 @@ class ImageHandler {
     } catch (err) {
       console.log('Error processing image:', err);
     } finally {
-      return await processingImage.toBuffer();
+      return await processingImage;
     }
   }
 
-  async #setWatermark(imageBuffer) {
+  async #setWatermark(imageInstance) {
     let watermak = await fsPromises.readFile(path.join(this.#handlerQuery.sourcePath, `static/public/resource/images/${this.#handlerQuery.watermark}.svg`));
     let gravity;
 
@@ -471,9 +539,9 @@ class ImageHandler {
     }
         
     watermak = await sharp(watermak).toFormat('png').resize((this.#handlerQuery.watermarkScale * 100) || null, (this.#handlerQuery.watermarkScale * 100) || null, { fit: 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
-    imageBuffer = await sharp(imageBuffer).composite([{ input: watermak, gravity: gravity, blend: 'overlay' }]).toBuffer();
+    imageInstance = await sharp(imageInstance).composite([{ input: watermak, gravity: gravity, blend: 'overlay' }]).toBuffer();
 
-    return imageBuffer;
+    return imageInstance;
   }
 
   async #checkCache() {
@@ -505,7 +573,7 @@ class ImageHandler {
                 await fsPromises.utimes(filePath, now, now);
               }, 1000);
 
-              return { imageBuffer: cachedBuffer, mimeType, fileInfo, TEST: 'SDASFASFASF' };
+              return { imageInstance: cachedBuffer, mimeType, fileInfo, TEST: 'SDASFASFASF' };
             } catch (error) {
               console.error(`Ошибка чтения кеш-файла: ${error.message}`);
               return null;
@@ -518,11 +586,12 @@ class ImageHandler {
     return null;
   }
   
-  async #saveToCache(imageBuffer, cachadName) {
-    const cachePath = path.join(this.#handlerQuery.cacheDirectory, cachadName);
+  async #saveToCache(imageInstance, cachedName) {
+    const cachePath = path.join(this.#handlerQuery.cacheDirectory, cachedName);
 
     try {
-      await fsPromises.writeFile(cachePath, imageBuffer);
+      console.log('Saving to cache...');
+      await fsPromises.writeFile(cachePath, imageInstance);
       await this.#manageCacheSize();
     } catch (err) {
       console.error('Error saving to cache:', err);
@@ -561,12 +630,12 @@ class ImageHandler {
     }
   }
 
-  async #convertImage(imageBuffer) {
-    let convertedImageBuffer, mimeType;
+  async #convertImage(imageInstance) {
+    let convertedimageInstance, mimeType;
 
     switch (this.#handlerQuery.convetToFromat.toLowerCase()) {
       case 'webp':
-        convertedImageBuffer = await sharp(imageBuffer).webp({
+        convertedimageInstance = imageInstance.webp({
           quality: this.#handlerQuery.convertQuality || 75,
           alphaQuality: this.#handlerQuery.convertAlphaQuality || 100,
           effort: this.#handlerQuery.effort || 4,
@@ -574,30 +643,30 @@ class ImageHandler {
           nearLossless: this.#handlerQuery.nearLossless || false,
           smartSubsample: this.#handlerQuery.smartSubsample || false,
           preset: this.#handlerQuery.preset || 'default',
-        }).toBuffer();
+        });
         mimeType = 'image/webp';
         break;
       case 'avif':
-        convertedImageBuffer = await sharp(imageBuffer).avif({
+        convertedimageInstance = imageInstance.avif({
           quality: this.#handlerQuery.convertQuality || 75,
           lossless: this.#handlerQuery.lossless || false,
           effort: this.#handlerQuery.effort || 4,
           chromaSubsampling: this.#handlerQuery.chromaSubsampling || '4:4:4',
           bitdepth: this.#handlerQuery.bitdepth || 8
-        }).toBuffer();
+        });
         mimeType = 'image/avif';
         break;
       case 'gif':
-        convertedImageBuffer = await sharp(imageBuffer).gif({
+        convertedimageInstance = imageInstance.gif({
           dither: this.#handlerQuery.dither || 1.0,
           colors: this.#handlerQuery.colors || 256,
           effort: this.#handlerQuery.effort || 7,
           progressive: this.#handlerQuery.progressive || false
-        }).toBuffer();
+        });
         mimeType = 'image/gif';
         break;
       case 'png':
-        convertedImageBuffer = await sharp(imageBuffer).png({
+        convertedimageInstance = imageInstance.png({
           quality: this.#handlerQuery.convertQuality || 75,
           compressionLevel: this.#handlerQuery.zlibCompression || 6,
           palette: this.#handlerQuery.pngPalette || false,
@@ -605,21 +674,21 @@ class ImageHandler {
           colors: this.#handlerQuery.colors || 256,
           effort: this.#handlerQuery.effort || 7,
           progressive: this.#handlerQuery.progressive || false,
-        }).toBuffer();
+        });
         mimeType = 'image/png';
         break;
       case 'jpeg':
       case 'jpg':
-        convertedImageBuffer = await sharp(imageBuffer).jpeg({
+        convertedimageInstance = imageInstance.jpeg({
           quality: this.#handlerQuery.convertQuality || 75,
           progressive: this.#handlerQuery.progressive || false,
           mozjpeg: this.#handlerQuery.mozjpeg || false,
           chromaSubsampling: this.#handlerQuery.chromaSubsampling || '4:2:0'
-        }).toBuffer();
+        });
         mimeType = 'image/jpeg';
         break;
       case 'tiff':
-        convertedImageBuffer = await sharp(imageBuffer).tiff({ quality: this.#handlerQuery.convertQuality || 75 }).toBuffer();
+        convertedimageInstance = imageInstance.tiff({ quality: this.#handlerQuery.convertQuality || 75 });
         mimeType = 'image/tiff';
         break;
         
@@ -627,11 +696,11 @@ class ImageHandler {
         return `Unsupported format: ${this.#handlerQuery.convetToFromat}`;
     }
 
-    return { convertedImageBuffer, mimeType };
+    return { convertedimageInstance, mimeType };
   }
 
-  async #checkSVGScale(imageBuffer) {
-    const svgString = await imageBuffer.toString('utf-8');
+  async #checkSVGScale(imageInstance) {
+    const svgString = await imageInstance.toString('utf-8');
     const domParser = new DOMParser();
     const doc = domParser.parseFromString(svgString, 'image/svg+xml');
     const svgElement = doc.documentElement;
@@ -650,11 +719,11 @@ class ImageHandler {
     }
   }
 
-  async #rescaleSVG(imageBuffer, size) {
-  const svgString = await imageBuffer.toString('utf-8');
-  const domParser = new DOMParser();
-  const doc = domParser.parseFromString(svgString, 'image/svg+xml');
-  const svgElement = doc.documentElement;
+  async #rescaleSVG(imageInstance, size) {
+    const svgString = await imageInstance.toString('utf-8');
+    const domParser = new DOMParser();
+    const doc = domParser.parseFromString(svgString, 'image/svg+xml');
+    const svgElement = doc.documentElement;
 
     if (size) {
       const width = svgElement.getAttribute('width');
@@ -691,12 +760,12 @@ class ImageHandler {
 
       return xmlSerializer.serializeToString(svgElement);
     } else {
-      return imageBuffer;
+      return imageInstance;
     }
   }
 
-  async #createSVGBackground(imageBuffer, backgroundColor) {
-    const svgString = imageBuffer.toString('utf-8');
+  async #createSVGBackground(imageInstance, backgroundColor) {
+    const svgString = imageInstance.toString('utf-8');
   
     const domParser = new DOMParser();
     const doc = domParser.parseFromString(svgString, 'image/svg+xml');
@@ -719,8 +788,8 @@ class ImageHandler {
   }
 
 
-  async #applyPadding(imageBuffer, ) {
-    const image = sharp(imageBuffer);
+  async #applyPadding(imageInstance, ) {
+    const image = imageInstance;
     const metadata = await image.metadata();
   
     const originalWidth = metadata.width;
@@ -742,7 +811,7 @@ class ImageHandler {
       newHeight = minHeight;
     }
 
-    const resizedImageBuffer = await sharp(imageBuffer)
+    const resizedimageInstance = imageInstance
       .resize(newWidth, newHeight, { withoutEnlargement: true })
       .extend({
         top: paddingSize,
@@ -750,17 +819,16 @@ class ImageHandler {
         left: paddingSize,
         right: paddingSize,
         background: this.#handlerQuery.imagePaddingBackgroundColor || { r: 0, g: 0, b: 0, alpha: 0 }
-      })
-      .toBuffer();
+      });
 
-    return resizedImageBuffer;
+    return resizedimageInstance;
   }
 
-  async #applyRatio(imageBuffer) {
+  async #applyRatio(imageInstance) {
     const [ratioWidth, ratioHeight] = this.#handlerQuery.imageRatio.split(':').map(Number);
-    if (!ratioWidth || !ratioHeight) return imageBuffer;
+    if (!ratioWidth || !ratioHeight) return imageInstance;
 
-    const image = sharp(imageBuffer);
+    const image = imageInstance;
     const metadata = await image.metadata();
     const originalWidth = metadata.width;
     const originalHeight = metadata.height;
@@ -787,14 +855,12 @@ class ImageHandler {
         newHeight = Math.round(originalWidth / targetRatio);
       }
     } else {
-      return imageBuffer;
+      return imageInstance;
     }
 
-    const resizedImageBuffer = await sharp(imageBuffer)
-      .resize(newWidth, newHeight, { fit: 'cover', position: 'center' })
-      .toBuffer();
+    const resizedImageInstance = imageInstance.resize(newWidth, newHeight, { fit: 'cover', position: 'center' });
 
-    return resizedImageBuffer;
+    return resizedImageInstance;
   }
 }
 

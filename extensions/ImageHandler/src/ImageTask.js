@@ -18,7 +18,7 @@ parentPort.on('message', async (data) => {
     const requestedImageResult = await requestedImageHandler.getImage(sharedAssetsDB);
 
     if (typeof requestedImageResult === 'string') parentPort.postMessage({ error: requestedImageResult });
-    else parentPort.postMessage({ mimeType: requestedImageResult.mimeType, imageBuffer: requestedImageResult.imageBuffer, fileSource: requestedImageResult.dataBaseInfo?.FileLink || null });
+    else parentPort.postMessage({ mimeType: requestedImageResult.mimeType, imageInstance: requestedImageResult.imageInstance, fileSource: requestedImageResult.dataBaseInfo?.FileLink || null });
   } catch (error) {
     parentPort.postMessage({ error: error.message });
     console.log(error);
