@@ -15,6 +15,7 @@ parentPort.on('message', async (data) => {
 
     const requestedImageHandler = await new ImageHandler()
       .queryAssing(imageRootPath, data.workerRequest, data.cacheEnabled);
+    console.log(data.cacheEnabled);
     const requestedImageResult = await requestedImageHandler.getImage(sharedAssetsDB);
 
     if (typeof requestedImageResult === 'string') parentPort.postMessage({ error: requestedImageResult });

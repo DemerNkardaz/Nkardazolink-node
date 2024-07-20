@@ -7,6 +7,7 @@ const imageRouter = express.Router();
 async function processImage(request, response, next, localFile = false, cacheEnabled) {
   const isFileTypeValid = serverConfig.allowedFileTypes.images.includes(path.extname(request.path));
   if (isFileTypeValid) {
+    console.log(request.params);
     try {
       const worker = new Worker(path.resolve(__dirname, './ImageTask.js'));
       const workerRequest = { query: request.query ?? {}, params: request.params ?? {}, url: request.url };

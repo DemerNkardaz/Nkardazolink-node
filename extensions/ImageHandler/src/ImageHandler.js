@@ -293,18 +293,34 @@ class ImageHandler {
         console.log('Testing of single buffer');
         imageInstance = mimeType !== 'image/svg+xml' ? sharp(imageInstance) : imageInstance;
         
-        let svgScales;
+        let svgScales, metadata;
 
+        
+        if (mimeType !== 'image/svg+xml') {
+          metadata = await imageInstance.metadata();
 
-        {
-          if (mimeType !== 'image/svg+xml') {
+          if (this.#handlerQuery.imageSizeBeforeProcessing) {
+            const maxDimension = Math.max(metadata.width, metadata.height);
+            const finalSize = this.#handlerQuery.imageSizeBeforeProcessing ? Math.min(this.#handlerQuery.imageSizeBeforeProcessing, maxDimension) : null;
 
-          } else {
-            imageInstance = Buffer.from(await this.#rescaleSVG(imageInstance, this.#handlerQuery.imageSizeBeforeProcessing), 'utf8');
-            svgScales = await this.#checkSVGScale(imageInstance);
-            imageInstance = sharp(imageInstance);
+            if (finalSize && finalSize < maxDimension) {
+              imageInstance = imageInstance.resize(finalSize, finalSize, { withoutEnlargement: true, fit: this.#handlerQuery.imageFit || 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } });
+            }
+          } else if (this.#handlerQuery.imageWidthHeight) {
+            const maxWidth = Math.min(this.#handlerQuery.imageWidthHeight[0], metadata.width);
+            const maxHeight = Math.min(this.#handlerQuery.imageWidthHeight[1], metadata.height);
+
+            imageInstance = imageInstance.resize(maxWidth, maxHeight, { withoutEnlargement: true, fit: this.#handlerQuery.imageFit || 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } });
           }
+          if (this.#handlerQuery.imageRotate) {
+            imageInstance = imageInstance.rotate(this.#handlerQuery.imageRotate, { background: this.#handlerQuery.imageRotateBackgroundColor || { r: 0, g: 0, b: 0, alpha: 0 } });
+          }
+        } else {
+          imageInstance = Buffer.from(await this.#rescaleSVG(imageInstance, this.#handlerQuery.imageSizeBeforeProcessing), 'utf8');
+          svgScales = await this.#checkSVGScale(imageInstance);
+          imageInstance = sharp(imageInstance);
         }
+        
         { //? Image Conversion
           if (this.#handlerQuery.convetToFromat) {
             if (mimeType === 'image/svg+xml' && (svgScales['width'] > 2048 || svgScales['height'] > 2048)) {
@@ -323,6 +339,15 @@ class ImageHandler {
 
           if (this.#handlerQuery.imagePaddingPercent > 0) imageInstance = await this.#applyPadding(imageInstance);
 
+
+          if (this.#handlerQuery.imageSizeAfterProcessing) {
+            if (!isNaN(this.resolution) && this.resolution > 0) {
+              imageInstance = imageInstance.resize(this.#handlerQuery.imageSizeAfterProcessing, this.#handlerQuery.imageSizeAfterProcessing, { withoutEnlargement: true, fit: 'inside' });
+            }
+          }
+          if (this.#handlerQuery.isImageRotateAfterProcessing) {
+            imageInstance = imageInstance.rotate(this.#handlerQuery.imageRotate, { background: this.#handlerQuery.imageRotateBackgroundColor || { r: 0, g: 0, b: 0, alpha: 0 } });
+          }
 
           if (this.#handlerQuery.imageRatio) imageInstance = await this.#applyRatio(imageInstance);
           
@@ -357,46 +382,9 @@ class ImageHandler {
       if (this.#handlerQuery.watermark && this.#handlerQuery.isPlaceWatermarkAfterProcessing !== true && this.#handlerQuery.watermarkPosition)
         imageInstance = await this.#setWatermark(imageInstance);
 
-      let svgScales;
 
       if (mimeType.startsWith('image/')) {
-        let metadata;
 
-        if (mimeType !== 'image/svg+xml') {
-          metadata = await sharp(imageInstance).metadata();
-
-          if (this.#handlerQuery.imageSizeBeforeProcessing) {
-            const maxDimension = Math.max(metadata.width, metadata.height);
-            const finalSize = this.#handlerQuery.imageSizeBeforeProcessing ? Math.min(this.#handlerQuery.imageSizeBeforeProcessing, maxDimension) : null;
-
-            if (finalSize && finalSize < maxDimension) {
-              imageInstance = await sharp(imageInstance).resize(finalSize, finalSize, { withoutEnlargement: true, fit: this.#handlerQuery.imageFit || 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
-            }
-          } else if (this.#handlerQuery.imageWidthHeight) {
-            const maxWidth = Math.min(this.#handlerQuery.imageWidthHeight[0], metadata.width);
-            const maxHeight = Math.min(this.#handlerQuery.imageWidthHeight[1], metadata.height);
-
-            imageInstance = await sharp(imageInstance).resize(maxWidth, maxHeight, { withoutEnlargement: true, fit: this.#handlerQuery.imageFit || 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
-          }
-          if (this.#handlerQuery.imageRotate) {
-            imageInstance = await sharp(imageInstance).rotate(this.#handlerQuery.imageRotate, { background: this.#handlerQuery.imageRotateBackgroundColor || { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
-          }
-        } else {
-          imageInstance = Buffer.from(await this.#rescaleSVG(imageInstance, this.#handlerQuery.imageSizeBeforeProcessing), 'utf8');
-          svgScales = await this.#checkSVGScale(imageInstance);
-        }
-
-        if (this.#handlerQuery.convetToFromat) {
-          if (mimeType === 'image/svg+xml' && (svgScales['width'] > 2048 || svgScales['height'] > 2048)) {
-            imageInstance = Buffer.from(await this.#rescaleSVG(imageInstance, 2048), 'utf8');
-          }
-
-          const getConverted = await this.#convertImage(imageInstance);
-          imageInstance = getConverted.convertedimageInstance;
-          mimeType = getConverted.mimeType;
-        }
-
-        if (this.#handlerQuery.imagePaddingPercent > 0) imageInstance = await this.#applyPadding(imageInstance);
 
         if (this.#handlerQuery.imageSizeAfterProcessing) {
           if (!isNaN(this.resolution) && this.resolution > 0) {
