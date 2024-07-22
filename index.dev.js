@@ -5,11 +5,17 @@ require('dotenv').config();
 require('./modules/CoreConfig/CoreConfig').config().init();
 global.__PROJECT_DIR__ = path.join(__dirname, '.');
 
-const serverINI = path.join('./server.ini');
-ini.parse(serverINI, 'serverConfig');
-ini.watch(serverINI, 'serverConfig');
+ini.parse('./server.ini', 'serverConfig');
+ini.watch('./server.ini', 'serverConfig');
 require('./modules/ModuleLoader/ModuleLoader').config(serverConfig.modules.modulesFolder).init(srcMode = serverConfig.modules.useSrc);
 require('./modules/ModuleLoader/ModuleLoader').config(serverConfig.modules.extensionsFolder).init(srcMode = serverConfig.modules.useSrc);
+
+if (serverConfig.cache.enabled) {
+  Object.keys(serverConfig.paths)
+    .filter(key => key.startsWith('cache') && !fs.existsSync(serverConfig.paths[key]))
+    .forEach(key => fs.mkdirSync(serverConfig.paths[key], { recursive: true }));
+}
+
 //serverConfig.paths.root
 console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Server started\x1b[39m`);
 //app.use(liveSassCompiler);
@@ -289,7 +295,7 @@ const fontExtensions = ['ttf', 'otf', 'woff', 'woff2'];
 const docExtensions = ['pdf', 'doc', 'docx', 'odt', 'rtf', 'txt', 'csv', 'xls', 'xlsx', 'ppt', 'pptx'];
 const dataExtensions = ['xml', 'html', 'xhtml', 'yaml', 'yml', 'json', 'ejs', 'pug', 'jade', 'csv'];
 
-console.log(serverConfig);
+//console.log(serverConfig);
 
 const queriesType = {
   s: `<tr><td><p>s</p>размер</td><td>Изменяет размер изображения на основе одного значения</td><tr>`,
