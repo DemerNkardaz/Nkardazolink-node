@@ -1,14 +1,20 @@
 const crypto = require('crypto');
 const path = require('path');
+const { config: moduleConfig } = require('./modules/ModuleLoader/ModuleLoader');
 
 require('dotenv').config();
 require('./modules/CoreConfig/CoreConfig').config().init();
 global.__PROJECT_DIR__ = path.join(__dirname, '.');
 
-ini.parse('./server.ini', 'serverConfig');
-ini.watch('./server.ini', 'serverConfig');
-require('./modules/ModuleLoader/ModuleLoader').config(serverConfig.modules.modulesFolder).init(srcMode = serverConfig.modules.useSrc);
-require('./modules/ModuleLoader/ModuleLoader').config(serverConfig.modules.extensionsFolder).init(srcMode = serverConfig.modules.useSrc);
+[
+  { iniFile: './server.ini', iniVariable: 'serverConfig' }
+].map(({ iniFile, iniVariable }) => { ini.parse(iniFile, iniVariable); ini.watch(iniFile, iniVariable) });
+
+[
+  serverConfig.modules.modulesFolder,
+  serverConfig.modules.extensionsFolder
+].map(modulePath => { moduleConfig(modulePath).init(srcMode = serverConfig.modules.useSrc) });
+
 
 if (serverConfig.cache.enabled) {
   Object.keys(serverConfig.paths)
