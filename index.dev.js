@@ -21,7 +21,7 @@ if (serverConfig.cache.enabled) {
     .filter(key => key.startsWith('cache') && !fs.existsSync(serverConfig.paths[key]))
     .forEach(key => fs.mkdirSync(serverConfig.paths[key], { recursive: true }));
 }
-
+//test
 //serverConfig.paths.root
 console.log(`\x1b[35m[${new Date().toLocaleString().replace(',', '')}] :: 🟪 > [SERVER] :: Server started\x1b[39m`);
 //app.use(liveSassCompiler);
